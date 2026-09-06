@@ -7,7 +7,7 @@
     @apply scroll-smooth;
   }
   body {
-    @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 font-sans antialiased;
+    @apply bg-ink-50 text-ink-900 dark:bg-ink-950 dark:text-ink-100 font-sans antialiased;
   }
 }
 
@@ -16,25 +16,31 @@
     @apply inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap;
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700 shadow-sm px-4 py-2.5;
+    @apply btn bg-brand-600 text-white hover:bg-brand-700 shadow-sm hover:shadow-card-hover px-4 py-2.5;
   }
   .btn-secondary {
-    @apply btn bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-800 dark:hover:bg-gray-800 px-4 py-2.5;
+    @apply btn bg-white text-ink-700 border border-ink-200 hover:bg-ink-50 dark:bg-ink-900 dark:text-ink-200 dark:border-ink-800 dark:hover:bg-ink-800 px-4 py-2.5;
   }
   .btn-ghost {
-    @apply btn text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 px-3 py-2;
+    @apply btn text-ink-600 hover:bg-ink-100 dark:text-ink-300 dark:hover:bg-ink-800 px-3 py-2;
   }
   .btn-danger {
     @apply btn bg-red-600 text-white hover:bg-red-700 px-4 py-2.5;
   }
+  .btn-gold {
+    @apply btn bg-gold-400 text-ink-950 hover:bg-gold-500 shadow-sm hover:shadow-gold-glow px-4 py-2.5;
+  }
   .card {
-    @apply bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-card;
+    @apply bg-white dark:bg-ink-900 rounded-2xl border border-ink-100 dark:border-ink-800 shadow-card;
+  }
+  .card-interactive {
+    @apply card transition-shadow duration-200 hover:shadow-card-hover;
   }
   .input {
-    @apply w-full rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-3.5 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition;
+    @apply w-full rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 px-3.5 py-2.5 text-sm placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition;
   }
   .label {
-    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5;
+    @apply block text-sm font-medium text-ink-700 dark:text-ink-300 mb-1.5;
   }
   .badge {
     @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;

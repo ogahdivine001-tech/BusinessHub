@@ -27,7 +27,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-ink-50 dark:bg-ink-950 px-4">
       <div className="w-full max-w-sm">
         <div className="flex justify-center mb-8"><Logo size="lg" /></div>
         <div className="card p-7">
@@ -42,7 +42,7 @@ export default function ResetPassword() {
               {loading ? 'Resetting…' : 'Reset password'}
             </button>
           </form>
-          <p className="text-center text-sm text-gray-500 mt-6">
+          <p className="text-center text-sm text-ink-500 mt-6">
             <Link to="/login" className="text-brand-600 font-medium hover:underline">Back to login</Link>
           </p>
         </div>

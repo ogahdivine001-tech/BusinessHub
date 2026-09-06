@@ -151,7 +151,7 @@ export default function Products() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div>
           <h1 className="text-2xl font-bold">Products</h1>
-          <p className="text-gray-500 text-sm mt-1">Manage what you sell.</p>
+          <p className="text-ink-500 text-sm mt-1">Manage what you sell.</p>
         </div>
         <button onClick={openCreate} disabled={atProductLimit} className="btn-primary" title={atProductLimit ? 'Product limit reached for your plan' : undefined}>
           <Plus size={18} /> Add Product
@@ -166,7 +166,7 @@ export default function Products() {
 
       <div className="mb-4 flex flex-col sm:flex-row gap-3">
         <div className="relative max-w-sm flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
           <input className="input pl-9" placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <Select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }} className="sm:w-56">
@@ -187,12 +187,12 @@ export default function Products() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {products.map((p) => (
-              <div key={p._id} className="rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-                <div className="h-32 bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative">
+              <div key={p._id} className="rounded-xl border border-ink-100 dark:border-ink-800 overflow-hidden">
+                <div className="h-32 bg-ink-100 dark:bg-ink-800 flex items-center justify-center relative">
                   {p.images?.[0]?.url ? (
                     <img src={p.images[0].url} alt={p.name} className="w-full h-full object-cover" />
                   ) : (
-                    <ImageIcon size={28} className="text-gray-300" />
+                    <ImageIcon size={28} className="text-ink-300" />
                   )}
                   {p.discount > 0 && (
                     <span className="absolute top-2 left-2 badge bg-red-600 text-white">-{p.discount}%</span>
@@ -205,16 +205,16 @@ export default function Products() {
                       {p.stockQuantity === 0 ? 'Out of stock' : p.isAvailable ? 'Available' : 'Hidden'}
                     </Badge>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">{p.description}</p>
+                  <p className="text-xs text-ink-500 mt-1 line-clamp-2">{p.description}</p>
                   <div className="flex items-center justify-between mt-3">
                     <span className="flex items-baseline gap-1.5">
                       <span className="font-semibold">₦{(p.finalPrice ?? p.price).toLocaleString()}</span>
                       {p.discount > 0 && (
-                        <span className="text-xs text-gray-400 line-through">₦{p.price.toLocaleString()}</span>
+                        <span className="text-xs text-ink-400 line-through">₦{p.price.toLocaleString()}</span>
                       )}
                     </span>
                     <div className="flex gap-1.5">
-                      <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500">
+                      <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500">
                         <Pencil size={14} />
                       </button>
                       <button onClick={() => setDeleteTarget(p)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500">
@@ -236,7 +236,7 @@ export default function Products() {
             <label className="label">Photos</label>
             <div className="flex flex-wrap gap-3">
               {images.map((img, i) => (
-                <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 group">
+                <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-ink-200 dark:border-ink-800 group">
                   <img src={typeof img === 'string' ? img : img.url} className="w-full h-full object-cover" alt="" />
                   <button type="button" onClick={() => removeImage(i)}
                     className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition-opacity">
@@ -245,14 +245,14 @@ export default function Products() {
                 </div>
               ))}
               {images.length < 5 && (
-                <label className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 flex items-center justify-center cursor-pointer text-gray-400 hover:border-brand-400 hover:text-brand-500 text-xs text-center px-1">
+                <label className="w-20 h-20 rounded-xl border-2 border-dashed border-ink-200 dark:border-ink-800 flex items-center justify-center cursor-pointer text-ink-400 hover:border-brand-400 hover:text-brand-500 text-xs text-center px-1">
                   {uploading ? 'Uploading…' : '+ Add photo'}
                   <input type="file" accept="image/*" multiple className="hidden"
                     onChange={(e) => e.target.files?.length && addImageFiles(e.target.files)} />
                 </label>
               )}
             </div>
-            <p className="text-xs text-gray-400 mt-1.5">Up to 5 photos. Requires Cloudinary to be configured on the server — see server/.env.</p>
+            <p className="text-xs text-ink-400 mt-1.5">Up to 5 photos. Requires Cloudinary to be configured on the server — see server/.env.</p>
           </div>
           <Input label="Product name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           <Textarea label="Description" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />

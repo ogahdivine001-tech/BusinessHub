@@ -21,7 +21,7 @@ export default function AdminSubscriptions() {
           <div className="overflow-x-auto -mx-5">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-500 border-b border-gray-100 dark:border-gray-800">
+                <tr className="text-left text-ink-500 border-b border-ink-100 dark:border-ink-800">
                   <th className="px-5 py-2 font-medium">Business</th>
                   <th className="px-5 py-2 font-medium">Plan</th>
                   <th className="px-5 py-2 font-medium">Status</th>
@@ -30,11 +30,11 @@ export default function AdminSubscriptions() {
               </thead>
               <tbody>
                 {subs.map((s) => (
-                  <tr key={s._id} className="border-b border-gray-50 dark:border-gray-800/50 last:border-0">
+                  <tr key={s._id} className="border-b border-ink-50 dark:border-ink-800/50 last:border-0">
                     <td className="px-5 py-3 font-medium">{s.business?.name}</td>
                     <td className="px-5 py-3 capitalize">{s.plan}</td>
                     <td className="px-5 py-3"><Badge color={s.status === 'active' ? 'green' : 'red'}>{s.status}</Badge></td>
-                    <td className="px-5 py-3 text-gray-500">{s.currentPeriodEnd ? new Date(s.currentPeriodEnd).toLocaleDateString() : '—'}</td>
+                    <td className="px-5 py-3 text-ink-500">{s.currentPeriodEnd ? new Date(s.currentPeriodEnd).toLocaleDateString() : '—'}</td>
                   </tr>
                 ))}
               </tbody>

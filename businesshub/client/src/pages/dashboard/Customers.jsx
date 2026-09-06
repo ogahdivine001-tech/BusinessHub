@@ -121,7 +121,7 @@ export default function Customers() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold">Customers</h1>
-          <p className="text-gray-500 text-sm mt-1">Know who's buying from you.</p>
+          <p className="text-ink-500 text-sm mt-1">Know who's buying from you.</p>
         </div>
         <div className="flex gap-2">
           <button onClick={exportCsv} disabled={exporting} className="btn-secondary">
@@ -132,7 +132,7 @@ export default function Customers() {
       </div>
 
       <div className="mb-4 relative max-w-sm">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
         <input className="input pl-9" placeholder="Search customers..." value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
 
@@ -147,7 +147,7 @@ export default function Customers() {
           <div className="overflow-x-auto -mx-5">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-500 border-b border-gray-100 dark:border-gray-800">
+                <tr className="text-left text-ink-500 border-b border-ink-100 dark:border-ink-800">
                   <th className="px-5 py-2 font-medium">Name</th>
                   <th className="px-5 py-2 font-medium">Phone</th>
                   <th className="px-5 py-2 font-medium">Orders</th>
@@ -157,16 +157,16 @@ export default function Customers() {
               </thead>
               <tbody>
                 {customers.map((c) => (
-                  <tr key={c._id} className="border-b border-gray-50 dark:border-gray-800/50 last:border-0">
+                  <tr key={c._id} className="border-b border-ink-50 dark:border-ink-800/50 last:border-0">
                     <td className="px-5 py-3 font-medium">
                       <Link to={`/dashboard/customers/${c._id}`} className="hover:text-brand-600 hover:underline">{c.name}</Link>
                     </td>
-                    <td className="px-5 py-3 text-gray-500">{c.phone || '—'}</td>
+                    <td className="px-5 py-3 text-ink-500">{c.phone || '—'}</td>
                     <td className="px-5 py-3">{c.totalOrders}</td>
                     <td className="px-5 py-3">₦{c.totalSpent.toLocaleString()}</td>
                     <td className="px-5 py-3">
                       <div className="flex justify-end gap-1.5">
-                        <button onClick={() => openEdit(c)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500"><Pencil size={14} /></button>
+                        <button onClick={() => openEdit(c)} className="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500"><Pencil size={14} /></button>
                         <button onClick={() => setDeleteTarget(c)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"><Trash2 size={14} /></button>
                       </div>
                     </td>

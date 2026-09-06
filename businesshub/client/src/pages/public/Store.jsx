@@ -104,22 +104,22 @@ export default function Store() {
   const { business, products } = data;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-ink-50 dark:bg-ink-950">
       <div className="h-40 sm:h-56 bg-gradient-to-br from-brand-500 to-brand-700 relative">
         {business.coverImage?.url && <img src={business.coverImage.url} className="w-full h-full object-cover" alt="" />}
       </div>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <div className="flex items-end gap-4 -mt-10">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white dark:bg-gray-900 border-4 border-white dark:border-gray-950 shadow-md flex items-center justify-center overflow-hidden shrink-0">
-            {business.logo?.url ? <img src={business.logo.url} className="w-full h-full object-cover" alt={business.name} /> : <StoreIcon size={28} className="text-gray-300" />}
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white dark:bg-ink-900 border-4 border-white dark:border-ink-950 shadow-md flex items-center justify-center overflow-hidden shrink-0">
+            {business.logo?.url ? <img src={business.logo.url} className="w-full h-full object-cover" alt={business.name} /> : <StoreIcon size={28} className="text-ink-300" />}
           </div>
         </div>
 
         <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">{business.name}</h1>
-            <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-gray-500">
+            <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-ink-500">
               <Badge color="brand">{business.category}</Badge>
               {business.location?.city && <span className="flex items-center gap-1"><MapPin size={13} /> {business.location.city}, {business.location.state}</span>}
             </div>
@@ -131,9 +131,9 @@ export default function Store() {
           </div>
         </div>
 
-        {business.description && <p className="text-gray-600 dark:text-gray-400 mt-4 max-w-2xl">{business.description}</p>}
+        {business.description && <p className="text-ink-600 dark:text-ink-400 mt-4 max-w-2xl">{business.description}</p>}
 
-        <div className="flex flex-wrap gap-4 mt-4 text-sm text-gray-500">
+        <div className="flex flex-wrap gap-4 mt-4 text-sm text-ink-500">
           {business.phone && <span className="flex items-center gap-1.5"><Phone size={14} /> {business.phone}</span>}
           {business.email && <span className="flex items-center gap-1.5"><Mail size={14} /> {business.email}</span>}
         </div>
@@ -142,25 +142,25 @@ export default function Store() {
           <div className="flex flex-wrap gap-3 mt-4">
             {business.socials.instagram && (
               <a href={normalizeUrl(business.socials.instagram)} target="_blank" rel="noreferrer noopener"
-                className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
+                className="w-9 h-9 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center text-ink-600 dark:text-ink-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
                 <Instagram size={16} />
               </a>
             )}
             {business.socials.facebook && (
               <a href={normalizeUrl(business.socials.facebook)} target="_blank" rel="noreferrer noopener"
-                className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
+                className="w-9 h-9 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center text-ink-600 dark:text-ink-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
                 <Facebook size={16} />
               </a>
             )}
             {business.socials.twitter && (
               <a href={normalizeUrl(business.socials.twitter)} target="_blank" rel="noreferrer noopener"
-                className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
+                className="w-9 h-9 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center text-ink-600 dark:text-ink-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
                 <Twitter size={16} />
               </a>
             )}
             {business.socials.website && (
               <a href={normalizeUrl(business.socials.website)} target="_blank" rel="noreferrer noopener"
-                className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
+                className="w-9 h-9 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center text-ink-600 dark:text-ink-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
                 <Globe size={16} />
               </a>
             )}
@@ -168,12 +168,12 @@ export default function Store() {
         )}
 
         {business.businessHours?.some((h) => h.open || h.close) && (
-          <div className="mt-4 flex items-start gap-2 text-sm text-gray-500">
+          <div className="mt-4 flex items-start gap-2 text-sm text-ink-500">
             <Clock size={14} className="mt-0.5 shrink-0" />
             <div className="flex flex-wrap gap-x-4 gap-y-1">
               {business.businessHours.map((h) => (
                 <span key={h.day}>
-                  <span className="font-medium text-gray-600 dark:text-gray-300">{h.day}: </span>
+                  <span className="font-medium text-ink-600 dark:text-ink-300">{h.day}: </span>
                   {h.closed ? 'Closed' : `${h.open || '—'} – ${h.close || '—'}`}
                 </span>
               ))}
@@ -189,20 +189,20 @@ export default function Store() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {products.map((p) => (
                 <div key={p._id} className="card overflow-hidden">
-                  <div className="h-32 sm:h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative">
-                    {p.images?.[0]?.url ? <img src={p.images[0].url} className="w-full h-full object-cover" alt={p.name} /> : <ImageIcon size={24} className="text-gray-300" />}
+                  <div className="h-32 sm:h-40 bg-ink-100 dark:bg-ink-800 flex items-center justify-center relative">
+                    {p.images?.[0]?.url ? <img src={p.images[0].url} className="w-full h-full object-cover" alt={p.name} /> : <ImageIcon size={24} className="text-ink-300" />}
                     {p.discount > 0 && (
                       <span className="absolute top-2 left-2 badge bg-red-600 text-white">-{p.discount}%</span>
                     )}
                   </div>
                   <div className="p-3">
                     <h3 className="text-sm font-medium line-clamp-1">{p.name}</h3>
-                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{p.description}</p>
+                    <p className="text-xs text-ink-500 mt-0.5 line-clamp-2">{p.description}</p>
                     <div className="flex items-center justify-between mt-2">
                       <span className="flex items-baseline gap-1.5">
                         <span className="font-semibold text-sm">₦{(p.finalPrice ?? p.price).toLocaleString()}</span>
                         {p.discount > 0 && (
-                          <span className="text-xs text-gray-400 line-through">₦{p.price.toLocaleString()}</span>
+                          <span className="text-xs text-ink-400 line-through">₦{p.price.toLocaleString()}</span>
                         )}
                       </span>
                       {p.stockQuantity === 0 ? (
@@ -231,7 +231,7 @@ export default function Store() {
           dashboard BEFORE handing the customer off to WhatsApp. */}
       <Modal open={!!orderProduct} onClose={() => setOrderProduct(null)} title={`Order: ${orderProduct?.name || ''}`} size="sm">
         <form onSubmit={submitOrder} className="space-y-4">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-ink-500">
             We'll note your order and open WhatsApp so you can confirm details with {business.name}.
           </p>
           <Input
@@ -254,17 +254,17 @@ export default function Store() {
             <div className="flex items-center gap-3">
               <button type="button"
                 onClick={() => setOrderForm((f) => ({ ...f, quantity: Math.max(1, f.quantity - 1) }))}
-                className="w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-800 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800">
+                className="w-9 h-9 rounded-lg border border-ink-200 dark:border-ink-800 flex items-center justify-center hover:bg-ink-50 dark:hover:bg-ink-800">
                 <Minus size={14} />
               </button>
               <span className="w-8 text-center font-medium">{orderForm.quantity}</span>
               <button type="button"
                 onClick={() => setOrderForm((f) => ({ ...f, quantity: Math.min(20, f.quantity + 1) }))}
-                className="w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-800 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800">
+                className="w-9 h-9 rounded-lg border border-ink-200 dark:border-ink-800 flex items-center justify-center hover:bg-ink-50 dark:hover:bg-ink-800">
                 <Plus size={14} />
               </button>
               {orderProduct && (
-                <span className="text-sm text-gray-500 ml-auto">
+                <span className="text-sm text-ink-500 ml-auto">
                   Total: ₦{((orderProduct.finalPrice ?? orderProduct.price) * orderForm.quantity).toLocaleString()}
                 </span>
               )}
@@ -280,7 +280,7 @@ export default function Store() {
       </Modal>
 
       {!business.hideBranding && (
-        <footer className="text-center py-6 text-xs text-gray-400">
+        <footer className="text-center py-6 text-xs text-ink-400">
           Powered by <a href="/" className="font-medium text-brand-600">BusinessHub</a>
         </footer>
       )}

@@ -42,7 +42,7 @@ export default function SubscriptionCallback() {
           <>
             <LoadingSpinner size={32} className="mx-auto" />
             <h1 className="text-lg font-semibold mt-4">Confirming your payment…</h1>
-            <p className="text-sm text-gray-500 mt-1">This only takes a moment. Please don't close this page.</p>
+            <p className="text-sm text-ink-500 mt-1">This only takes a moment. Please don't close this page.</p>
           </>
         )}
         {status === 'success' && (
@@ -51,7 +51,7 @@ export default function SubscriptionCallback() {
               <CheckCircle2 size={28} className="text-green-600" />
             </div>
             <h1 className="text-lg font-semibold">Payment successful</h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-ink-500 mt-1">
               Your business is now on the <span className="font-medium capitalize">{plan}</span> plan.
             </p>
             <Link to="/dashboard/settings" className="btn-primary w-full mt-6">Back to Settings</Link>
@@ -63,7 +63,7 @@ export default function SubscriptionCallback() {
               <XCircle size={28} className="text-red-600" />
             </div>
             <h1 className="text-lg font-semibold">We couldn't confirm this payment</h1>
-            <p className="text-sm text-gray-500 mt-1">{error || 'Please try again or contact support if you were charged.'}</p>
+            <p className="text-sm text-ink-500 mt-1">{error || 'Please try again or contact support if you were charged.'}</p>
             <Link to="/dashboard/settings" className="btn-secondary w-full mt-6">Back to Settings</Link>
           </>
         )}

@@ -42,7 +42,7 @@ export default function AdminUsers() {
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Users</h1>
       <div className="mb-4 relative max-w-sm">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
         <input className="input pl-9" placeholder="Search users..." value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
       <Card className="p-5">
@@ -50,7 +50,7 @@ export default function AdminUsers() {
           <div className="overflow-x-auto -mx-5">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-500 border-b border-gray-100 dark:border-gray-800">
+                <tr className="text-left text-ink-500 border-b border-ink-100 dark:border-ink-800">
                   <th className="px-5 py-2 font-medium">Name</th>
                   <th className="px-5 py-2 font-medium">Email</th>
                   <th className="px-5 py-2 font-medium">Role</th>
@@ -60,9 +60,9 @@ export default function AdminUsers() {
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <tr key={u._id} className="border-b border-gray-50 dark:border-gray-800/50 last:border-0">
+                  <tr key={u._id} className="border-b border-ink-50 dark:border-ink-800/50 last:border-0">
                     <td className="px-5 py-3 font-medium">{u.fullName}</td>
-                    <td className="px-5 py-3 text-gray-500">{u.email}</td>
+                    <td className="px-5 py-3 text-ink-500">{u.email}</td>
                     <td className="px-5 py-3 capitalize">{u.role}</td>
                     <td className="px-5 py-3"><Badge color={u.isActive ? 'green' : 'red'}>{u.isActive ? 'Active' : 'Deactivated'}</Badge></td>
                     <td className="px-5 py-3 text-right">

@@ -32,7 +32,7 @@ const FAQS = [
 function FaqItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-b border-gray-100 dark:border-gray-800 last:border-0">
+    <div className="border-b border-ink-100 dark:border-ink-800 last:border-0">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between py-3 text-left"
@@ -40,11 +40,11 @@ function FaqItem({ q, a }) {
         <span className="text-sm font-medium pr-4">{q}</span>
         <ChevronDown
           size={16}
-          className={`shrink-0 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`shrink-0 text-ink-400 transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && (
-        <p className="text-sm text-gray-500 dark:text-gray-400 pb-3 pr-6">
+        <p className="text-sm text-ink-500 dark:text-ink-400 pb-3 pr-6">
           {a}
         </p>
       )}
@@ -56,7 +56,7 @@ export default function HelpModal({ open, onClose }) {
   return (
     <Modal open={open} onClose={onClose} title="Help & Support" size="md">
       <div className="mb-5">
-        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+        <p className="text-sm text-ink-500 dark:text-ink-400 flex items-center gap-2">
           <HelpCircle size={15} className="text-brand-600 shrink-0" />
           Quick answers to common questions. Can't find what you need? Reach us
           directly below.

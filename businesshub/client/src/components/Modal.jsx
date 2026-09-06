@@ -20,9 +20,9 @@ export default function Modal({ open, onClose, title, children, size = 'md' }) {
             exit={{ opacity: 0, scale: 0.96, y: 10 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 rounded-t-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-ink-100 dark:border-ink-800 sticky top-0 bg-white dark:bg-ink-900 rounded-t-2xl">
               <h3 className="text-base font-semibold">{title}</h3>
-              <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+              <button onClick={onClose} className="text-ink-400 hover:text-ink-600">
                 <X size={18} />
               </button>
             </div>

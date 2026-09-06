@@ -47,7 +47,7 @@ export default function Analytics() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold">Analytics</h1>
-          <p className="text-gray-500 text-sm mt-1">Understand how your business is performing.</p>
+          <p className="text-ink-500 text-sm mt-1">Understand how your business is performing.</p>
         </div>
         <Select value={range} onChange={(e) => setRange(e.target.value)} className="w-48">
           {RANGES.map((r) => {
@@ -111,13 +111,13 @@ export default function Analytics() {
           <Card className="p-5">
             <h3 className="font-semibold mb-4">Best-selling products</h3>
             {bestSellers.length === 0 ? (
-              <p className="text-sm text-gray-500">No sales data yet.</p>
+              <p className="text-sm text-ink-500">No sales data yet.</p>
             ) : (
               <div className="space-y-3">
                 {bestSellers.map((p, i) => (
                   <div key={p._id} className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-3"><span className="text-gray-400 w-4">{i + 1}</span>{p.name}</span>
-                    <span className="text-gray-500">{p.quantitySold} sold · ₦{p.revenue.toLocaleString()}</span>
+                    <span className="flex items-center gap-3"><span className="text-ink-400 w-4">{i + 1}</span>{p.name}</span>
+                    <span className="text-ink-500">{p.quantitySold} sold · ₦{p.revenue.toLocaleString()}</span>
                   </div>
                 ))}
               </div>

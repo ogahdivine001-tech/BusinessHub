@@ -75,7 +75,7 @@ export default function CustomerProfile() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
-      <Link to="/dashboard/customers" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 mb-5">
+      <Link to="/dashboard/customers" className="inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-800 dark:hover:text-ink-200 mb-5">
         <ArrowLeft size={15} /> Back to customers
       </Link>
 
@@ -86,7 +86,7 @@ export default function CustomerProfile() {
           </div>
           <div>
             <h1 className="text-2xl font-bold">{customer.name}</h1>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-gray-500">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-ink-500">
               {customer.phone && <span className="flex items-center gap-1.5"><Phone size={13} /> {customer.phone}</span>}
               {customer.email && <span className="flex items-center gap-1.5"><Mail size={13} /> {customer.email}</span>}
               {customer.address && <span className="flex items-center gap-1.5"><MapPin size={13} /> {customer.address}</span>}
@@ -97,22 +97,22 @@ export default function CustomerProfile() {
       </div>
 
       {customer.notes && (
-        <Card className="p-4 mb-6 text-sm text-gray-600 dark:text-gray-300 bg-amber-50/50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/30">
+        <Card className="p-4 mb-6 text-sm text-ink-600 dark:text-ink-300 bg-amber-50/50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/30">
           <span className="font-medium">Notes: </span>{customer.notes}
         </Card>
       )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
         <Card className="p-4">
-          <div className="flex items-center gap-2 text-gray-500 text-xs mb-1"><Hash size={13} /> Total orders</div>
+          <div className="flex items-center gap-2 text-ink-500 text-xs mb-1"><Hash size={13} /> Total orders</div>
           <p className="text-xl font-bold">{customer.totalOrders}</p>
         </Card>
         <Card className="p-4">
-          <div className="flex items-center gap-2 text-gray-500 text-xs mb-1"><Wallet size={13} /> Total spent</div>
+          <div className="flex items-center gap-2 text-ink-500 text-xs mb-1"><Wallet size={13} /> Total spent</div>
           <p className="text-xl font-bold">₦{customer.totalSpent.toLocaleString()}</p>
         </Card>
         <Card className="p-4 col-span-2 sm:col-span-1">
-          <div className="flex items-center gap-2 text-gray-500 text-xs mb-1"><ShoppingBag size={13} /> Customer since</div>
+          <div className="flex items-center gap-2 text-ink-500 text-xs mb-1"><ShoppingBag size={13} /> Customer since</div>
           <p className="text-xl font-bold">{new Date(customer.createdAt).toLocaleDateString()}</p>
         </Card>
       </div>
@@ -125,7 +125,7 @@ export default function CustomerProfile() {
           <div className="overflow-x-auto -mx-5">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-500 border-b border-gray-100 dark:border-gray-800">
+                <tr className="text-left text-ink-500 border-b border-ink-100 dark:border-ink-800">
                   <th className="px-5 py-2 font-medium">Order ID</th>
                   <th className="px-5 py-2 font-medium">Items</th>
                   <th className="px-5 py-2 font-medium">Amount</th>
@@ -135,12 +135,12 @@ export default function CustomerProfile() {
               </thead>
               <tbody>
                 {orders.map((o) => (
-                  <tr key={o._id} className="border-b border-gray-50 dark:border-gray-800/50 last:border-0">
-                    <td className="px-5 py-3 text-gray-500">{o.orderNumber}</td>
+                  <tr key={o._id} className="border-b border-ink-50 dark:border-ink-800/50 last:border-0">
+                    <td className="px-5 py-3 text-ink-500">{o.orderNumber}</td>
                     <td className="px-5 py-3">{o.items.map((it) => it.name).join(', ')}</td>
                     <td className="px-5 py-3 font-medium">₦{o.total.toLocaleString()}</td>
                     <td className="px-5 py-3"><Badge color={STATUS_COLORS[o.status]}>{o.status}</Badge></td>
-                    <td className="px-5 py-3 text-gray-500">{new Date(o.createdAt).toLocaleDateString()}</td>
+                    <td className="px-5 py-3 text-ink-500">{new Date(o.createdAt).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>

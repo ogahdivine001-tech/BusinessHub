@@ -41,7 +41,7 @@ function SidebarContent({ onNavigate }) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-5 py-5 border-b border-gray-100 dark:border-gray-800">
+      <div className="px-5 py-5 border-b border-ink-100 dark:border-ink-800">
         <Logo to="/dashboard" />
       </div>
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
@@ -55,7 +55,7 @@ function SidebarContent({ onNavigate }) {
               `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                 isActive
                   ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-400'
-                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                  : 'text-ink-600 hover:bg-ink-100 dark:text-ink-400 dark:hover:bg-ink-800'
               }`
             }
           >
@@ -64,12 +64,12 @@ function SidebarContent({ onNavigate }) {
           </NavLink>
         ))}
       </nav>
-      <div className="px-3 py-4 border-t border-gray-100 dark:border-gray-800 space-y-1">
-        <button onClick={toggleTheme} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800">
+      <div className="px-3 py-4 border-t border-ink-100 dark:border-ink-800 space-y-1">
+        <button onClick={toggleTheme} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-600 hover:bg-ink-100 dark:text-ink-400 dark:hover:bg-ink-800">
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           {theme === 'dark' ? 'Light mode' : 'Dark mode'}
         </button>
-        <button onClick={() => setHelpOpen(true)} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800">
+        <button onClick={() => setHelpOpen(true)} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-600 hover:bg-ink-100 dark:text-ink-400 dark:hover:bg-ink-800">
           <HelpCircle size={18} />
           Help
         </button>
@@ -78,7 +78,7 @@ function SidebarContent({ onNavigate }) {
           Upgrade plan
         </NavLink>
         {user?.role === 'admin' && (
-          <NavLink to="/admin" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800">
+          <NavLink to="/admin" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-ink-600 hover:bg-ink-100 dark:text-ink-400 dark:hover:bg-ink-800">
             <Shield size={18} />
             Admin dashboard
           </NavLink>
@@ -89,9 +89,9 @@ function SidebarContent({ onNavigate }) {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium truncate">{user?.fullName}</p>
-            <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+            <p className="text-xs text-ink-500 truncate">{user?.email}</p>
           </div>
-          <button onClick={handleLogout} title="Log out" className="text-gray-400 hover:text-red-600">
+          <button onClick={handleLogout} title="Log out" className="text-ink-400 hover:text-red-600">
             <LogOut size={16} />
           </button>
         </div>
@@ -128,9 +128,9 @@ export default function DashboardLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="flex h-screen bg-ink-50 dark:bg-ink-950">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:block w-64 border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0">
+      <aside className="hidden lg:block w-64 border-r border-ink-100 dark:border-ink-800 bg-white dark:bg-ink-900 shrink-0">
         <SidebarContent />
       </aside>
 
@@ -138,7 +138,7 @@ export default function DashboardLayout() {
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-white dark:bg-gray-900 shadow-xl">
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-white dark:bg-ink-900 shadow-xl">
             <SidebarContent onNavigate={() => setMobileOpen(false)} />
           </aside>
         </div>
@@ -146,8 +146,8 @@ export default function DashboardLayout() {
 
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile top bar */}
-        <header className="lg:hidden flex items-center justify-between px-4 h-14 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0">
-          <button onClick={() => setMobileOpen(true)} className="text-gray-600 dark:text-gray-300">
+        <header className="lg:hidden flex items-center justify-between px-4 h-14 border-b border-ink-100 dark:border-ink-800 bg-white dark:bg-ink-900 shrink-0">
+          <button onClick={() => setMobileOpen(true)} className="text-ink-600 dark:text-ink-300">
             <Menu size={22} />
           </button>
           <Logo to="/dashboard" size="sm" />
@@ -156,7 +156,7 @@ export default function DashboardLayout() {
 
         {/* Desktop top bar — sidebar already shows the logo, so this is just
             for the notification bell and stays out of the way otherwise. */}
-        <header className="hidden lg:flex items-center justify-end px-6 h-14 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0">
+        <header className="hidden lg:flex items-center justify-end px-6 h-14 border-b border-ink-100 dark:border-ink-800 bg-white dark:bg-ink-900 shrink-0">
           <NotificationBell />
         </header>
 

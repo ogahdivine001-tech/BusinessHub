@@ -81,7 +81,7 @@ export default function NotificationBell() {
 
   return (
     <div className="relative" ref={panelRef}>
-      <button onClick={handleOpen} className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300">
+      <button onClick={handleOpen} className="relative p-2 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-600 dark:text-ink-300">
         <Bell size={19} />
         {unreadCount > 0 && (
           <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-medium flex items-center justify-center">
@@ -92,33 +92,33 @@ export default function NotificationBell() {
 
       {open && (
         <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto card shadow-card-hover z-50">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-ink-100 dark:border-ink-800 sticky top-0 bg-white dark:bg-ink-900">
             <h4 className="text-sm font-semibold">Notifications</h4>
             {unreadCount > 0 && (
               <button onClick={handleMarkAllRead} className="text-xs text-brand-600 hover:underline">Mark all read</button>
             )}
           </div>
           {loading && notifications.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8">Loading…</p>
+            <p className="text-sm text-ink-400 text-center py-8">Loading…</p>
           ) : notifications.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8">No notifications yet.</p>
+            <p className="text-sm text-ink-400 text-center py-8">No notifications yet.</p>
           ) : (
-            <ul className="divide-y divide-gray-50 dark:divide-gray-800/50">
+            <ul className="divide-y divide-ink-50 dark:divide-ink-800/50">
               {notifications.map((n) => {
                 const Icon = ICONS[n.type] || Info;
                 return (
                   <li key={n._id}>
                     <button
                       onClick={() => handleClick(n)}
-                      className={`w-full text-left px-4 py-3 flex gap-3 hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors ${!n.isRead ? 'bg-brand-50/50 dark:bg-brand-900/10' : ''}`}
+                      className={`w-full text-left px-4 py-3 flex gap-3 hover:bg-ink-50 dark:hover:bg-ink-800/60 transition-colors ${!n.isRead ? 'bg-brand-50/50 dark:bg-brand-900/10' : ''}`}
                     >
                       <div className="w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center shrink-0">
                         <Icon size={14} className="text-brand-600" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium truncate">{n.title}</p>
-                        {n.message && <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{n.message}</p>}
-                        <p className="text-[11px] text-gray-400 mt-1">{timeAgo(n.createdAt)}</p>
+                        {n.message && <p className="text-xs text-ink-500 mt-0.5 line-clamp-2">{n.message}</p>}
+                        <p className="text-[11px] text-ink-400 mt-1">{timeAgo(n.createdAt)}</p>
                       </div>
                       {!n.isRead && <span className="w-2 h-2 rounded-full bg-brand-600 shrink-0 mt-1.5" />}
                     </button>

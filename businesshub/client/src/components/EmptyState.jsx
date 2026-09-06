@@ -6,9 +6,9 @@ export default function EmptyState({ icon: Icon, title, description, action }) {
           <Icon size={26} className="text-brand-600" />
         </div>
       )}
-      <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
+      <h3 className="text-base font-semibold text-ink-900 dark:text-ink-100">{title}</h3>
       {description && (
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5 max-w-sm">{description}</p>
+        <p className="text-sm text-ink-500 dark:text-ink-400 mt-1.5 max-w-sm">{description}</p>
       )}
       {action && <div className="mt-5">{action}</div>}
     </div>

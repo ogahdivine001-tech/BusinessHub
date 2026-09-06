@@ -14,13 +14,13 @@ export default function UsageBar({ label, used, limit }) {
   return (
     <div>
       <div className="flex items-center justify-between text-xs mb-1">
-        <span className="text-gray-500">{label}</span>
-        <span className={atLimit ? 'text-red-600 font-medium' : near ? 'text-amber-600 font-medium' : 'text-gray-500'}>
+        <span className="text-ink-500">{label}</span>
+        <span className={atLimit ? 'text-red-600 font-medium' : near ? 'text-amber-600 font-medium' : 'text-ink-500'}>
           {unlimited ? `${used} used · Unlimited` : `${used} / ${limit}`}
         </span>
       </div>
       {!unlimited && (
-        <div className="h-1.5 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+        <div className="h-1.5 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden">
           <div
             className={`h-full rounded-full transition-all ${atLimit ? 'bg-red-500' : near ? 'bg-amber-500' : 'bg-brand-500'}`}
             style={{ width: `${pct}%` }}

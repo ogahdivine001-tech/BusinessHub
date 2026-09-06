@@ -4,7 +4,7 @@ export default function Pagination({ page, pages, onPageChange }) {
   if (!pages || pages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100 dark:border-gray-800">
+    <div className="flex items-center justify-between mt-5 pt-4 border-t border-ink-100 dark:border-ink-800">
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
@@ -12,7 +12,7 @@ export default function Pagination({ page, pages, onPageChange }) {
       >
         <ChevronLeft size={14} /> Previous
       </button>
-      <span className="text-sm text-gray-500">Page {page} of {pages}</span>
+      <span className="text-sm text-ink-500">Page {page} of {pages}</span>
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={page >= pages}

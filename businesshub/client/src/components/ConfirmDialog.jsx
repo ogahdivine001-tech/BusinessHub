@@ -26,12 +26,12 @@ export default function ConfirmDialog({
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${danger ? 'bg-red-50 dark:bg-red-900/20' : 'bg-brand-50 dark:bg-brand-900/20'}`}>
                 <AlertTriangle size={20} className={danger ? 'text-red-600' : 'text-brand-600'} />
               </div>
-              <button onClick={onCancel} className="text-gray-400 hover:text-gray-600">
+              <button onClick={onCancel} className="text-ink-400 hover:text-ink-600">
                 <X size={18} />
               </button>
             </div>
             <h3 className="text-base font-semibold">{title}</h3>
-            {description && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">{description}</p>}
+            {description && <p className="text-sm text-ink-500 dark:text-ink-400 mt-1.5">{description}</p>}
             <div className="flex gap-3 mt-6">
               <button onClick={onCancel} className="btn-secondary flex-1">Cancel</button>
               <button

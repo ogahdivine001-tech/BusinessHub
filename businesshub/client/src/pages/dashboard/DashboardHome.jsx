@@ -57,7 +57,7 @@ export default function DashboardHome() {
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Welcome back{user?.fullName ? `, ${user.fullName.split(' ')[0]}` : ''} 👋</h1>
-        <p className="text-gray-500 text-sm mt-1">Here's what's happening with your business today.</p>
+        <p className="text-ink-500 text-sm mt-1">Here's what's happening with your business today.</p>
       </div>
 
       {/* Quick actions */}
@@ -128,7 +128,7 @@ export default function DashboardHome() {
           <div className="overflow-x-auto -mx-5">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-500 border-b border-gray-100 dark:border-gray-800">
+                <tr className="text-left text-ink-500 border-b border-ink-100 dark:border-ink-800">
                   <th className="px-5 py-2 font-medium">Customer</th>
                   <th className="px-5 py-2 font-medium">Order ID</th>
                   <th className="px-5 py-2 font-medium">Amount</th>
@@ -138,12 +138,12 @@ export default function DashboardHome() {
               </thead>
               <tbody>
                 {orders.map((o) => (
-                  <tr key={o._id} className="border-b border-gray-50 dark:border-gray-800/50 last:border-0">
+                  <tr key={o._id} className="border-b border-ink-50 dark:border-ink-800/50 last:border-0">
                     <td className="px-5 py-3">{o.customer?.name || 'Customer'}</td>
-                    <td className="px-5 py-3 text-gray-500">{o.orderNumber}</td>
+                    <td className="px-5 py-3 text-ink-500">{o.orderNumber}</td>
                     <td className="px-5 py-3 font-medium">₦{o.total.toLocaleString()}</td>
                     <td className="px-5 py-3"><Badge color={STATUS_COLORS[o.status]}>{o.status}</Badge></td>
-                    <td className="px-5 py-3 text-gray-500">{new Date(o.createdAt).toLocaleDateString()}</td>
+                    <td className="px-5 py-3 text-ink-500">{new Date(o.createdAt).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>

@@ -36,7 +36,7 @@ function ToolCard({ title, description, fields, type, buildParams, atLimit, onGe
   return (
     <Card className="p-5">
       <h3 className="font-semibold">{title}</h3>
-      <p className="text-sm text-gray-500 mt-1 mb-4">{description}</p>
+      <p className="text-sm text-ink-500 mt-1 mb-4">{description}</p>
       <div className="space-y-3 mb-4">
         {fields.map((f) =>
           f.type === 'select' ? (
@@ -54,8 +54,8 @@ function ToolCard({ title, description, fields, type, buildParams, atLimit, onGe
       </button>
       {result && (
         <div className="mt-4 relative">
-          <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-sm whitespace-pre-wrap">{result}</div>
-          <button onClick={copy} className="absolute top-2 right-2 p-1.5 rounded-lg bg-white dark:bg-gray-900 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700">
+          <div className="bg-ink-50 dark:bg-ink-800 rounded-xl p-4 text-sm whitespace-pre-wrap">{result}</div>
+          <button onClick={copy} className="absolute top-2 right-2 p-1.5 rounded-lg bg-white dark:bg-ink-900 shadow-sm hover:bg-ink-100 dark:hover:bg-ink-700">
             <Copy size={14} />
           </button>
         </div>
@@ -76,7 +76,7 @@ export default function Marketing() {
     <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold flex items-center gap-2"><Megaphone className="text-brand-600" size={24} /> Marketing Tools</h1>
-        <p className="text-gray-500 text-sm mt-1">AI-powered content to help you promote your business.</p>
+        <p className="text-ink-500 text-sm mt-1">AI-powered content to help you promote your business.</p>
         {usage && (
           <div className="max-w-xs mt-3">
             <UsageBar label="AI requests this month" used={usage.used} limit={usage.limit} />

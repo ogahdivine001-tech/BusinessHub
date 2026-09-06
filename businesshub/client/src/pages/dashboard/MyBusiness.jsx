@@ -98,7 +98,7 @@ export default function MyBusiness() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold">My Business</h1>
-          <p className="text-gray-500 text-sm mt-1">Manage how customers see you.</p>
+          <p className="text-ink-500 text-sm mt-1">Manage how customers see you.</p>
         </div>
         <a href={`/store/${business?.slug}`} target="_blank" rel="noreferrer" className="btn-secondary">
           View page <ExternalLink size={14} />
@@ -120,9 +120,9 @@ export default function MyBusiness() {
 
         <div className="px-6 pb-6">
           <div className="flex items-end gap-4 -mt-10">
-            <div className="relative group w-20 h-20 rounded-2xl bg-white dark:bg-gray-900 border-4 border-white dark:border-gray-900 shadow-md overflow-hidden shrink-0">
-              <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                {business?.logo?.url ? <img src={business.logo.url} className="w-full h-full object-cover" alt="Logo" /> : <Store size={24} className="text-gray-400" />}
+            <div className="relative group w-20 h-20 rounded-2xl bg-white dark:bg-ink-900 border-4 border-white dark:border-ink-900 shadow-md overflow-hidden shrink-0">
+              <div className="w-full h-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center">
+                {business?.logo?.url ? <img src={business.logo.url} className="w-full h-full object-cover" alt="Logo" /> : <Store size={24} className="text-ink-400" />}
               </div>
               <label className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/50 transition-colors cursor-pointer opacity-0 group-hover:opacity-100">
                 <Upload size={16} className="text-white" />
@@ -131,7 +131,7 @@ export default function MyBusiness() {
             </div>
             <div className="pb-1">
               <p className="text-sm font-medium">{business?.name}</p>
-              <p className="text-xs text-gray-400">Hover the cover or logo to change it</p>
+              <p className="text-xs text-ink-400">Hover the cover or logo to change it</p>
             </div>
           </div>
         </div>
@@ -168,16 +168,16 @@ export default function MyBusiness() {
               <div key={h.day} className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
                 <span className="text-sm w-24 shrink-0">{h.day}</span>
                 {h.closed ? (
-                  <span className="text-sm text-gray-400 flex-1">Closed</span>
+                  <span className="text-sm text-ink-400 flex-1">Closed</span>
                 ) : (
                   <div className="flex items-center gap-2 flex-1">
                     <input type="time" value={h.open} onChange={(e) => updateHour(h.day, { open: e.target.value })} className="input py-1.5 text-sm w-full" />
-                    <span className="text-gray-400 text-sm">to</span>
+                    <span className="text-ink-400 text-sm">to</span>
                     <input type="time" value={h.close} onChange={(e) => updateHour(h.day, { close: e.target.value })} className="input py-1.5 text-sm w-full" />
                   </div>
                 )}
-                <label className="flex items-center gap-1.5 text-xs text-gray-500 shrink-0 cursor-pointer">
-                  <input type="checkbox" checked={h.closed} onChange={(e) => updateHour(h.day, { closed: e.target.checked })} className="rounded border-gray-300" />
+                <label className="flex items-center gap-1.5 text-xs text-ink-500 shrink-0 cursor-pointer">
+                  <input type="checkbox" checked={h.closed} onChange={(e) => updateHour(h.day, { closed: e.target.checked })} className="rounded border-ink-300" />
                   Closed
                 </label>
               </div>
@@ -210,10 +210,10 @@ export default function MyBusiness() {
                     disabled={locked}
                     onClick={() => update({ theme: t.value })}
                     className={`relative p-3 rounded-xl border text-left transition-colors ${
-                      business.theme === t.value ? 'border-brand-600 ring-2 ring-brand-100 dark:ring-brand-900/40' : 'border-gray-200 dark:border-gray-800'
+                      business.theme === t.value ? 'border-brand-600 ring-2 ring-brand-100 dark:ring-brand-900/40' : 'border-ink-200 dark:border-ink-800'
                     } ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:border-brand-300'}`}
                   >
-                    {locked && <Lock size={12} className="absolute top-2 right-2 text-gray-400" />}
+                    {locked && <Lock size={12} className="absolute top-2 right-2 text-ink-400" />}
                     <div className="h-8 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 mb-2" />
                     <p className="text-xs font-medium">{t.label}</p>
                     {t.pro && <p className="text-[10px] text-brand-600 mt-0.5">Pro</p>}
@@ -222,19 +222,19 @@ export default function MyBusiness() {
               })}
             </div>
             {!limits.premiumThemes && (
-              <p className="text-xs text-gray-400 mt-2">
+              <p className="text-xs text-ink-400 mt-2">
                 <Link to="/dashboard/settings?tab=Subscription" className="text-brand-600 underline">Upgrade to Pro</Link> to unlock the Bold theme.
               </p>
             )}
           </div>
 
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
+          <div className="flex items-center justify-between pt-2 border-t border-ink-100 dark:border-ink-800">
             <div className="pr-4">
               <p className="text-sm font-medium flex items-center gap-1.5">
                 Remove "Powered by BusinessHub"
-                {!limits.customBranding && <Lock size={12} className="text-gray-400" />}
+                {!limits.customBranding && <Lock size={12} className="text-ink-400" />}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-ink-500 mt-0.5">
                 {limits.customBranding
                   ? 'Hide the BusinessHub footer on your public storefront.'
                   : <>Available on Starter and Pro. <Link to="/dashboard/settings?tab=Subscription" className="text-brand-600 underline">Upgrade</Link> to enable custom branding.</>}
@@ -244,7 +244,7 @@ export default function MyBusiness() {
               type="button"
               disabled={!limits.customBranding}
               onClick={() => update({ hideBranding: !business.hideBranding })}
-              className={`w-12 h-7 rounded-full p-1 shrink-0 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${business.hideBranding ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-700'}`}
+              className={`w-12 h-7 rounded-full p-1 shrink-0 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${business.hideBranding ? 'bg-brand-600' : 'bg-ink-300 dark:bg-ink-700'}`}
             >
               <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${business.hideBranding ? 'translate-x-5' : ''}`} />
             </button>

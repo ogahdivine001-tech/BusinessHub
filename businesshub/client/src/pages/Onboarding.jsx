@@ -94,7 +94,7 @@ export default function Onboarding() {
 
   if (done) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-ink-50 dark:bg-ink-950 px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -104,7 +104,7 @@ export default function Onboarding() {
             <Check size={32} className="text-green-600" />
           </div>
           <h1 className="text-2xl font-bold">Your BusinessHub is ready.</h1>
-          <p className="text-gray-500 mt-2">
+          <p className="text-ink-500 mt-2">
             {form.name} is live. Let's start adding products and growing your
             business.
           </p>
@@ -120,7 +120,7 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
+    <div className="min-h-screen bg-ink-50 dark:bg-ink-950 flex flex-col">
       <div className="px-6 py-5">
         <Logo />
       </div>
@@ -132,7 +132,7 @@ export default function Onboarding() {
             {STEPS.map((_, i) => (
               <div
                 key={i}
-                className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-brand-600" : "bg-gray-200 dark:bg-gray-800"}`}
+                className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-brand-600" : "bg-ink-200 dark:bg-ink-800"}`}
               />
             ))}
           </div>
@@ -177,7 +177,7 @@ export default function Onboarding() {
                           className={`text-sm px-3 py-2.5 rounded-xl border text-left transition-colors ${
                             form.category === c
                               ? "bg-brand-600 text-white border-brand-600"
-                              : "border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+                              : "border-ink-200 dark:border-ink-800 hover:bg-ink-50 dark:hover:bg-ink-800"
                           }`}
                         >
                           {c}
@@ -269,7 +269,7 @@ export default function Onboarding() {
                           className={`p-4 rounded-xl border text-left transition-colors ${
                             form.theme === t.value
                               ? "border-brand-600 ring-2 ring-brand-100 dark:ring-brand-900/40"
-                              : "border-gray-200 dark:border-gray-800"
+                              : "border-ink-200 dark:border-ink-800"
                           }`}
                         >
                           <div className="h-10 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 mb-2" />

@@ -71,11 +71,11 @@ export default function Settings() {
     <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Settings</h1>
 
-      <div className="flex gap-1 mb-6 border-b border-gray-100 dark:border-gray-800 overflow-x-auto">
+      <div className="flex gap-1 mb-6 border-b border-ink-100 dark:border-ink-800 overflow-x-auto">
         {TABS.map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 whitespace-nowrap ${
-              tab === t ? 'border-brand-600 text-brand-600' : 'border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
+              tab === t ? 'border-brand-600 text-brand-600' : 'border-transparent text-ink-500 hover:text-ink-800 dark:hover:text-ink-200'
             }`}>
             {t}
           </button>
@@ -113,13 +113,13 @@ export default function Settings() {
                   <p className="text-sm font-medium text-brand-600">Free Pro trial — {subscription.trial.daysLeft} day{subscription.trial.daysLeft === 1 ? '' : 's'} left</p>
                 </div>
                 <p className="text-2xl font-bold mt-1">All Pro features unlocked</p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-ink-500 mt-1">
                   Your trial ends {new Date(subscription.trial.endsAt).toLocaleDateString()}. After that you'll drop to the <span className="font-medium capitalize">{subscription?.subscription?.plan || 'free'}</span> plan unless you subscribe.
                 </p>
               </>
             ) : (
               <>
-                <p className="text-sm text-gray-500">Current plan</p>
+                <p className="text-sm text-ink-500">Current plan</p>
                 <p className="text-2xl font-bold capitalize mt-1">{subscription?.subscription?.plan || 'Free'}</p>
               </>
             )}
@@ -148,7 +148,7 @@ export default function Settings() {
               return (
                 <Card key={plan} className="p-6">
                   <h3 className="font-semibold capitalize">{plan}</h3>
-                  <p className="text-2xl font-bold mt-1">{plan === 'starter' ? '₦2,000' : '₦5,000'}<span className="text-sm text-gray-500">/month</span></p>
+                  <p className="text-2xl font-bold mt-1">{plan === 'starter' ? '₦2,000' : '₦5,000'}<span className="text-sm text-ink-500">/month</span></p>
                   <button onClick={() => upgrade(plan)} disabled={disabled} className="btn-primary w-full mt-4">
                     {isCurrent ? <><Check size={16} /> Current plan</> : !subscription?.paystackConfigured ? 'Payments not set up' : 'Upgrade'}
                   </button>
@@ -163,9 +163,9 @@ export default function Settings() {
         <Card className="p-6 flex items-center justify-between">
           <div>
             <p className="font-medium">Dark mode</p>
-            <p className="text-sm text-gray-500">Switch between light and dark themes.</p>
+            <p className="text-sm text-ink-500">Switch between light and dark themes.</p>
           </div>
-          <button onClick={toggleTheme} className={`w-12 h-7 rounded-full p-1 transition-colors ${theme === 'dark' ? 'bg-brand-600' : 'bg-gray-300'}`}>
+          <button onClick={toggleTheme} className={`w-12 h-7 rounded-full p-1 transition-colors ${theme === 'dark' ? 'bg-brand-600' : 'bg-ink-300'}`}>
             <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${theme === 'dark' ? 'translate-x-5' : ''}`} />
           </button>
         </Card>

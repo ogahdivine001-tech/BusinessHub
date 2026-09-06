@@ -1,5 +1,5 @@
 export function Skeleton({ className = '' }) {
-  return <div className={`animate-pulse bg-gray-200 dark:bg-gray-800 rounded-lg ${className}`} />;
+  return <div className={`animate-pulse bg-ink-200 dark:bg-ink-800 rounded-lg ${className}`} />;
 }
 
 export function CardSkeleton() {

@@ -52,12 +52,12 @@ export default function AIAssistant() {
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto flex flex-col h-[calc(100vh-2rem)] sm:h-[calc(100vh-3rem)]">
       <div className="mb-4">
         <h1 className="text-2xl font-bold flex items-center gap-2"><Sparkles className="text-brand-600" size={24} /> AI Business Assistant</h1>
-        <p className="text-gray-500 text-sm mt-1">Get instant help with marketing, copy, and business ideas.</p>
+        <p className="text-ink-500 text-sm mt-1">Get instant help with marketing, copy, and business ideas.</p>
         {usage && (
           <div className="max-w-xs mt-3 space-y-1.5">
             <UsageBar label="AI requests this month" used={usage.used} limit={usage.limit} />
             {usage.configured ? (
-              <p className="text-xs text-gray-400">Powered by {usage.provider}</p>
+              <p className="text-xs text-ink-400">Powered by {usage.provider}</p>
             ) : (
               <p className="text-xs text-amber-600">AI isn't configured on the server yet.</p>
             )}
@@ -68,7 +68,7 @@ export default function AIAssistant() {
       <div className="flex flex-wrap gap-2 mb-4">
         {QUICK_ACTIONS.map((qa) => (
           <button key={qa.label} onClick={() => setInput(qa.prompt)}
-            className="text-xs px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-800 hover:bg-brand-50 dark:hover:bg-brand-900/20 hover:border-brand-300 transition-colors">
+            className="text-xs px-3 py-1.5 rounded-full border border-ink-200 dark:border-ink-800 hover:bg-brand-50 dark:hover:bg-brand-900/20 hover:border-brand-300 transition-colors">
             {qa.label}
           </button>
         ))}
@@ -78,11 +78,11 @@ export default function AIAssistant() {
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {messages.map((m, i) => (
             <div key={i} className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${m.role === 'user' ? 'bg-brand-600' : 'bg-gray-100 dark:bg-gray-800'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${m.role === 'user' ? 'bg-brand-600' : 'bg-ink-100 dark:bg-ink-800'}`}>
                 {m.role === 'user' ? <User size={14} className="text-white" /> : <Bot size={14} className="text-brand-600" />}
               </div>
               <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${
-                m.role === 'user' ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100'
+                m.role === 'user' ? 'bg-brand-600 text-white' : 'bg-ink-100 dark:bg-ink-800 text-ink-800 dark:text-ink-100'
               }`}>
                 {m.content}
               </div>
@@ -90,13 +90,13 @@ export default function AIAssistant() {
           ))}
           {loading && (
             <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center"><Bot size={14} className="text-brand-600" /></div>
-              <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl px-4 py-2.5 text-sm text-gray-400">Thinking…</div>
+              <div className="w-8 h-8 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center"><Bot size={14} className="text-brand-600" /></div>
+              <div className="bg-ink-100 dark:bg-ink-800 rounded-2xl px-4 py-2.5 text-sm text-ink-400">Thinking…</div>
             </div>
           )}
           <div ref={endRef} />
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="border-t border-gray-100 dark:border-gray-800 p-3 flex gap-2">
+        <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="border-t border-ink-100 dark:border-ink-800 p-3 flex gap-2">
           <input
             className="input flex-1"
             placeholder={atLimit ? 'Monthly AI limit reached — upgrade your plan to continue' : 'Ask me anything about your business...'}

@@ -34,7 +34,7 @@ export default function Contact() {
       <h1 className="text-3xl sm:text-4xl font-extrabold text-center">
         Get in touch
       </h1>
-      <p className="text-gray-500 dark:text-gray-400 text-center mt-3 max-w-xl mx-auto">
+      <p className="text-ink-500 dark:text-ink-400 text-center mt-3 max-w-xl mx-auto">
         Have a question, need help with your account, or just want to say hello?
         We'd love to hear from you.
       </p>
@@ -48,10 +48,10 @@ export default function Contact() {
             <Mail size={20} className="text-brand-600" />
           </div>
           <h3 className="font-semibold mb-1">Email us</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-ink-500 dark:text-ink-400">
             hello@businesshub.app
           </p>
-          <p className="text-xs text-gray-400 mt-2">
+          <p className="text-xs text-ink-400 mt-2">
             We typically reply within 24 hours.
           </p>
         </a>
@@ -66,10 +66,10 @@ export default function Contact() {
             <MessageCircle size={20} className="text-[#25D366]" />
           </div>
           <h3 className="font-semibold mb-1">Chat on WhatsApp</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-ink-500 dark:text-ink-400">
             +234 813 219 6409
           </p>
-          <p className="text-xs text-gray-400 mt-2">
+          <p className="text-xs text-ink-400 mt-2">
             Fastest way to reach our support team.
           </p>
         </a>
@@ -84,7 +84,7 @@ export default function Contact() {
               href={s.href}
               target="_blank"
               rel="noreferrer noopener"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-300 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-200 dark:hover:bg-brand-900/20 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl border border-ink-200 dark:border-ink-800 text-sm text-ink-600 dark:text-ink-300 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-200 dark:hover:bg-brand-900/20 transition-colors"
             >
               <s.icon size={16} /> {s.label}
             </a>
@@ -92,7 +92,7 @@ export default function Contact() {
         </div>
       </div>
 
-      <p className="text-center text-xs text-gray-400 mt-10">
+      <p className="text-center text-xs text-ink-400 mt-10">
         Looking for help with your own storefront's contact details? Head to{" "}
         <a href="/dashboard/business" className="text-brand-600 underline">
           My Business

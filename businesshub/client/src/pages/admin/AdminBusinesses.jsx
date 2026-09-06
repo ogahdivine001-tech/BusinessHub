@@ -42,7 +42,7 @@ export default function AdminBusinesses() {
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Businesses</h1>
       <div className="mb-4 relative max-w-sm">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
         <input className="input pl-9" placeholder="Search businesses..." value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
       <Card className="p-5">
@@ -50,7 +50,7 @@ export default function AdminBusinesses() {
           <div className="overflow-x-auto -mx-5">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-500 border-b border-gray-100 dark:border-gray-800">
+                <tr className="text-left text-ink-500 border-b border-ink-100 dark:border-ink-800">
                   <th className="px-5 py-2 font-medium">Business</th>
                   <th className="px-5 py-2 font-medium">Owner</th>
                   <th className="px-5 py-2 font-medium">Category</th>
@@ -60,9 +60,9 @@ export default function AdminBusinesses() {
               </thead>
               <tbody>
                 {businesses.map((b) => (
-                  <tr key={b._id} className="border-b border-gray-50 dark:border-gray-800/50 last:border-0">
+                  <tr key={b._id} className="border-b border-ink-50 dark:border-ink-800/50 last:border-0">
                     <td className="px-5 py-3 font-medium">{b.name}</td>
-                    <td className="px-5 py-3 text-gray-500">{b.owner?.email}</td>
+                    <td className="px-5 py-3 text-ink-500">{b.owner?.email}</td>
                     <td className="px-5 py-3">{b.category}</td>
                     <td className="px-5 py-3"><Badge color={b.isPublished ? 'green' : 'gray'}>{b.isPublished ? 'Published' : 'Hidden'}</Badge></td>
                     <td className="px-5 py-3 text-right">
