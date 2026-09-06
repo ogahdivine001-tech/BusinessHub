@@ -7,17 +7,17 @@ const PLAN_LIMITS = {
     invoicesPerMonth: 5,
     receiptsPerMonth: 5,
     aiPerMonth: 15,
-    analyticsRanges: ['7d', '30d'],       // "Basic analytics"
-    premiumThemes: false,                  // 'bold' theme is Pro-only
-    customBranding: false,                 // can't hide "Powered by BusinessHub"
+    analyticsRanges: ["7d", "30d"], // "Basic analytics"
+    premiumThemes: false, // 'bold' theme is Pro-only
+    customBranding: false, // can't hide "Powered by BusinessHub"
   },
   starter: {
-    products: Infinity,
+    products: 150,
     invoicesPerMonth: 100,
     receiptsPerMonth: 100,
     aiPerMonth: 150,
-    analyticsRanges: ['7d', '30d', '90d', '1y'], // "Advanced analytics"
-    premiumThemes: false,
+    analyticsRanges: ["7d", "30d", "90d", "1y"], // "Advanced analytics"
+    premiumThemes: false, // 'bold' theme is Pro-only
     customBranding: true,
   },
   pro: {
@@ -25,7 +25,7 @@ const PLAN_LIMITS = {
     invoicesPerMonth: Infinity,
     receiptsPerMonth: Infinity,
     aiPerMonth: Infinity,
-    analyticsRanges: ['7d', '30d', '90d', '1y'],
+    analyticsRanges: ["7d", "30d", "90d", "1y"],
     premiumThemes: true,
     customBranding: true,
   },
@@ -46,15 +46,19 @@ const TRIAL_DAYS = 30;
 // on hosts (like Render's free tier) that sleep and can't be trusted to
 // fire a cron job on time.
 function getEffectivePlan(subscription) {
-  if (!subscription) return 'free';
-  if (subscription.trialEndsAt && new Date(subscription.trialEndsAt) > new Date()) {
-    return 'pro';
+  if (!subscription) return "free";
+  if (
+    subscription.trialEndsAt &&
+    new Date(subscription.trialEndsAt) > new Date()
+  ) {
+    return "pro";
   }
-  return subscription.plan || 'free';
+  return subscription.plan || "free";
 }
 
 function getTrialInfo(subscription) {
-  if (!subscription?.trialEndsAt) return { active: false, daysLeft: 0, endsAt: null };
+  if (!subscription?.trialEndsAt)
+    return { active: false, daysLeft: 0, endsAt: null };
   const msLeft = new Date(subscription.trialEndsAt).getTime() - Date.now();
   return {
     active: msLeft > 0,
@@ -63,4 +67,10 @@ function getTrialInfo(subscription) {
   };
 }
 
-module.exports = { PLAN_LIMITS, getLimits, getEffectivePlan, getTrialInfo, TRIAL_DAYS };
+module.exports = {
+  PLAN_LIMITS,
+  getLimits,
+  getEffectivePlan,
+  getTrialInfo,
+  TRIAL_DAYS,
+};

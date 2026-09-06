@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const businessHoursSchema = new mongoose.Schema(
   {
@@ -7,20 +7,40 @@ const businessHoursSchema = new mongoose.Schema(
     close: String,
     closed: { type: Boolean, default: false },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const businessSchema = new mongoose.Schema(
   {
-    owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true,
+    },
     name: { type: String, required: true, trim: true },
-    slug: { type: String, required: true, unique: true, lowercase: true, index: true },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      index: true,
+    },
     category: {
       type: String,
       enum: [
-        'Fashion', 'Electronics', 'Food', 'Beauty', 'Real Estate',
-        'Education', 'Technology', 'Graphics & Design', 'Health & Fitness',
-        'Services', 'Other',
+        "Fashion",
+        "Electronics",
+        "Food",
+        "Beauty",
+        "Real Estate",
+        "Education",
+        "Technology",
+        "Graphics & Design",
+        "Website Development",
+        "Health & Fitness",
+        "Services",
+        "Other",
       ],
       required: true,
     },
@@ -31,7 +51,11 @@ const businessSchema = new mongoose.Schema(
     whatsapp: String,
     email: String,
     address: String,
-    location: { city: String, state: String, country: { type: String, default: 'Nigeria' } },
+    location: {
+      city: String,
+      state: String,
+      country: { type: String, default: "Nigeria" },
+    },
     socials: {
       instagram: String,
       facebook: String,
@@ -40,13 +64,17 @@ const businessSchema = new mongoose.Schema(
       website: String,
     },
     businessHours: [businessHoursSchema],
-    theme: { type: String, enum: ['classic', 'modern', 'minimal', 'bold'], default: 'classic' },
+    theme: {
+      type: String,
+      enum: ["classic", "modern", "minimal", "bold"],
+      default: "classic",
+    },
     hideBranding: { type: Boolean, default: false }, // "custom branding" — Starter/Pro only
     isPublished: { type: Boolean, default: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-businessSchema.index({ name: 'text', description: 'text' });
+businessSchema.index({ name: "text", description: "text" });
 
-module.exports = mongoose.model('Business', businessSchema);
+module.exports = mongoose.model("Business", businessSchema);

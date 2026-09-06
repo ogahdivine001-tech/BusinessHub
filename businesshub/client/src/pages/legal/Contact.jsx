@@ -1,39 +1,77 @@
-import { Mail, MessageCircle, Instagram, Twitter, Facebook, Linkedin } from 'lucide-react';
+import {
+  Mail,
+  MessageCircle,
+  Instagram,
+  Twitter,
+  Facebook,
+  Linkedin,
+} from "lucide-react";
 
 // Placeholder handles for BusinessHub's own public accounts — update these
 // to your real ones before going live.
 const SOCIALS = [
-  { icon: Instagram, label: 'Instagram', href: 'https://instagram.com/businesshub' },
-  { icon: Twitter, label: 'Twitter / X', href: 'https://x.com/businesshub' },
-  { icon: Facebook, label: 'Facebook', href: 'https://facebook.com/businesshub' },
-  { icon: Linkedin, label: 'LinkedIn', href: 'https://linkedin.com/company/businesshub' },
+  {
+    icon: Instagram,
+    label: "Instagram",
+    href: "https://instagram.com/businesshub",
+  },
+  { icon: Twitter, label: "Twitter / X", href: "https://x.com/businesshub" },
+  {
+    icon: Facebook,
+    label: "Facebook",
+    href: "https://facebook.com/businesshub",
+  },
+  {
+    icon: Linkedin,
+    label: "LinkedIn",
+    href: "https://linkedin.com/company/businesshub",
+  },
 ];
 
 export default function Contact() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
-      <h1 className="text-3xl sm:text-4xl font-extrabold text-center">Get in touch</h1>
+      <h1 className="text-3xl sm:text-4xl font-extrabold text-center">
+        Get in touch
+      </h1>
       <p className="text-gray-500 dark:text-gray-400 text-center mt-3 max-w-xl mx-auto">
-        Have a question, need help with your account, or just want to say hello? We'd love to hear from you.
+        Have a question, need help with your account, or just want to say hello?
+        We'd love to hear from you.
       </p>
 
       <div className="grid sm:grid-cols-2 gap-5 mt-12">
-        <a href="mailto:hello@businesshub.app" className="card p-6 hover:shadow-card-hover transition-shadow">
+        <a
+          href="mailto:hello@businesshub.app"
+          className="card p-6 hover:shadow-card-hover transition-shadow"
+        >
           <div className="w-11 h-11 rounded-xl bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center mb-4">
             <Mail size={20} className="text-brand-600" />
           </div>
           <h3 className="font-semibold mb-1">Email us</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">hello@businesshub.app</p>
-          <p className="text-xs text-gray-400 mt-2">We typically reply within 24 hours.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            hello@businesshub.app
+          </p>
+          <p className="text-xs text-gray-400 mt-2">
+            We typically reply within 24 hours.
+          </p>
         </a>
 
-        <a href="https://wa.me/2348000000000" target="_blank" rel="noreferrer" className="card p-6 hover:shadow-card-hover transition-shadow">
+        <a
+          href="https://wa.me/2348132196409"
+          target="_blank"
+          rel="noreferrer"
+          className="card p-6 hover:shadow-card-hover transition-shadow"
+        >
           <div className="w-11 h-11 rounded-xl bg-[#25D366]/10 flex items-center justify-center mb-4">
             <MessageCircle size={20} className="text-[#25D366]" />
           </div>
           <h3 className="font-semibold mb-1">Chat on WhatsApp</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">+234 800 000 0000</p>
-          <p className="text-xs text-gray-400 mt-2">Fastest way to reach our support team.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            +234 813 219 6409
+          </p>
+          <p className="text-xs text-gray-400 mt-2">
+            Fastest way to reach our support team.
+          </p>
         </a>
       </div>
 
@@ -55,7 +93,12 @@ export default function Contact() {
       </div>
 
       <p className="text-center text-xs text-gray-400 mt-10">
-        Looking for help with your own storefront's contact details? Head to <a href="/dashboard/business" className="text-brand-600 underline">My Business</a> in your dashboard instead — this page is for reaching the BusinessHub team.
+        Looking for help with your own storefront's contact details? Head to{" "}
+        <a href="/dashboard/business" className="text-brand-600 underline">
+          My Business
+        </a>{" "}
+        in your dashboard instead — this page is for reaching the BusinessHub
+        team.
       </p>
     </div>
   );
