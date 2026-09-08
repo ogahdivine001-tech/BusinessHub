@@ -41,7 +41,7 @@ export default function Contact() {
 
       <div className="grid sm:grid-cols-2 gap-5 mt-12">
         <a
-          href="mailto:hello@businesshub.app"
+          href="mailto:businesshubng@zohomail.com"
           className="card p-6 hover:shadow-card-hover transition-shadow"
         >
           <div className="w-11 h-11 rounded-xl bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center mb-4">
@@ -49,7 +49,7 @@ export default function Contact() {
           </div>
           <h3 className="font-semibold mb-1">Email us</h3>
           <p className="text-sm text-ink-500 dark:text-ink-400">
-            hello@businesshub.app
+            businesshubng@zohomail.com
           </p>
           <p className="text-xs text-ink-400 mt-2">
             We typically reply within 24 hours.

@@ -44,9 +44,7 @@ function FaqItem({ q, a }) {
         />
       </button>
       {open && (
-        <p className="text-sm text-ink-500 dark:text-ink-400 pb-3 pr-6">
-          {a}
-        </p>
+        <p className="text-sm text-ink-500 dark:text-ink-400 pb-3 pr-6">{a}</p>
       )}
     </div>
   );
@@ -71,7 +69,7 @@ export default function HelpModal({ open, onClose }) {
 
       <div className="grid grid-cols-2 gap-3">
         <a
-          href="mailto:hello@businesshub.app"
+          href="mailto:businesshubng@zohomail.com"
           className="btn-secondary justify-center"
         >
           <Mail size={15} /> Email us
