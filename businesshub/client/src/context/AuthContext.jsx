@@ -1,5 +1,11 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { authService } from '../services/authService';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+import { authService } from "../services/authService";
 
 const AuthContext = createContext(null);
 
@@ -12,6 +18,9 @@ export function AuthProvider({ children }) {
       const { user: me } = await authService.getMe();
       setUser(me);
     } catch {
+      // Session is genuinely invalid or expired — clear any stale token so
+      // we don't keep sending a dead Authorization header on every request.
+      localStorage.removeItem("bh_token");
       setUser(null);
     } finally {
       setLoading(false);
@@ -40,7 +49,9 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider
+      value={{ user, setUser, loading, login, register, logout, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
