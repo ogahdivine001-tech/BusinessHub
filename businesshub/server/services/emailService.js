@@ -21,6 +21,14 @@ function getTransporter() {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      // Without explicit timeouts, a blocked or slow SMTP connection can
+      // hang the underlying socket indefinitely — which in turn hangs
+      // whatever HTTP request triggered it. These force a fast, clear
+      // failure instead, so problems show up in logs within 10s rather
+      // than leaving the request pending forever.
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     });
   }
   return transporter;

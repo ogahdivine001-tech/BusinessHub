@@ -75,13 +75,20 @@ const forgotPassword = asyncHandler(async (req, res) => {
     await user.save();
 
     const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${rawToken}`;
-    const result = await sendPasswordResetEmail(email, resetUrl);
 
-    // If SMTP isn't configured (e.g. local dev without email set up), fall
-    // back to logging the link so the flow is still testable end-to-end.
-    if (!result.sent) {
-      console.log(`Password reset link for ${email}: ${resetUrl}`);
-    }
+    // Deliberately NOT awaited — an external SMTP call can be slow or
+    // hang depending on network conditions, and the browser should never
+    // be stuck waiting on that. The token is already saved, so the reset
+    // link is valid the moment this response goes out; the email just
+    // needs to arrive whenever it arrives.
+    sendPasswordResetEmail(email, resetUrl)
+      .then((result) => {
+        if (!result.sent)
+          console.log(`Password reset link for ${email}: ${resetUrl}`);
+      })
+      .catch((err) =>
+        console.error("Password reset email failed to send:", err.message),
+      );
   }
 
   res.json({
