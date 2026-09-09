@@ -14,6 +14,10 @@ export const adminService = {
     api
       .patch(`/admin/businesses/${id}/published`, { isPublished })
       .then((r) => r.data.data.business),
+  setBusinessPlan: (id, plan) =>
+    api
+      .patch(`/admin/businesses/${id}/plan`, { plan })
+      .then((r) => r.data.data.subscription),
   subscriptions: () =>
     api.get("/admin/subscriptions").then((r) => r.data.data.subscriptions),
 };
