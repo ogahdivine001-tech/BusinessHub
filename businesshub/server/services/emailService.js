@@ -42,13 +42,25 @@ async function sendEmail({ to, subject, html }) {
     return { sent: false };
   }
   const from = process.env.SMTP_FROM || process.env.SMTP_USER;
-  await getTransporter().sendMail({
-    from: `"BusinessHub" <${from}>`,
-    to,
-    subject,
-    html,
-  });
-  return { sent: true };
+  try {
+    const info = await getTransporter().sendMail({
+      from: `"BusinessHub" <${from}>`,
+      to,
+      subject,
+      html,
+    });
+    // Zoho accepting the message doesn't guarantee inbox delivery (could
+    // still land in spam, or be silently dropped by the receiving
+    // server) — but this at least confirms OUR side succeeded, which is
+    // the piece we couldn't previously distinguish from a silent failure.
+    console.log(
+      `[email] Sent "${subject}" to ${to} — messageId: ${info.messageId}`,
+    );
+    return { sent: true };
+  } catch (err) {
+    console.error(`[email] FAILED to send "${subject}" to ${to}:`, err.message);
+    throw err;
+  }
 }
 
 async function sendPasswordResetEmail(to, resetUrl) {
