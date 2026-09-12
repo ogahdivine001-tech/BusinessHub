@@ -123,10 +123,13 @@ export default function MyBusiness() {
   }, []);
 
   const handleShareClick = async () => {
+    if (!business) return; // guard against firing before data has loaded
+
     // Native share sheet on mobile already includes WhatsApp, Facebook,
     // Messages, etc. — far better UX than our own dropdown there. Desktop
-    // browsers don't support navigator.share, so they get the dropdown
-    // with direct platform links instead.
+    // browsers (and some in-app/embedded browsers that don't support the
+    // Web Share API) fall through to the dropdown with direct platform
+    // links instead.
     if (navigator.share) {
       try {
         await navigator.share({
@@ -134,8 +137,16 @@ export default function MyBusiness() {
           text: shareText,
           url: storeUrl,
         });
-      } catch {
-        // user cancelled the native share sheet — not an error
+      } catch (err) {
+        // AbortError is what fires when the person just closes the share
+        // sheet without picking anything — that's not a failure. Anything
+        // else is a genuine error, so fall back to the dropdown instead
+        // of silently doing nothing (which is what made this look
+        // "broken" before — every error was swallowed with no fallback).
+        if (err?.name !== "AbortError") {
+          console.error("navigator.share failed, falling back to menu:", err);
+          setShareOpen(true);
+        }
       }
       return;
     }
@@ -143,8 +154,29 @@ export default function MyBusiness() {
   };
 
   const copyStoreLink = async () => {
-    await navigator.clipboard.writeText(storeUrl);
-    toast.success("Link copied to clipboard.");
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(storeUrl);
+      } else {
+        // Fallback for older mobile browsers / non-HTTPS contexts where
+        // the modern Clipboard API isn't available.
+        const textarea = document.createElement("textarea");
+        textarea.value = storeUrl;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      toast.success("Link copied to clipboard.");
+    } catch (err) {
+      console.error("Copy link failed:", err);
+      toast.error(
+        "Could not copy automatically — long-press the link to copy it.",
+      );
+    }
     setShareOpen(false);
   };
 
@@ -223,7 +255,7 @@ export default function MyBusiness() {
               <Share2 size={14} /> Share
             </button>
             {shareOpen && (
-              <div className="absolute right-0 mt-2 w-56 card shadow-card-hover z-50 p-2">
+              <div className="absolute right-0 mt-2 w-56 max-w-[calc(100vw-2rem)] card shadow-card-hover z-50 p-2">
                 <a
                   href={shareLinks.whatsapp}
                   target="_blank"
