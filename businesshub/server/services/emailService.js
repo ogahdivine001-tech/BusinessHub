@@ -6,8 +6,10 @@ const nodemailer = require("nodemailer");
 // not configured, same pattern as every other optional integration in
 // this app (Cloudinary, AI, Paystack) — a missing email config should
 // never break the actual password-reset flow, just skip the email step.
-const isConfigured = () =>
+const isResendConfigured = () => Boolean(process.env.RESEND_API_KEY);
+const isSmtpConfigured = () =>
   Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
+const isConfigured = () => isResendConfigured() || isSmtpConfigured();
 
 let transporter = null;
 function getTransporter() {
@@ -37,10 +39,43 @@ function getTransporter() {
 async function sendEmail({ to, subject, html }) {
   if (!isConfigured()) {
     console.log(
-      `[email] SMTP not configured — would have sent "${subject}" to ${to}`,
+      `[email] Resend/SMTP not configured — would have sent "${subject}" to ${to}`,
     );
     return { sent: false };
   }
+
+  if (isResendConfigured()) {
+    try {
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: process.env.RESEND_FROM || "BusinessHub <onboarding@resend.dev>",
+          to: [to],
+          subject,
+          html,
+        }),
+        signal: AbortSignal.timeout(10000),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(
+          result.message || `Resend API returned HTTP ${response.status}`,
+        );
+      }
+      console.log(
+        `[email] Sent "${subject}" to ${to} via Resend — messageId: ${result.id}`,
+      );
+      return { sent: true };
+    } catch (err) {
+      console.error(`[email] FAILED to send "${subject}" via Resend:`, err.message);
+      throw err;
+    }
+  }
+
   const from = process.env.SMTP_FROM || process.env.SMTP_USER;
   try {
     const info = await getTransporter().sendMail({
