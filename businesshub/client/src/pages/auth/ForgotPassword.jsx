@@ -9,12 +9,14 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [devResetUrl, setDevResetUrl] = useState('');
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await authService.forgotPassword(email);
+      const response = await authService.forgotPassword(email);
+      setDevResetUrl(response.data?.resetUrl || '');
       setSent(true);
     } catch (err) {
       toast.error(err.message);
@@ -32,6 +34,11 @@ export default function ForgotPassword() {
             <div className="text-center">
               <h1 className="text-xl font-bold">Check your email</h1>
               <p className="text-sm text-ink-500 mt-2">If an account exists for {email}, we've sent password reset instructions.</p>
+              {devResetUrl && (
+                <a href={devResetUrl} className="block text-sm text-brand-600 font-medium hover:underline mt-4">
+                  Open reset link (development)
+                </a>
+              )}
               <Link to="/login" className="btn-secondary w-full mt-6">Back to login</Link>
             </div>
           ) : (

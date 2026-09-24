@@ -7,7 +7,10 @@ const nodemailer = require("nodemailer");
 // this app (Cloudinary, AI, Paystack) — a missing email config should
 // never break the actual password-reset flow, just skip the email step.
 const isConfigured = () =>
-  Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
+  Boolean(
+    process.env.RESEND_API_KEY ||
+      (process.env.SMTP_USER && process.env.SMTP_PASS),
+  );
 
 let transporter = null;
 function getTransporter() {
@@ -40,6 +43,28 @@ async function sendEmail({ to, subject, html }) {
       `[email] SMTP not configured — would have sent "${subject}" to ${to}`,
     );
     return { sent: false };
+  }
+  if (process.env.RESEND_API_KEY) {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: process.env.RESEND_FROM || "BusinessHub <onboarding@resend.dev>",
+        to: [to],
+        subject,
+        html,
+      }),
+    });
+    if (!response.ok) {
+      const details = await response.text();
+      throw new Error(`Resend returned ${response.status}: ${details}`);
+    }
+    const result = await response.json();
+    console.log(`[email] Sent "${subject}" to ${to} via Resend — id: ${result.id}`);
+    return { sent: true };
   }
   const from = process.env.SMTP_FROM || process.env.SMTP_USER;
   try {

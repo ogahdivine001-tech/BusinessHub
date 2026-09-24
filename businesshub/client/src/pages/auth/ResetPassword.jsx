@@ -10,13 +10,14 @@ export default function ResetPassword() {
   const navigate = useNavigate();
   const [token, setToken] = useState(searchParams.get('token') || '');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await authService.resetPassword({ token, password });
+      await authService.resetPassword({ token, password, confirmPassword });
       toast.success('Password reset. Please log in.');
       navigate('/login');
     } catch (err) {
@@ -38,6 +39,8 @@ export default function ResetPassword() {
             )}
             <Input label="New password" type="password" required minLength={8} value={password}
               onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" />
+            <Input label="Confirm new password" type="password" required minLength={8} value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Re-enter your new password" />
             <button type="submit" disabled={loading} className="btn-primary w-full">
               {loading ? 'Resetting…' : 'Reset password'}
             </button>

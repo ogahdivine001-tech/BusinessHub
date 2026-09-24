@@ -62,6 +62,7 @@ const getMe = asyncHandler(async (req, res) => {
 const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
+  let devResetUrl;
 
   // Always respond the same way whether or not the user exists, to avoid
   // leaking which emails are registered.
@@ -82,6 +83,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
       );
     }
     const resetUrl = `${clientOrigin.replace(/\/+$/, "")}/reset-password?token=${rawToken}`;
+    if (process.env.NODE_ENV !== "production") devResetUrl = resetUrl;
 
     // Deliberately NOT awaited — an external SMTP call can be slow or
     // hang depending on network conditions, and the browser should never
@@ -102,6 +104,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
     success: true,
     message:
       "If an account exists for that email, a reset link has been generated.",
+    ...(devResetUrl ? { data: { resetUrl: devResetUrl } } : {}),
   });
 });
 
