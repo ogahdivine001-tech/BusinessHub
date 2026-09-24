@@ -74,7 +74,14 @@ const forgotPassword = asyncHandler(async (req, res) => {
     user.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 hour
     await user.save();
 
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${rawToken}`;
+    const clientOrigin =
+      process.env.CLIENT_URL || req.headers.origin || `${req.protocol}://${req.get("host")}`;
+    if (!process.env.CLIENT_URL) {
+      console.warn(
+        `[auth] CLIENT_URL is not set — using "${clientOrigin}" for the password reset URL. Set CLIENT_URL explicitly in production.`,
+      );
+    }
+    const resetUrl = `${clientOrigin.replace(/\/+$/, "")}/reset-password?token=${rawToken}`;
 
     // Deliberately NOT awaited — an external SMTP call can be slow or
     // hang depending on network conditions, and the browser should never

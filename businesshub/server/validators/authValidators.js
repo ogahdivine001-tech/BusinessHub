@@ -16,7 +16,12 @@ const loginRules = [
   body('password').notEmpty().withMessage('Password is required'),
 ];
 
-const forgotPasswordRules = [body('email').isEmail().withMessage('A valid email is required')];
+const forgotPasswordRules = [
+  body('email')
+    .isEmail()
+    .withMessage('A valid email is required')
+    .normalizeEmail(),
+];
 
 const resetPasswordRules = [
   body('token').notEmpty().withMessage('Reset token is required'),

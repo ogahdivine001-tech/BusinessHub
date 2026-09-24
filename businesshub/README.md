@@ -106,6 +106,8 @@ Backend (`server/.env`, see `server/.env.example`):
 | `JWT_SECRET` | Yes | Long random string for signing auth tokens |
 | `CLIENT_URL` | Yes | Frontend origin, for CORS (`http://localhost:5173` in dev) |
 | `PORT` | No | API port (default `5000`) |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | Required for password reset | SMTP server credentials used to send reset emails (Zoho defaults are in `.env.example`) |
+| `SMTP_FROM` | No | Sender address; defaults to `SMTP_USER` |
 | `CLOUDINARY_*` | No | Enables logo/product image uploads |
 | `OPENAI_API_KEY` | No | Enables AI Assistant & Marketing tools |
 | `PAYSTACK_*` | No | Enables subscription checkout |
