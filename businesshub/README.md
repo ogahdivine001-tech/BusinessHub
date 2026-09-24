@@ -100,22 +100,24 @@ Open `http://localhost:5173`. Register a new account, complete onboarding, and y
 
 Backend (`server/.env`, see `server/.env.example`):
 
-| Variable | Required | Purpose |
-|---|---|---|
-| `MONGO_URI` | Yes | MongoDB connection string |
-| `JWT_SECRET` | Yes | Long random string for signing auth tokens |
-| `CLIENT_URL` | Yes | Frontend origin, for CORS (`http://localhost:5173` in dev) |
-| `PORT` | No | API port (default `5000`) |
+| Variable                                           | Required                    | Purpose                                                                                 |
+| -------------------------------------------------- | --------------------------- | --------------------------------------------------------------------------------------- |
+| `MONGO_URI`                                        | Yes                         | MongoDB connection string                                                               |
+| `JWT_SECRET`                                       | Yes                         | Long random string for signing auth tokens                                              |
+| `CLIENT_URL`                                       | Yes                         | Frontend origin, for CORS (`http://localhost:5173` in dev)                              |
+| `PORT`                                             | No                          | API port (default `5000`)                                                               |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | Required for password reset | SMTP server credentials used to send reset emails (Zoho defaults are in `.env.example`) |
-| `SMTP_FROM` | No | Sender address; defaults to `SMTP_USER` |
-| `CLOUDINARY_*` | No | Enables logo/product image uploads |
-| `OPENAI_API_KEY` | No | Enables AI Assistant & Marketing tools |
-| `PAYSTACK_*` | No | Enables subscription checkout |
+| `SMTP_FROM`                                        | No                          | Sender address; defaults to `SMTP_USER`                                                 |
+| `CLOUDINARY_*`                                     | No                          | Enables logo/product image uploads                                                      |
+| `OPENAI_API_KEY`                                   | No                          | Enables AI Assistant & Marketing tools                                                  |
+| `PAYSTACK_*`                                       | No                          | Enables subscription checkout                                                           |
+| `RESEND_API_KEY`                                   | No                          | Enables email sending via Resend                                                        |
+| `RESEND_FROM`                                      | No                          | Sender address for Resend emails                                                        |
 
 Frontend (`client/.env`, see `client/.env.example`):
 
-| Variable | Purpose |
-|---|---|
+| Variable       | Purpose                                               |
+| -------------- | ----------------------------------------------------- |
 | `VITE_API_URL` | Base URL of the API, e.g. `http://localhost:5000/api` |
 
 **Never commit a real `.env` file.** Only `.env.example` files with placeholders are included in this repo.

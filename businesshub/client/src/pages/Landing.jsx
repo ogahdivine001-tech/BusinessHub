@@ -51,52 +51,89 @@ function Faq({ q, a }) {
   );
 }
 
-// Grounded in the actual product output — an invoice and a storefront
-// preview, overlapping like real documents on a desk — instead of a
-// generic "browser chrome with fake charts" mockup.
 function HeroVisual() {
   return (
-    <div className="relative w-full max-w-md mx-auto lg:max-w-none aspect-[4/5] sm:aspect-square lg:aspect-[4/5]">
+    <div className="relative w-full max-w-xl mx-auto lg:max-w-none aspect-[4/5] sm:aspect-[1.05] lg:aspect-[1.1]">
+      <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-brand-100 via-white to-gold-100 dark:from-brand-950/50 dark:via-ink-900 dark:to-gold-900/30 border border-brand-100 dark:border-ink-800 shadow-[0_30px_80px_rgba(15,23,42,0.12)]" />
+
       <motion.div
-        initial={{ opacity: 0, y: 24, rotate: -6 }}
-        animate={{ opacity: 1, y: 0, rotate: -4 }}
+        initial={{ opacity: 0, y: 24, x: -12 }}
+        animate={{ opacity: 1, y: 0, x: 0 }}
         transition={{ duration: 0.6 }}
-        className="absolute top-2 left-2 sm:left-6 w-[78%] card p-5 shadow-card-hover"
+        className="absolute left-4 top-6 sm:left-8 sm:top-8 w-[62%] card p-4 sm:p-5 shadow-card-hover border-brand-100"
       >
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-[11px] text-ink-400">Invoice</p>
-            <p className="text-sm font-semibold">INV-4F2A9</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-ink-400">Invoice</p>
+            <p className="text-sm font-semibold mt-1">INV-4F2A9</p>
           </div>
           <span className="badge bg-brand-50 text-brand-700">Paid</span>
         </div>
-        <div className="space-y-2 text-xs text-ink-500 mb-4">
+        <div className="space-y-2 text-[11px] text-ink-500">
           <div className="flex justify-between"><span>2 × Classic Sneakers</span><span>₦45,000</span></div>
           <div className="flex justify-between"><span>1 × Canvas Tote</span><span>₦8,000</span></div>
         </div>
-        <div className="border-t border-ink-100 pt-3 flex justify-between items-baseline">
-          <span className="text-xs text-ink-400">Total</span>
+        <div className="border-t border-ink-100 mt-3 pt-3 flex justify-between items-baseline">
+          <span className="text-[10px] uppercase tracking-[0.15em] text-ink-400">Total</span>
           <span className="font-display text-xl font-semibold text-ink-900">₦53,000</span>
         </div>
       </motion.div>
 
       <motion.div
-        initial={{ opacity: 0, y: 24, rotate: 6 }}
-        animate={{ opacity: 1, y: 0, rotate: 3 }}
-        transition={{ duration: 0.6, delay: 0.15 }}
-        className="absolute bottom-2 right-2 sm:right-4 w-[70%] card p-4 shadow-card-hover"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="absolute right-4 top-14 sm:right-6 sm:top-16 w-[52%] card overflow-hidden shadow-card-hover"
       >
-        <p className="text-[11px] text-ink-400 mb-3">Divine Fashion — Store</p>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-lg bg-brand-50 aspect-square flex items-end p-2">
-            <span className="text-[10px] font-medium text-brand-700">₦25,000</span>
-          </div>
-          <div className="rounded-lg bg-gold-50 aspect-square flex items-end p-2">
-            <span className="text-[10px] font-medium text-gold-600">₦18,500</span>
+        <div className="bg-gradient-to-r from-ink-950 via-ink-900 to-brand-900 px-4 py-3 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-white/60">Business</p>
+              <p className="text-sm font-semibold">Divine Fashion</p>
+            </div>
+            <span className="rounded-full bg-white/10 px-2 py-1 text-[10px]">Live</span>
           </div>
         </div>
-        <div className="btn bg-[#25D366] text-white text-[11px] py-1.5 w-full mt-3">
-          <MessageCircle size={12} /> Chat on WhatsApp
+        <div className="p-4">
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className="rounded-xl bg-brand-50 aspect-[1.1] flex items-end p-2">
+              <span className="text-[10px] font-medium text-brand-700">₦25,000</span>
+            </div>
+            <div className="rounded-xl bg-gold-50 aspect-[1.1] flex items-end p-2">
+              <span className="text-[10px] font-medium text-gold-700">₦18,500</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 rounded-xl bg-[#EAF9EE] px-2.5 py-2 text-[11px] text-ink-700">
+            <div className="w-7 h-7 rounded-full bg-[#25D366] flex items-center justify-center text-white">
+              <MessageCircle size={12} />
+            </div>
+            WhatsApp ready
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20, rotate: 6 }}
+        animate={{ opacity: 1, y: 0, rotate: 4 }}
+        transition={{ duration: 0.6, delay: 0.25 }}
+        className="absolute bottom-5 left-1/2 -translate-x-1/2 w-[82%] card p-4 sm:p-5 border-brand-100 shadow-card-hover"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.22em] text-ink-400">Growth</p>
+            <p className="text-lg font-display font-semibold text-ink-900">This month</p>
+          </div>
+          <div className="rounded-full bg-gold-100 text-gold-700 px-2.5 py-1 text-xs font-semibold">+64%</div>
+        </div>
+
+        <div className="flex items-end h-20 gap-2">
+          {[35, 55, 42, 68, 85, 76, 94].map((h, index) => (
+            <div
+              key={h}
+              className={`flex-1 rounded-t-xl ${index % 2 === 0 ? 'bg-brand-200' : 'bg-brand-500'} opacity-90`}
+              style={{ height: `${h}%` }}
+            />
+          ))}
         </div>
       </motion.div>
 
@@ -104,10 +141,20 @@ function HeroVisual() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.4 }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gold-400 text-ink-950 rounded-full w-20 h-20 flex flex-col items-center justify-center shadow-gold-glow"
+        className="absolute -right-2 bottom-20 sm:bottom-24 bg-gold-400 text-ink-950 rounded-2xl px-3 py-2 shadow-gold-glow"
       >
-        <span className="text-lg font-display font-semibold leading-none">+64%</span>
-        <span className="text-[9px] mt-0.5">this month</span>
+        <p className="text-[10px] uppercase tracking-[0.16em] text-ink-700">Sales</p>
+        <p className="font-display text-xl font-semibold leading-none">₦1.8M</p>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, x: 10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        className="absolute left-2 bottom-16 sm:left-6 sm:bottom-20 rounded-2xl bg-white/90 border border-ink-100 px-3 py-2 shadow-card-hover"
+      >
+        <p className="text-[10px] uppercase tracking-[0.2em] text-ink-400">AI Assist</p>
+        <p className="text-sm font-semibold">Auto captions</p>
       </motion.div>
     </div>
   );
@@ -123,14 +170,19 @@ export default function Landing() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-ink-50 dark:bg-ink-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-16 sm:pt-20 sm:pb-24 grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.16),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(251,191,36,0.18),_transparent_30%),#f8fafc] dark:bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.12),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(251,191,36,0.12),_transparent_30%),#020817]">
+        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/40 to-transparent dark:from-ink-950/20" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-16 sm:pt-20 sm:pb-24 grid lg:grid-cols-2 gap-12 lg:gap-8 items-center relative">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.4rem] font-semibold tracking-tight text-ink-900 dark:text-white leading-[1.1]">
-              Run your business. Build your brand. Grow faster.
+            <div className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/80 px-3 py-1.5 text-sm font-medium text-brand-700 shadow-sm backdrop-blur-sm dark:border-brand-800 dark:bg-brand-950/50 dark:text-brand-200">
+              <Sparkles size={16} className="text-gold-500" />
+              Built for growing businesses
+            </div>
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.5rem] font-semibold tracking-tight text-ink-900 dark:text-white leading-[1.02] mt-6">
+              Sell smarter. <span className="text-brand-600">Manage faster.</span>
             </h1>
-            <p className="text-lg text-ink-600 dark:text-ink-400 mt-6 max-w-lg">
-              BusinessHub gives small businesses everything they need to build an online presence, manage customers, create invoices, showcase products, and grow — all in one place.
+            <p className="text-lg text-ink-600 dark:text-ink-400 mt-6 max-w-xl leading-8">
+              BusinessHub helps you launch a beautiful storefront, create invoices, track sales, and market your brand from one simple dashboard.
             </p>
             <div className="flex flex-col sm:flex-row items-start gap-4 mt-8">
               <Link to="/register" className="btn-primary text-base px-6 py-3 w-full sm:w-auto">
@@ -140,7 +192,11 @@ export default function Landing() {
                 Explore Features
               </a>
             </div>
-            <p className="text-sm text-ink-400 mt-6">No card required · Free 30-day trial of every plan</p>
+            <div className="flex flex-wrap items-center gap-6 mt-8 text-sm text-ink-500 dark:text-ink-400">
+              <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-brand-500" /> 2,500+ businesses</div>
+              <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-gold-500" /> 30s setup</div>
+              <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500" /> No code needed</div>
+            </div>
           </motion.div>
 
           <HeroVisual />
