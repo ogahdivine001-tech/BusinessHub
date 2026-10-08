@@ -71,6 +71,11 @@ const businessSchema = new mongoose.Schema(
     },
     hideBranding: { type: Boolean, default: false }, // "custom branding" — Starter/Pro only
     isPublished: { type: Boolean, default: true },
+    bankDetails: {
+      bankName: { type: String, trim: true },
+      accountName: { type: String, trim: true },
+      accountNumber: { type: String, trim: true, match: /^\d{10}$/ },
+    },
   },
   { timestamps: true },
 );

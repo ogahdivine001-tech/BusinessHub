@@ -1,23 +1,32 @@
-const asyncHandler = require('express-async-handler');
-const Business = require('../models/Business');
-const Product = require('../models/Product');
-const Customer = require('../models/Customer');
-const Order = require('../models/Order');
-const Subscription = require('../models/Subscription');
-const User = require('../models/User');
-const ApiError = require('../utils/apiError');
-const { buildUniqueSlug } = require('../utils/slugify');
-const { generateOrderNumber } = require('../utils/generateNumbers');
-const { uploadImage } = require('../services/uploadService');
-const { getLimits, getEffectivePlan, TRIAL_DAYS } = require('../services/subscriptionService');
-const { notify, maybeNotifyLowStock } = require('../services/notificationService');
+const asyncHandler = require("express-async-handler");
+const Business = require("../models/Business");
+const Product = require("../models/Product");
+const Customer = require("../models/Customer");
+const Order = require("../models/Order");
+const Subscription = require("../models/Subscription");
+const User = require("../models/User");
+const ApiError = require("../utils/apiError");
+const { buildUniqueSlug } = require("../utils/slugify");
+const { generateOrderNumber } = require("../utils/generateNumbers");
+const { uploadImage } = require("../services/uploadService");
+const {
+  getLimits,
+  getEffectivePlan,
+  TRIAL_DAYS,
+} = require("../services/subscriptionService");
+const {
+  notify,
+  maybeNotifyLowStock,
+} = require("../services/notificationService");
 
 // @desc  Create the logged-in user's business (onboarding)
 // @route POST /api/businesses
 const createBusiness = asyncHandler(async (req, res) => {
-  if (req.user.business) throw new ApiError(400, 'You already have a business.');
+  if (req.user.business)
+    throw new ApiError(400, "You already have a business.");
 
-  const { name, category, description, phone, whatsapp, location, theme } = req.body;
+  const { name, category, description, phone, whatsapp, location, theme } =
+    req.body;
   const slug = await buildUniqueSlug(Business, name);
 
   const business = await Business.create({
@@ -36,7 +45,11 @@ const createBusiness = asyncHandler(async (req, res) => {
   // underlying paid plan defaults to 'free' — that's what it reverts to
   // automatically once trialEndsAt passes (see getEffectivePlan).
   const trialEndsAt = new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
-  await Subscription.create({ business: business._id, plan: 'free', trialEndsAt });
+  await Subscription.create({
+    business: business._id,
+    plan: "free",
+    trialEndsAt,
+  });
 
   req.user.business = business._id;
   req.user.onboardingComplete = true;
@@ -49,7 +62,7 @@ const createBusiness = asyncHandler(async (req, res) => {
 // @route GET /api/businesses/me
 const getMyBusiness = asyncHandler(async (req, res) => {
   const business = await Business.findById(req.businessId);
-  if (!business) throw new ApiError(404, 'Business not found.');
+  if (!business) throw new ApiError(404, "Business not found.");
   res.json({ success: true, data: { business } });
 });
 
@@ -57,8 +70,20 @@ const getMyBusiness = asyncHandler(async (req, res) => {
 // @route PUT /api/businesses/me
 const updateMyBusiness = asyncHandler(async (req, res) => {
   const allowed = [
-    'name', 'description', 'category', 'phone', 'whatsapp', 'email',
-    'address', 'location', 'socials', 'businessHours', 'theme', 'isPublished', 'hideBranding',
+    "name",
+    "description",
+    "category",
+    "phone",
+    "whatsapp",
+    "email",
+    "address",
+    "location",
+    "socials",
+    "businessHours",
+    "theme",
+    "isPublished",
+    "hideBranding",
+    "bankDetails",
   ];
   const updates = {};
   allowed.forEach((key) => {
@@ -68,15 +93,23 @@ const updateMyBusiness = asyncHandler(async (req, res) => {
   // Enforce plan-gated fields server-side — the dashboard UI already
   // disables these controls for the wrong plan, but that's just UX; a
   // direct API call must be blocked here too, or the limit isn't real.
-  if ('theme' in updates || 'hideBranding' in updates) {
-    const subscription = await Subscription.findOne({ business: req.businessId });
+  if ("theme" in updates || "hideBranding" in updates) {
+    const subscription = await Subscription.findOne({
+      business: req.businessId,
+    });
     const limits = getLimits(getEffectivePlan(subscription));
 
-    if (updates.theme === 'bold' && !limits.premiumThemes) {
-      throw new ApiError(403, 'The "Bold" theme is available on the Pro plan. Upgrade to unlock it.');
+    if (updates.theme === "bold" && !limits.premiumThemes) {
+      throw new ApiError(
+        403,
+        'The "Bold" theme is available on the Pro plan. Upgrade to unlock it.',
+      );
     }
     if (updates.hideBranding === true && !limits.customBranding) {
-      throw new ApiError(403, 'Removing "Powered by BusinessHub" requires the Starter or Pro plan. Upgrade to enable custom branding.');
+      throw new ApiError(
+        403,
+        'Removing "Powered by BusinessHub" requires the Starter or Pro plan. Upgrade to enable custom branding.',
+      );
     }
   }
 
@@ -84,7 +117,7 @@ const updateMyBusiness = asyncHandler(async (req, res) => {
     new: true,
     runValidators: true,
   });
-  if (!business) throw new ApiError(404, 'Business not found.');
+  if (!business) throw new ApiError(404, "Business not found.");
   res.json({ success: true, data: { business } });
 });
 
@@ -92,13 +125,14 @@ const updateMyBusiness = asyncHandler(async (req, res) => {
 // @route POST /api/businesses/me/image
 const uploadBusinessImage = asyncHandler(async (req, res) => {
   const { image, type } = req.body; // type: 'logo' | 'coverImage', image: base64 data URI
-  if (!['logo', 'coverImage'].includes(type)) throw new ApiError(400, 'Invalid image type.');
+  if (!["logo", "coverImage"].includes(type))
+    throw new ApiError(400, "Invalid image type.");
 
   const uploaded = await uploadImage(image, `businesses/${req.businessId}`);
   const business = await Business.findByIdAndUpdate(
     req.businessId,
     { [type]: uploaded },
-    { new: true }
+    { new: true },
   );
   res.json({ success: true, data: { business } });
 });
@@ -106,10 +140,17 @@ const uploadBusinessImage = asyncHandler(async (req, res) => {
 // @desc  Public storefront by slug
 // @route GET /api/businesses/store/:slug
 const getPublicBusiness = asyncHandler(async (req, res) => {
-  const business = await Business.findOne({ slug: req.params.slug, isPublished: true });
-  if (!business) throw new ApiError(404, 'This business page could not be found.');
+  const business = await Business.findOne({
+    slug: req.params.slug,
+    isPublished: true,
+  });
+  if (!business)
+    throw new ApiError(404, "This business page could not be found.");
 
-  const products = await Product.find({ business: business._id, isAvailable: true }).populate('category');
+  const products = await Product.find({
+    business: business._id,
+    isAvailable: true,
+  }).populate("category");
 
   res.json({ success: true, data: { business, products } });
 });
@@ -121,20 +162,28 @@ const getPublicBusiness = asyncHandler(async (req, res) => {
 //        is re-verified server-side rather than trusted from the request.
 // @route POST /api/businesses/store/:slug/orders
 const createPublicOrder = asyncHandler(async (req, res) => {
-  const business = await Business.findOne({ slug: req.params.slug, isPublished: true });
-  if (!business) throw new ApiError(404, 'This business page could not be found.');
+  const business = await Business.findOne({
+    slug: req.params.slug,
+    isPublished: true,
+  });
+  if (!business)
+    throw new ApiError(404, "This business page could not be found.");
 
   const { productId, quantity, customerName, customerPhone } = req.body;
 
   if (!customerName?.trim() || !customerPhone?.trim()) {
-    throw new ApiError(400, 'Please provide your name and phone number.');
+    throw new ApiError(400, "Please provide your name and phone number.");
   }
-  if (!productId) throw new ApiError(400, 'No product was selected.');
+  if (!productId) throw new ApiError(400, "No product was selected.");
 
   // Re-fetch the product from the DB scoped to THIS business — never trust
   // a price or name sent from the browser for something that affects money.
-  const product = await Product.findOne({ _id: productId, business: business._id, isAvailable: true });
-  if (!product) throw new ApiError(404, 'This product is no longer available.');
+  const product = await Product.findOne({
+    _id: productId,
+    business: business._id,
+    isAvailable: true,
+  });
+  if (!product) throw new ApiError(404, "This product is no longer available.");
 
   const qty = Math.min(Math.max(Number(quantity) || 1, 1), 20); // sane cap, prevents abuse
   const price = product.finalPrice ?? product.price;
@@ -142,7 +191,10 @@ const createPublicOrder = asyncHandler(async (req, res) => {
 
   // Reuse the customer record if this phone number has ordered before,
   // instead of creating duplicate customer entries for every WhatsApp order.
-  let customer = await Customer.findOne({ business: business._id, phone: customerPhone.trim() });
+  let customer = await Customer.findOne({
+    business: business._id,
+    phone: customerPhone.trim(),
+  });
   if (!customer) {
     customer = await Customer.create({
       business: business._id,
@@ -157,30 +209,41 @@ const createPublicOrder = asyncHandler(async (req, res) => {
     orderNumber: generateOrderNumber(),
     items: [{ product: product._id, name: product.name, price, quantity: qty }],
     total,
-    status: 'pending',
-    paymentStatus: 'unpaid',
-    notes: 'Placed via public storefront — awaiting confirmation on WhatsApp.',
+    status: "pending",
+    paymentStatus: "unpaid",
+    notes: "Placed via public storefront — awaiting confirmation on WhatsApp.",
   });
 
-  await Customer.findByIdAndUpdate(customer._id, { $inc: { totalOrders: 1, totalSpent: total } });
+  await Customer.findByIdAndUpdate(customer._id, {
+    $inc: { totalOrders: 1, totalSpent: total },
+  });
 
   // Same stock-decrement + notification behavior as dashboard-created
   // orders, so a WhatsApp order affects inventory exactly like a manual one.
   const previousStock = product.stockQuantity;
   product.stockQuantity = Math.max(0, previousStock - qty);
   await product.save();
-  await maybeNotifyLowStock({ ownerId: business.owner, product, previousStock });
+  await maybeNotifyLowStock({
+    ownerId: business.owner,
+    product,
+    previousStock,
+  });
 
   await notify(business.owner, {
-    title: 'New order from your storefront',
+    title: "New order from your storefront",
     message: `${customerName.trim()} ordered ${qty} x ${product.name} (₦${total.toLocaleString()}) via WhatsApp.`,
-    type: 'order',
-    link: '/dashboard/orders',
+    type: "order",
+    link: "/dashboard/orders",
   });
 
   res.status(201).json({
     success: true,
-    data: { orderNumber: order.orderNumber, productName: product.name, quantity: qty, total },
+    data: {
+      orderNumber: order.orderNumber,
+      productName: product.name,
+      quantity: qty,
+      total,
+    },
   });
 });
 

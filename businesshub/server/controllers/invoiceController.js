@@ -152,7 +152,7 @@ const downloadInvoicePdf = asyncHandler(async (req, res) => {
   if (!invoice) throw new ApiError(404, "Invoice not found.");
   const business = await Business.findById(invoice.business);
 
-  renderDocumentPdf(res, {
+  await renderDocumentPdf(res, {
     docType: "Invoice",
     docNumber: invoice.invoiceNumber,
     business,
@@ -165,6 +165,7 @@ const downloadInvoicePdf = asyncHandler(async (req, res) => {
     dueDate: invoice.dueDate,
     notes: invoice.notes,
     status: invoice.status,
+    issuedAt: invoice.createdAt,
   });
 });
 

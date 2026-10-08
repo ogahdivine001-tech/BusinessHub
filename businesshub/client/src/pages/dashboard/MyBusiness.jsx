@@ -11,6 +11,7 @@ import {
   Facebook,
   Twitter,
   Copy,
+  Landmark,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import Card from "../../components/Card";
@@ -30,6 +31,7 @@ const CATEGORIES = [
   "Education",
   "Technology",
   "Graphics & Design",
+  "Website Development",
   "Health & Fitness",
   "Services",
   "Other",
@@ -94,6 +96,9 @@ export default function MyBusiness() {
   }, []);
 
   const update = (patch) => setBusiness((b) => ({ ...b, ...patch }));
+
+  const updateBank = (patch) =>
+    setBusiness((b) => ({ ...b, bankDetails: { ...b.bankDetails, ...patch } }));
 
   const updateHour = (day, patch) =>
     setBusiness((b) => ({
@@ -186,6 +191,12 @@ export default function MyBusiness() {
     twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(storeUrl)}`,
   };
 
+  const acct = business.bankDetails?.accountNumber?.trim();
+  if (acct && !/^\d{10}$/.test(acct)) {
+    toast.error("Account number must be exactly 10 digits.");
+    return;
+  }
+
   const save = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -202,6 +213,7 @@ export default function MyBusiness() {
         socials: business.socials,
         theme: business.theme,
         hideBranding: business.hideBranding,
+        bankDetails: business.bankDetails,
         businessHours: business.businessHours,
       });
       setBusiness(updated);
@@ -435,6 +447,43 @@ export default function MyBusiness() {
           </div>
         </Card>
 
+        <Card className="p-6 mb-5 space-y-4">
+          <div>
+            <h3 className="font-semibold flex items-center gap-2">
+              <Landmark size={16} /> Payment details
+            </h3>
+            <p className="text-xs text-ink-600 dark:text-ink-400 mt-1">
+              Shown on your invoices so customers know where to send payment.
+              Anyone with an invoice link can see these details.
+            </p>
+          </div>
+          <Input
+            label="Bank name"
+            value={business.bankDetails?.bankName || ""}
+            onChange={(e) => updateBank({ bankName: e.target.value })}
+            placeholder="e.g. GTBank"
+          />
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Input
+              label="Account name"
+              value={business.bankDetails?.accountName || ""}
+              onChange={(e) => updateBank({ accountName: e.target.value })}
+            />
+            <Input
+              label="Account number"
+              inputMode="numeric"
+              maxLength={10}
+              placeholder="10 digits"
+              value={business.bankDetails?.accountNumber || ""}
+              onChange={(e) =>
+                updateBank({
+                  accountNumber: e.target.value.replace(/\D/g, "").slice(0, 10),
+                })
+              }
+            />
+          </div>
+        </Card>
+
         <Card className="p-6 mb-5 space-y-3">
           <h3 className="font-semibold flex items-center gap-2">
             <Clock size={16} /> Business hours
@@ -589,7 +638,7 @@ export default function MyBusiness() {
               </p>
               <p className="text-xs text-ink-500 mt-0.5">
                 {limits.customBranding ? (
-                  "Hide the BusinessHub footer on your public storefront."
+                  "Hide the BusinessHub footer on your storefront, invoices and receipts."
                 ) : (
                   <>
                     Available on Starter and Pro.{" "}
