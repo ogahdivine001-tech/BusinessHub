@@ -1,27 +1,56 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
-// A simple two-tone growth mark — gold trend line meeting a green
-// arrowhead — on a dark ink chip. Tied to what BusinessHub actually does
-// (helping a business grow) rather than a generic icon-in-a-box.
+// BusinessHub brand colors
+const COLORS = {
+  ink: "#16211c", // dark tile
+  gold: "#E8A33D", // storefront awning
+  green: "#4F9E76", // growth line + arrowhead
+};
+
+// Storefront mark: a gold awning over a rising green growth line.
+// Drawn entirely in code, so size and colors are controlled from here.
 function Mark({ size = 32 }) {
+  const line = {
+    fill: "none",
+    stroke: COLORS.green,
+    strokeWidth: 2.6,
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+  };
+
   return (
-    <span
-      className="rounded-xl bg-ink-950 flex items-center justify-center shrink-0"
-      style={{ width: size, height: size }}
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      aria-hidden="true"
+      focusable="false"
+      className="shrink-0"
     >
-      <svg width={size * 0.55} height={size * 0.55} viewBox="0 0 24 24" fill="none">
-        <path d="M3 16.5L9.5 10L13.5 14L21 6.5" stroke="#E8A33D" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M21 6.5H14.5M21 6.5V13" stroke="#4F9E76" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </span>
+      <rect width="32" height="32" rx="8" fill={COLORS.ink} />
+      {/* Awning with three scallops */}
+      <path
+        d="M6 7H26V10a3.33 3.33 0 0 1-6.67 0a3.33 3.33 0 0 1-6.66 0a3.33 3.33 0 0 1-6.67 0Z"
+        fill={COLORS.gold}
+      />
+      {/* Growth line */}
+      <path d="M8 25L13.5 20L17 23L23 17" {...line} />
+      {/* Arrowhead */}
+      <path d="M23 17H18M23 17V22" {...line} />
+    </svg>
   );
 }
 
-export default function Logo({ to = '/', size = 'md' }) {
-  const textSizes = { sm: 'text-base', md: 'text-lg', lg: 'text-2xl' };
+export default function Logo({ to = "/", size = "md" }) {
+  const textSizes = { sm: "text-base", md: "text-lg", lg: "text-2xl" };
   const markSizes = { sm: 26, md: 32, lg: 40 };
+
   return (
-    <Link to={to} className="flex items-center gap-2.5 font-semibold text-ink-900 dark:text-white shrink-0">
+    <Link
+      to={to}
+      aria-label="BusinessHub home"
+      className="flex items-center gap-2.5 font-semibold text-ink-900 dark:text-white shrink-0"
+    >
       <Mark size={markSizes[size]} />
       <span className={`font-display ${textSizes[size]}`}>BusinessHub</span>
     </Link>
