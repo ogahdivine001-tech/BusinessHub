@@ -24,34 +24,57 @@ const notificationRoutes = require("./routes/notificationRoutes");
 
 const app = express();
 
-// Render (like Heroku, Railway, etc.) sits the app behind a reverse proxy,
-// which adds an X-Forwarded-For header showing the real visitor IP. By
-// default Express doesn't trust that header — without this line,
-// express-rate-limit can't safely determine per-visitor IPs and throws
-// ERR_ERL_UNEXPECTED_X_FORWARDED_FOR on every rate-limited request,
-// silently breaking auth, AI, and public-order endpoints in production.
-// "1" means "trust exactly one hop" (Render's own proxy), which is
-// correct here and avoids the security risk of trusting an arbitrary
-// number of hops.
+// Trust reverse proxy (Render) for accurate IP detection in rate limiting
 app.set("trust proxy", 1);
 
+// Security Headers
 app.use(helmet());
+
+// Dynamic CORS Configuration
+const allowedOrigins = [
+  "https://businesshubng.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:3000",
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl, Postman) or allowed origins
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS policy violation: Origin not allowed"));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
-app.use(express.json({ limit: "10mb" })); // higher limit to allow base64 image payloads
+
+// Body and Cookie Parsing
+app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
+
+// Data Sanitization
 app.use(mongoSanitize());
-if (process.env.NODE_ENV !== "production") app.use(morgan("dev"));
+
+// Logging
+if (process.env.NODE_ENV !== "production") {
+  app.use(morgan("dev"));
+}
+
+// Rate Limiting
 app.use("/api", apiLimiter);
 
+// Health Check Route
 app.get("/api/health", (req, res) =>
   res.json({ success: true, message: "BusinessHub API is running." }),
 );
 
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/businesses", businessRoutes);
 app.use("/api/products", productRoutes);
@@ -67,6 +90,7 @@ app.use("/api/settings", settingsRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationRoutes);
 
+// Error Handling Middlewares
 app.use(notFound);
 app.use(errorHandler);
 
