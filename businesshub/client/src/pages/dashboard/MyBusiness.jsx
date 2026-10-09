@@ -191,14 +191,16 @@ export default function MyBusiness() {
     twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(storeUrl)}`,
   };
 
-  const acct = business.bankDetails?.accountNumber?.trim();
-  if (acct && !/^\d{10}$/.test(acct)) {
-    toast.error("Account number must be exactly 10 digits.");
-    return;
-  }
-
   const save = async (e) => {
     e.preventDefault();
+
+    // Nigerian account numbers (NUBAN) are exactly 10 digits.
+    const acct = business.bankDetails?.accountNumber?.trim();
+    if (acct && !/^\d{10}$/.test(acct)) {
+      toast.error("Account number must be exactly 10 digits.");
+      return;
+    }
+
     setSaving(true);
     try {
       const updated = await businessService.update({
@@ -252,12 +254,31 @@ export default function MyBusiness() {
     );
   }
 
+  // If the request failed (offline, server asleep, expired login) there is no
+  // business to edit. Show a message instead of crashing on a null value.
+  if (!business) {
+    return (
+      <div className="p-8 text-center">
+        <p className="font-medium">We couldn't load your business.</p>
+        <p className="text-sm text-ink-600 dark:text-ink-400 mt-1">
+          Check your internet connection and try again.
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="btn-primary mt-4"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold">My Business</h1>
-          <p className="text-ink-500 text-sm mt-1">
+          <p className="text-ink-600 dark:text-ink-400 text-sm mt-1">
             Manage how customers see you.
           </p>
         </div>
@@ -365,7 +386,7 @@ export default function MyBusiness() {
             </div>
             <div className="pb-1">
               <p className="text-sm font-medium">{business?.name}</p>
-              <p className="text-xs text-ink-400">
+              <p className="text-xs text-ink-500 dark:text-ink-400">
                 Hover the cover or logo to change it
               </p>
             </div>
@@ -496,7 +517,9 @@ export default function MyBusiness() {
               >
                 <span className="text-sm w-24 shrink-0">{h.day}</span>
                 {h.closed ? (
-                  <span className="text-sm text-ink-400 flex-1">Closed</span>
+                  <span className="text-sm text-ink-500 dark:text-ink-400 flex-1">
+                    Closed
+                  </span>
                 ) : (
                   <div className="flex items-center gap-2 flex-1">
                     <input
@@ -507,7 +530,9 @@ export default function MyBusiness() {
                       }
                       className="input py-1.5 text-sm w-full"
                     />
-                    <span className="text-ink-400 text-sm">to</span>
+                    <span className="text-ink-500 dark:text-ink-400 text-sm">
+                      to
+                    </span>
                     <input
                       type="time"
                       value={h.close}
@@ -518,7 +543,7 @@ export default function MyBusiness() {
                     />
                   </div>
                 )}
-                <label className="flex items-center gap-1.5 text-xs text-ink-500 shrink-0 cursor-pointer">
+                <label className="flex items-center gap-1.5 text-xs text-ink-600 dark:text-ink-400 shrink-0 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={h.closed}
@@ -609,17 +634,19 @@ export default function MyBusiness() {
                     <div className="h-8 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 mb-2" />
                     <p className="text-xs font-medium">{t.label}</p>
                     {t.pro && (
-                      <p className="text-[10px] text-brand-600 mt-0.5">Pro</p>
+                      <p className="text-[10px] text-brand-600 dark:text-brand-400 mt-0.5">
+                        Pro
+                      </p>
                     )}
                   </button>
                 );
               })}
             </div>
             {!limits.premiumThemes && (
-              <p className="text-xs text-ink-400 mt-2">
+              <p className="text-xs text-ink-500 dark:text-ink-400 mt-2">
                 <Link
                   to="/dashboard/settings?tab=Subscription"
-                  className="text-brand-600 underline"
+                  className="text-brand-600 dark:text-brand-400 underline"
                 >
                   Upgrade to Pro
                 </Link>{" "}
@@ -636,7 +663,7 @@ export default function MyBusiness() {
                   <Lock size={12} className="text-ink-400" />
                 )}
               </p>
-              <p className="text-xs text-ink-500 mt-0.5">
+              <p className="text-xs text-ink-600 dark:text-ink-400 mt-0.5">
                 {limits.customBranding ? (
                   "Hide the BusinessHub footer on your storefront, invoices and receipts."
                 ) : (
@@ -644,7 +671,7 @@ export default function MyBusiness() {
                     Available on Starter and Pro.{" "}
                     <Link
                       to="/dashboard/settings?tab=Subscription"
-                      className="text-brand-600 underline"
+                      className="text-brand-600 dark:text-brand-400 underline"
                     >
                       Upgrade
                     </Link>{" "}
