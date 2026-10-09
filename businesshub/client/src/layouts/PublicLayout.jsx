@@ -30,7 +30,7 @@ export default function PublicLayout() {
             <button onClick={() => navigate('/login')} className="btn-ghost">Login</button>
             <button onClick={() => navigate('/register')} className="btn-primary">Get Started</button>
           </div>
-          <button className="md:hidden" onClick={() => setOpen(!open)}>
+          <button className="md:hidden" aria-label={open ? "Close menu" : "Open menu"} onClick={() => setOpen(!open)}>
             {open ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
@@ -57,31 +57,31 @@ export default function PublicLayout() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
             <Logo />
-            <p className="text-sm text-ink-500 dark:text-ink-400 mt-3">Everything your business needs, in one place.</p>
+            <p className="text-sm text-ink-600 dark:text-ink-400 mt-3">Run your whole business from one link.</p>
           </div>
           <div>
             <h4 className="text-sm font-semibold mb-3">Product</h4>
-            <ul className="space-y-2 text-sm text-ink-500 dark:text-ink-400">
+            <ul className="space-y-2 text-sm text-ink-600 dark:text-ink-400">
               <li><a href="/#features" className="hover:text-ink-900 dark:hover:text-white">Features</a></li>
               <li><a href="/#pricing" className="hover:text-ink-900 dark:hover:text-white">Pricing</a></li>
             </ul>
           </div>
           <div>
             <h4 className="text-sm font-semibold mb-3">Company</h4>
-            <ul className="space-y-2 text-sm text-ink-500 dark:text-ink-400">
+            <ul className="space-y-2 text-sm text-ink-600 dark:text-ink-400">
               <li><Link to="/about" className="hover:text-ink-900 dark:hover:text-white">About</Link></li>
               <li><Link to="/contact" className="hover:text-ink-900 dark:hover:text-white">Contact</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-sm font-semibold mb-3">Legal</h4>
-            <ul className="space-y-2 text-sm text-ink-500 dark:text-ink-400">
+            <ul className="space-y-2 text-sm text-ink-600 dark:text-ink-400">
               <li><Link to="/privacy" className="hover:text-ink-900 dark:hover:text-white">Privacy</Link></li>
               <li><Link to="/terms" className="hover:text-ink-900 dark:hover:text-white">Terms</Link></li>
             </ul>
           </div>
         </div>
-        <div className="border-t border-ink-100 dark:border-ink-800 py-6 text-center text-xs text-ink-400">
+        <div className="border-t border-ink-100 dark:border-ink-800 py-6 text-center text-xs text-ink-600 dark:text-ink-400">
           © {new Date().getFullYear()} BusinessHub. All rights reserved.
         </div>
       </footer>

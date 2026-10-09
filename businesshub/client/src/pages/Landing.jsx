@@ -166,7 +166,7 @@ function Faq({ q, a }) {
 function HeroVisual() {
   return (
     <div className="relative w-full max-w-xl mx-auto lg:max-w-none aspect-[4/5] sm:aspect-[1.05] lg:aspect-[1.1]">
-      <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-brand-100 via-white to-gold-100 dark:from-brand-950/50 dark:via-ink-900 dark:to-gold-900/30 border border-brand-100 dark:border-ink-800 shadow-[0_30px_80px_rgba(15,23,42,0.12)]" />
+      <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-brand-100 via-white to-gold-100 dark:from-brand-950/50 dark:via-ink-900 dark:to-gold-500/10 border border-brand-100 dark:border-ink-800 shadow-[0_30px_80px_rgba(15,23,42,0.12)]" />
 
       <motion.div
         initial={{ opacity: 0, y: 24, x: -12 }}

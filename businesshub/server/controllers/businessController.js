@@ -140,10 +140,11 @@ const uploadBusinessImage = asyncHandler(async (req, res) => {
 // @desc  Public storefront by slug
 // @route GET /api/businesses/store/:slug
 const getPublicBusiness = asyncHandler(async (req, res) => {
+  // bankDetails are for invoices only; never send them to storefront visitors.
   const business = await Business.findOne({
     slug: req.params.slug,
     isPublished: true,
-  });
+  }).select("-bankDetails");
   if (!business)
     throw new ApiError(404, "This business page could not be found.");
 
