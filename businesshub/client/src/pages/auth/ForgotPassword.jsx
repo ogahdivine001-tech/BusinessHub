@@ -33,9 +33,9 @@ export default function ForgotPassword() {
           {sent ? (
             <div className="text-center">
               <h1 className="text-xl font-bold">Check your email</h1>
-              <p className="text-sm text-ink-500 mt-2">If an account exists for {email}, we've sent password reset instructions.</p>
+              <p className="text-sm text-ink-600 dark:text-ink-400 mt-2">If an account exists for {email}, we've sent password reset instructions.</p>
               {devResetUrl && (
-                <a href={devResetUrl} className="block text-sm text-brand-600 font-medium hover:underline mt-4">
+                <a href={devResetUrl} className="block text-sm text-brand-600 dark:text-brand-400 font-medium hover:underline mt-4">
                   Open reset link (development)
                 </a>
               )}
@@ -44,7 +44,7 @@ export default function ForgotPassword() {
           ) : (
             <>
               <h1 className="text-xl font-bold text-center">Forgot your password?</h1>
-              <p className="text-sm text-ink-500 text-center mt-1">We'll send you a reset link</p>
+              <p className="text-sm text-ink-600 dark:text-ink-400 text-center mt-1">We'll send you a reset link</p>
               <form onSubmit={onSubmit} className="mt-6 space-y-4">
                 <Input label="Email" type="email" required value={email}
                   onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
@@ -52,8 +52,8 @@ export default function ForgotPassword() {
                   {loading ? 'Sending…' : 'Send reset link'}
                 </button>
               </form>
-              <p className="text-center text-sm text-ink-500 mt-6">
-                <Link to="/login" className="text-brand-600 font-medium hover:underline">Back to login</Link>
+              <p className="text-center text-sm text-ink-600 dark:text-ink-400 mt-6">
+                <Link to="/login" className="text-brand-600 dark:text-brand-400 font-medium hover:underline">Back to login</Link>
               </p>
             </>
           )}

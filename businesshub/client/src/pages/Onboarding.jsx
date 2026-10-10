@@ -276,7 +276,7 @@ export default function Onboarding() {
                           <p className="text-sm font-medium">{t.label}</p>
                           {t.pro && (
                             <p className="text-[10px] text-brand-600 mt-0.5">
-                              Included in your 30-day trial
+                              Included in your 7-day trial
                             </p>
                           )}
                         </button>

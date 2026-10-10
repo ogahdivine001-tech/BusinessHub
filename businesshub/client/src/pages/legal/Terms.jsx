@@ -13,7 +13,7 @@ const SECTIONS = [
   },
   {
     title: "4. Subscription Plans, Free Trial & Billing",
-    body: `New businesses receive a 30-day trial with full Pro-tier features. After the trial, your account continues on the Free plan unless you subscribe to Starter or Pro. Paid subscriptions are billed monthly through our payment processor, Paystack. Prices are shown in Naira (₦) and may change with notice. You can cancel or downgrade at any time from your account settings; downgrades take effect at the end of the current billing period. We don't store your card details — all payment processing is handled directly by Paystack under its own terms and security standards.`,
+    body: `New businesses receive a 7-day trial with full Pro-tier features. After the trial, your account continues on the Free plan unless you subscribe to Starter or Pro. Paid subscriptions are billed monthly through our payment processor, Paystack. Prices are shown in Naira (₦) and may change with notice. You can cancel or downgrade at any time from your account settings; downgrades take effect at the end of the current billing period. We don't store your card details — all payment processing is handled directly by Paystack under its own terms and security standards.`,
   },
   {
     title: "5. Acceptable Use",
@@ -67,7 +67,7 @@ export default function Terms() {
       <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-ink-900 dark:text-white">
         Terms of Service
       </h1>
-      <p className="text-sm text-ink-500 mt-3">Last updated: September 2026</p>
+      <p className="text-sm text-ink-500 mt-3">Last updated: October 2026</p>
 
       <div className="mt-10 space-y-8">
         {SECTIONS.map((s) => (

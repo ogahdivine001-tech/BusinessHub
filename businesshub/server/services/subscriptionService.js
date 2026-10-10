@@ -35,7 +35,7 @@ function getLimits(plan) {
   return PLAN_LIMITS[plan] || PLAN_LIMITS.free;
 }
 
-const TRIAL_DAYS = 30;
+const TRIAL_DAYS = 7;
 
 // Every new business gets full Pro access for TRIAL_DAYS, regardless of
 // what they eventually pay for (or don't). `subscription.plan` always

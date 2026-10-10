@@ -24,7 +24,7 @@ const forgotPasswordRules = [
 ];
 
 const resetPasswordRules = [
-  body('token').notEmpty().withMessage('Reset token is required'),
+  body('token').isString().trim().notEmpty().withMessage('Reset token is required'),
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
   body('confirmPassword')
     .custom((value, { req }) => value === req.body.password)

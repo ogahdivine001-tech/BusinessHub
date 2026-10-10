@@ -12,9 +12,15 @@ export default function ResetPassword() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [linkProblem, setLinkProblem] = useState(false);
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match.');
+      return;
+    }
+    setLinkProblem(false);
     setLoading(true);
     try {
       await authService.resetPassword({ token, password, confirmPassword });
@@ -22,6 +28,7 @@ export default function ResetPassword() {
       navigate('/login');
     } catch (err) {
       toast.error(err.message);
+      if (/invalid or has expired/i.test(err.message)) setLinkProblem(true);
     } finally {
       setLoading(false);
     }
@@ -45,8 +52,14 @@ export default function ResetPassword() {
               {loading ? 'Resetting…' : 'Reset password'}
             </button>
           </form>
-          <p className="text-center text-sm text-ink-500 mt-6">
-            <Link to="/login" className="text-brand-600 font-medium hover:underline">Back to login</Link>
+          {linkProblem && (
+            <p className="text-center text-sm text-ink-600 dark:text-ink-400 mt-4">
+              This link has expired or was already used.{' '}
+              <Link to="/forgot-password" className="text-brand-600 dark:text-brand-400 font-medium hover:underline">Request a new link</Link>
+            </p>
+          )}
+          <p className="text-center text-sm text-ink-600 dark:text-ink-400 mt-6">
+            <Link to="/login" className="text-brand-600 dark:text-brand-400 font-medium hover:underline">Back to login</Link>
           </p>
         </div>
       </div>

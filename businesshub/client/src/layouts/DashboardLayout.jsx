@@ -109,8 +109,9 @@ function TrialBanner() {
   }, []);
 
   // Only nag once the trial is genuinely running low — showing this from
-  // day one would just be noise. 7 days is the cutoff.
-  if (!trial?.active || trial.daysLeft > 7) return null;
+  // day one would just be noise. The trial is only 7 days long, so the
+  // banner waits until the last 3 days.
+  if (!trial?.active || trial.daysLeft > 3) return null;
 
   return (
     <div className="bg-brand-600 text-white px-4 py-2 text-sm flex items-center justify-center gap-2 text-center">

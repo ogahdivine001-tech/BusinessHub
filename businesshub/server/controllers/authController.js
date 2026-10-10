@@ -75,15 +75,33 @@ const forgotPassword = asyncHandler(async (req, res) => {
     user.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 hour
     await user.save();
 
+    // Where the reset link points. This must NEVER be built from request
+    // headers on a public server: an attacker could submit a victim's email
+    // with a forged Origin header, and the victim would receive a genuine
+    // BusinessHub email whose link goes to the attacker's site (reset-link
+    // poisoning). Only a direct connection from this machine (local
+    // development) may use the request's own origin.
+    const isLocalRequest = ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(
+      req.socket && req.socket.remoteAddress,
+    );
     const clientOrigin =
-      process.env.CLIENT_URL || req.headers.origin || `${req.protocol}://${req.get("host")}`;
+      process.env.CLIENT_URL ||
+      (isLocalRequest
+        ? req.headers.origin || "http://localhost:5173"
+        : "https://businesshubng.vercel.app");
     if (!process.env.CLIENT_URL) {
       console.warn(
         `[auth] CLIENT_URL is not set — using "${clientOrigin}" for the password reset URL. Set CLIENT_URL explicitly in production.`,
       );
     }
     const resetUrl = `${clientOrigin.replace(/\/+$/, "")}/reset-password?token=${rawToken}`;
-    if (process.env.NODE_ENV !== "production") devResetUrl = resetUrl;
+
+    // The link is a password-equivalent secret. Only echo it back in the API
+    // response when developing on your own machine, never on a deployed
+    // server (a wrong or missing NODE_ENV must not turn this into a leak).
+    if (process.env.NODE_ENV !== "production" && isLocalRequest) {
+      devResetUrl = resetUrl;
+    }
 
     // Deliberately NOT awaited — an external SMTP call can be slow or
     // hang depending on network conditions, and the browser should never

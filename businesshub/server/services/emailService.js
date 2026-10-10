@@ -90,12 +90,14 @@ async function sendEmail({ to, subject, html }) {
 
 async function sendPasswordResetEmail(to, resetUrl) {
   const html = `
-    <div style="font-family: Arial, Helvetica, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1f2937;">
-      <h2 style="color:#16211c; margin-bottom: 12px;">Reset your BusinessHub password</h2>
-      <p style="line-height:1.6; color:#4b5563;">We received a request to reset your password. Click the button below to choose a new one. This link expires in 1 hour.</p>
-      <a href="${resetUrl}" style="display:inline-block; background:#1f6647; color:#ffffff; padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:600; margin:20px 0;">Reset Password</a>
-      <p style="color:#9ca3af; font-size:13px; margin-top: 24px;">If you didn't request this, you can safely ignore this email — your password will stay the same.</p>
-      <p style="color:#9ca3af; font-size:12px; word-break: break-all;">Or copy this link: ${resetUrl}</p>
+    <div style="font-family: Arial, Helvetica, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #16211c;">
+      <p style="font-family: Georgia, 'Times New Roman', serif; font-size: 22px; font-weight: bold; color:#16211c; margin: 0 0 4px;">BusinessHub</p>
+      <div style="height:3px; width:48px; background:#e8a33d; margin: 0 0 24px;"></div>
+      <h2 style="color:#16211c; margin: 0 0 12px; font-size: 20px;">Reset your password</h2>
+      <p style="line-height:1.6; color:#413d34; margin: 0;">We received a request to reset your BusinessHub password. Tap the button below to choose a new one. This link expires in 1 hour.</p>
+      <a href="${resetUrl}" style="display:inline-block; background:#1f6647; color:#ffffff; padding:14px 28px; border-radius:8px; text-decoration:none; font-weight:600; margin:24px 0;">Reset password</a>
+      <p style="color:#5b5548; font-size:13px; line-height:1.5; margin-top: 8px;">If you didn't request this, you can safely ignore this email. Your password will stay the same.</p>
+      <p style="color:#5b5548; font-size:12px; word-break: break-all; margin-top: 20px;">Button not working? Copy this link into your browser:<br />${resetUrl}</p>
     </div>
   `;
   return sendEmail({ to, subject: "Reset your BusinessHub password", html });
