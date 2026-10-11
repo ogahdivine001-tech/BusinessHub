@@ -48,4 +48,13 @@ const publicPdfLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { authLimiter, apiLimiter, aiLimiter, publicOrderLimiter, publicPdfLimiter };
+// Bulk messaging is powerful, so even admins get a tight cap (10 sends / 15 min).
+const adminMessageLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { success: false, message: 'Too many messages sent. Please wait a few minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+module.exports = { authLimiter, apiLimiter, aiLimiter, publicOrderLimiter, publicPdfLimiter, adminMessageLimiter };

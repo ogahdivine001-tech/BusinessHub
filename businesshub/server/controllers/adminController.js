@@ -5,6 +5,9 @@ const Subscription = require("../models/Subscription");
 const Order = require("../models/Order");
 const AdminLog = require("../models/AdminLog");
 const ApiError = require("../utils/apiError");
+const AdminMessage = require("../models/AdminMessage");
+const { resolveRecipients, deliverMessage, AUDIENCES, MAX_RECIPIENTS } = require("../services/messageService");
+const { isConfigured: emailConfigured } = require("../services/emailService");
 
 const PLAN_DURATION_DAYS = 30; // matches the monthly billing model shown on /pricing
 
@@ -180,6 +183,92 @@ const getSubscriptions = asyncHandler(async (req, res) => {
   res.json({ success: true, data: { subscriptions } });
 });
 
+// ---------------------------------------------------------------------------
+// Messaging customers (email and/or in-app notification)
+// ---------------------------------------------------------------------------
+
+// @desc  How many people an audience would reach (shown before sending)
+// @route GET /api/admin/messages/audience?audience=trial&userEmail=
+const countAudience = asyncHandler(async (req, res) => {
+  const { audience, userEmail } = req.query;
+  if (!AUDIENCES.includes(audience)) throw new ApiError(400, "Choose who to send to.");
+  const recipients = await resolveRecipients(audience, { userEmail });
+  res.json({
+    success: true,
+    data: {
+      count: recipients.length,
+      sample: recipients.slice(0, 3).map((u) => u.fullName),
+      emailConfigured: emailConfigured(),
+      max: MAX_RECIPIENTS,
+    },
+  });
+});
+
+// @desc  Send a message to customers by email, in-app notification, or both
+// @route POST /api/admin/messages
+const sendMessage = asyncHandler(async (req, res) => {
+  const { audience, userEmail, subject, body, link, channels, confirm } = req.body;
+
+  if (!AUDIENCES.includes(audience)) throw new ApiError(400, "Choose who to send to.");
+  const cleanSubject = String(subject || "").trim();
+  const cleanBody = String(body || "").trim();
+  if (!cleanSubject || cleanSubject.length > 150) throw new ApiError(400, "Add a subject (up to 150 characters).");
+  if (!cleanBody || cleanBody.length > 5000) throw new ApiError(400, "Add a message (up to 5000 characters).");
+  const useEmail = Boolean(channels && channels.email);
+  const useNotification = Boolean(channels && channels.notification);
+  if (!useEmail && !useNotification) throw new ApiError(400, "Choose email, notification, or both.");
+
+  // The link must stay inside the app: a path such as /dashboard/invoices.
+  let cleanLink;
+  if (link && String(link).trim()) {
+    cleanLink = String(link).trim();
+    if (!/^\/(?!\/)[A-Za-z0-9\-._~/?=&%#]*$/.test(cleanLink)) {
+      throw new ApiError(400, "The link must be a page inside BusinessHub, like /dashboard/invoices.");
+    }
+  }
+
+  const recipients = await resolveRecipients(audience, { userEmail });
+  if (!recipients.length) throw new ApiError(400, "No matching active customers for that choice.");
+  if (recipients.length > MAX_RECIPIENTS) {
+    throw new ApiError(400, `That is ${recipients.length} people. The limit per send is ${MAX_RECIPIENTS}; choose a smaller group.`);
+  }
+  if (recipients.length > 1 && confirm !== true) {
+    throw new ApiError(400, `Please confirm that you want to send this to ${recipients.length} people.`);
+  }
+
+  const message = await AdminMessage.create({
+    admin: req.user._id,
+    subject: cleanSubject,
+    body: cleanBody,
+    link: cleanLink,
+    audience,
+    audienceLabel: audience === "user" ? String(userEmail).trim().toLowerCase() : undefined,
+    channels: { email: useEmail, notification: useNotification },
+    recipientCount: recipients.length,
+  });
+  await logAction(req.user._id, "message.send", "AdminMessage", message._id, {
+    audience,
+    recipients: recipients.length,
+    channels: message.channels,
+  });
+
+  // Answer right away; delivery continues in the background (emails are
+  // spaced out, so a large send takes a while).
+  res.status(202).json({ success: true, data: { message } });
+
+  deliverMessage(message, recipients).catch(async (err) => {
+    console.error("[admin-message] delivery crashed:", err.message);
+    await AdminMessage.updateOne({ _id: message._id }, { $set: { status: "failed", finishedAt: new Date() } }).catch(() => {});
+  });
+});
+
+// @desc  History of messages sent by admins
+// @route GET /api/admin/messages
+const getMessages = asyncHandler(async (req, res) => {
+  const messages = await AdminMessage.find().sort("-createdAt").limit(30).populate("admin", "fullName");
+  res.json({ success: true, data: { messages } });
+});
+
 module.exports = {
   getOverview,
   getUsers,
@@ -188,4 +277,7 @@ module.exports = {
   setBusinessPublished,
   setBusinessPlan,
   getSubscriptions,
+  countAudience,
+  sendMessage,
+  getMessages,
 };

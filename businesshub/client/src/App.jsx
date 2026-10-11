@@ -41,6 +41,7 @@ import AdminOverview from './pages/admin/AdminOverview';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminBusinesses from './pages/admin/AdminBusinesses';
 import AdminSubscriptions from './pages/admin/AdminSubscriptions';
+import AdminMessages from './pages/admin/AdminMessages';
 
 export default function App() {
   return (
@@ -95,6 +96,7 @@ export default function App() {
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/businesses" element={<AdminBusinesses />} />
           <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
+          <Route path="/admin/messages" element={<AdminMessages />} />
         </Route>
       </Route>
 

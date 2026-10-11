@@ -4,6 +4,7 @@ const User = require("../models/User");
 const ApiError = require("../utils/apiError");
 const { generateToken, sendTokenCookie } = require("../utils/generateToken");
 const { sendPasswordResetEmail } = require("../services/emailService");
+const { welcomeNewUser } = require("../services/welcomeService");
 
 // @desc  Register a new user
 // @route POST /api/auth/register
@@ -17,6 +18,10 @@ const register = asyncHandler(async (req, res) => {
   const user = await User.create({ fullName, email, phone, password });
   const token = generateToken(user._id);
   sendTokenCookie(res, token);
+
+  // Welcome email + in-app notification. Deliberately NOT awaited: signup
+  // must never be slowed down or broken by the email provider.
+  welcomeNewUser(user).catch((err) => console.error("[welcome] unexpected error:", err.message));
 
   res
     .status(201)

@@ -113,12 +113,12 @@ export default function NotificationBell() {
                       className={`w-full text-left px-4 py-3 flex gap-3 hover:bg-ink-50 dark:hover:bg-ink-800/60 transition-colors ${!n.isRead ? 'bg-brand-50/50 dark:bg-brand-900/10' : ''}`}
                     >
                       <div className="w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center shrink-0">
-                        <Icon size={14} className="text-brand-600" />
+                        <Icon size={14} className="text-brand-600 dark:text-brand-400" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium truncate">{n.title}</p>
-                        {n.message && <p className="text-xs text-ink-500 mt-0.5 line-clamp-2">{n.message}</p>}
-                        <p className="text-[11px] text-ink-400 mt-1">{timeAgo(n.createdAt)}</p>
+                        {n.message && <p className="text-xs text-ink-600 dark:text-ink-400 mt-0.5 line-clamp-2">{n.message}</p>}
+                        <p className="text-[11px] text-ink-500 dark:text-ink-400 mt-1">{timeAgo(n.createdAt)}</p>
                       </div>
                       {!n.isRead && <span className="w-2 h-2 rounded-full bg-brand-600 shrink-0 mt-1.5" />}
                     </button>
