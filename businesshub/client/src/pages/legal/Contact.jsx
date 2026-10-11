@@ -1,30 +1,11 @@
-import {
-  Mail,
-  MessageCircle,
-  Instagram,
-  Twitter,
-  Facebook,
-  Linkedin,
-} from "lucide-react";
+import { Mail, MessageCircle, Instagram } from "lucide-react";
 
-// Placeholder handles for BusinessHub's own public accounts — update these
-// to your real ones before going live.
+// BusinessHub's own public account.
 const SOCIALS = [
   {
     icon: Instagram,
     label: "Instagram",
-    href: "https://instagram.com/businesshub",
-  },
-  { icon: Twitter, label: "Twitter / X", href: "https://x.com/businesshub" },
-  {
-    icon: Facebook,
-    label: "Facebook",
-    href: "https://facebook.com/businesshub",
-  },
-  {
-    icon: Linkedin,
-    label: "LinkedIn",
-    href: "https://linkedin.com/company/businesshub",
+    href: "https://www.instagram.com/ig.businesshub/",
   },
 ];
 
