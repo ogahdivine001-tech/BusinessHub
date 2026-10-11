@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, ShoppingCart, FileText, PackageX, Sparkles, Info, Pin } from 'lucide-react';
 import { notificationService } from '../services/notificationService';
+import { setUnread } from '../utils/unreadStore';
 
 const ICONS = { order: ShoppingCart, invoice: FileText, inventory: PackageX, ai: Sparkles, system: Info };
 
@@ -23,6 +24,9 @@ export default function NotificationBell() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const panelRef = useRef(null);
+
+  // Share the count with the sidebar badge whenever it changes.
+  useEffect(() => { setUnread(unreadCount); }, [unreadCount]);
 
   const load = async () => {
     setLoading(true);

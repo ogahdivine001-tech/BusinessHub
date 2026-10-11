@@ -136,6 +136,10 @@ const FAQS = [
     a: "Yes. Customers can chat with you directly on your existing WhatsApp number with one tap from your business page.",
   },
   {
+    q: "How does the free trial work?",
+    a: "When you set up your business page, you get 7 days of Pro features free, with no card needed. After that your account moves to the Free plan unless you choose a paid plan. You can upgrade at any time.",
+  },
+  {
     q: "Can I upgrade or downgrade my plan anytime?",
     a: "Yes, you can change your plan at any time from your dashboard settings.",
   },
@@ -356,8 +360,8 @@ export default function Landing() {
             </div>
             <div className="flex flex-wrap items-center gap-6 mt-8 text-sm text-ink-600 dark:text-ink-400">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-brand-500" /> Free plan
-                available
+                <span className="w-2 h-2 rounded-full bg-brand-500" /> Free plan +
+                7-day Pro trial
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-gold-500" /> No code
@@ -451,7 +455,8 @@ export default function Landing() {
               Simple, transparent pricing
             </h2>
             <p className="text-ink-600 dark:text-ink-400 mt-3">
-              Start free. Upgrade as your business grows.
+              Start free. Upgrade as your business grows. Every new business
+              also gets a 7-day free trial of Pro.
             </p>
           </div>
           <div className="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto">

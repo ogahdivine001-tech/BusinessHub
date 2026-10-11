@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Store, Package, ShoppingCart, Users, FileText, Receipt,
   BarChart3, Sparkles, Megaphone, Settings, Menu, X, HelpCircle, ArrowUpCircle,
-  Sun, Moon, LogOut, ExternalLink, Shield,
+  Sun, Moon, LogOut, ExternalLink, Shield, Bell,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -12,6 +12,7 @@ import NotificationBell from '../components/NotificationBell';
 import HelpModal from '../components/HelpModal';
 import toast from 'react-hot-toast';
 import { subscriptionService } from '../services/subscriptionService';
+import { useUnread } from '../utils/unreadStore';
 
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -24,6 +25,7 @@ const NAV = [
   { to: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
   { to: '/dashboard/ai-assistant', label: 'AI Assistant', icon: Sparkles },
   { to: '/dashboard/marketing', label: 'Marketing', icon: Megaphone },
+  { to: '/dashboard/notifications', label: 'Notifications', icon: Bell, badge: true },
   { to: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -32,6 +34,7 @@ function SidebarContent({ onNavigate }) {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [helpOpen, setHelpOpen] = useState(false);
+  const unread = useUnread();
 
   const handleLogout = async () => {
     await logout();
@@ -45,7 +48,7 @@ function SidebarContent({ onNavigate }) {
         <Logo to="/dashboard" />
       </div>
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        {NAV.map(({ to, label, icon: Icon, end }) => (
+        {NAV.map(({ to, label, icon: Icon, end, badge }) => (
           <NavLink
             key={to}
             to={to}
@@ -61,6 +64,14 @@ function SidebarContent({ onNavigate }) {
           >
             <Icon size={18} />
             {label}
+            {badge && unread > 0 && (
+              <span
+                className="ml-auto min-w-[1.25rem] h-5 px-1.5 rounded-full bg-brand-600 text-white text-[11px] font-semibold flex items-center justify-center"
+                aria-label={`${unread} unread`}
+              >
+                {unread > 99 ? '99+' : unread}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>
