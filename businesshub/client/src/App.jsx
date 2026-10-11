@@ -34,6 +34,7 @@ import Analytics from './pages/dashboard/Analytics';
 import AIAssistant from './pages/dashboard/AIAssistant';
 import Marketing from './pages/dashboard/Marketing';
 import Settings from './pages/dashboard/Settings';
+import Notifications from './pages/dashboard/Notifications';
 import SubscriptionCallback from './pages/dashboard/SubscriptionCallback';
 
 import AdminLayout from './pages/admin/AdminLayout';
@@ -84,6 +85,7 @@ export default function App() {
           <Route path="/dashboard/analytics" element={<Analytics />} />
           <Route path="/dashboard/ai-assistant" element={<AIAssistant />} />
           <Route path="/dashboard/marketing" element={<Marketing />} />
+          <Route path="/dashboard/notifications" element={<Notifications />} />
           <Route path="/dashboard/settings" element={<Settings />} />
           <Route path="/dashboard/settings/subscription/callback" element={<SubscriptionCallback />} />
         </Route>

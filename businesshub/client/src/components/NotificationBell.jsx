@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Bell, ShoppingCart, FileText, PackageX, Sparkles, Info } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Bell, ShoppingCart, FileText, PackageX, Sparkles, Info, Pin } from 'lucide-react';
 import { notificationService } from '../services/notificationService';
 
 const ICONS = { order: ShoppingCart, invoice: FileText, inventory: PackageX, ai: Sparkles, system: Info };
@@ -42,7 +42,12 @@ export default function NotificationBell() {
   useEffect(() => {
     load();
     const interval = setInterval(load, 60 * 1000);
-    return () => clearInterval(interval);
+    // The Notifications page fires this after pinning, deleting or reading.
+    window.addEventListener('notifications:changed', load);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('notifications:changed', load);
+    };
   }, []);
 
   useEffect(() => {
@@ -99,9 +104,9 @@ export default function NotificationBell() {
             )}
           </div>
           {loading && notifications.length === 0 ? (
-            <p className="text-sm text-ink-400 text-center py-8">Loading…</p>
+            <p className="text-sm text-ink-500 dark:text-ink-400 text-center py-8">Loading…</p>
           ) : notifications.length === 0 ? (
-            <p className="text-sm text-ink-400 text-center py-8">No notifications yet.</p>
+            <p className="text-sm text-ink-500 dark:text-ink-400 text-center py-8">No notifications yet.</p>
           ) : (
             <ul className="divide-y divide-ink-50 dark:divide-ink-800/50">
               {notifications.map((n) => {
@@ -116,7 +121,10 @@ export default function NotificationBell() {
                         <Icon size={14} className="text-brand-600 dark:text-brand-400" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate">{n.title}</p>
+                        <p className="text-sm font-medium flex items-center gap-1">
+                          {n.isPinned && <Pin size={11} className="text-brand-600 dark:text-brand-400 shrink-0" aria-label="Pinned" />}
+                          <span className="truncate">{n.title}</span>
+                        </p>
                         {n.message && <p className="text-xs text-ink-600 dark:text-ink-400 mt-0.5 line-clamp-2">{n.message}</p>}
                         <p className="text-[11px] text-ink-500 dark:text-ink-400 mt-1">{timeAgo(n.createdAt)}</p>
                       </div>
@@ -127,6 +135,13 @@ export default function NotificationBell() {
               })}
             </ul>
           )}
+          <Link
+            to="/dashboard/notifications"
+            onClick={() => setOpen(false)}
+            className="block text-center text-sm font-medium text-brand-700 dark:text-brand-400 hover:underline py-3 border-t border-ink-100 dark:border-ink-800 sticky bottom-0 bg-white dark:bg-ink-900"
+          >
+            View all notifications
+          </Link>
         </div>
       )}
     </div>

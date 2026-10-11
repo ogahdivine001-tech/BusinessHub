@@ -69,7 +69,7 @@ async function deliverMessage(msg, recipients) {
         await Notification.create({
           user: user._id,
           title: subject,
-          message: body.replace(/\s+/g, ' ').slice(0, 280),
+          message: body, // stored in full, with line breaks, for the Notifications page
           type: 'system',
           link: msg.link || undefined,
         });

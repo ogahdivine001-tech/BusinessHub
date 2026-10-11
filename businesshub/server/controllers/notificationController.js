@@ -1,4 +1,5 @@
 const asyncHandler = require("express-async-handler");
+const mongoose = require("mongoose");
 const Notification = require("../models/Notification");
 const Invoice = require("../models/Invoice");
 const ApiError = require("../utils/apiError");
@@ -39,27 +40,31 @@ const getNotifications = asyncHandler(async (req, res) => {
     console.error("Overdue invoice check failed:", err.message),
   );
 
-  const { page = 1, limit = 20 } = req.query;
-  const skip = (Number(page) - 1) * Number(limit);
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
+  const filter = req.query.filter || "all";
+  if (!["all", "unread", "pinned"].includes(filter)) {
+    throw new ApiError(400, "Filter must be all, unread or pinned.");
+  }
 
-  const [notifications, total, unreadCount] = await Promise.all([
-    Notification.find({ user: req.user._id })
-      .sort("-createdAt")
-      .skip(skip)
-      .limit(Number(limit)),
-    Notification.countDocuments({ user: req.user._id }),
+  const query = { user: req.user._id };
+  if (filter === "unread") query.isRead = false;
+  if (filter === "pinned") query.isPinned = true;
+
+  const [notifications, total, unreadCount, pinnedCount] = await Promise.all([
+    // Pinned first, then newest first.
+    Notification.find(query)
+      .sort({ isPinned: -1, createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Notification.countDocuments(query),
     Notification.countDocuments({ user: req.user._id, isRead: false }),
+    Notification.countDocuments({ user: req.user._id, isPinned: true }),
   ]);
 
   res.json({
     success: true,
-    data: {
-      notifications,
-      total,
-      unreadCount,
-      page: Number(page),
-      pages: Math.ceil(total / limit),
-    },
+    data: { notifications, total, unreadCount, pinnedCount, page, pages: Math.ceil(total / limit) },
   });
 });
 
@@ -81,4 +86,47 @@ const markAllAsRead = asyncHandler(async (req, res) => {
   res.json({ success: true, message: "All notifications marked as read." });
 });
 
-module.exports = { getNotifications, markAsRead, markAllAsRead };
+const MAX_PINNED = 25;
+const validId = (id) => mongoose.isValidObjectId(id);
+
+// Pin or unpin one notification: PATCH /api/notifications/:id/pin  { isPinned: true|false }
+const setPinned = asyncHandler(async (req, res) => {
+  const { isPinned } = req.body;
+  if (typeof isPinned !== "boolean") throw new ApiError(400, "isPinned must be true or false.");
+  if (!validId(req.params.id)) throw new ApiError(404, "Notification not found.");
+
+  if (isPinned) {
+    const pinned = await Notification.countDocuments({ user: req.user._id, isPinned: true });
+    if (pinned >= MAX_PINNED) {
+      throw new ApiError(400, `You can pin up to ${MAX_PINNED} notifications. Unpin one first.`);
+    }
+  }
+  const notification = await Notification.findOneAndUpdate(
+    { _id: req.params.id, user: req.user._id },
+    { isPinned },
+    { new: true },
+  );
+  if (!notification) throw new ApiError(404, "Notification not found.");
+  res.json({ success: true, data: { notification } });
+});
+
+// Delete one notification: DELETE /api/notifications/:id
+const deleteNotification = asyncHandler(async (req, res) => {
+  if (!validId(req.params.id)) throw new ApiError(404, "Notification not found.");
+  const notification = await Notification.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+  if (!notification) throw new ApiError(404, "Notification not found.");
+  res.json({ success: true, message: "Notification deleted." });
+});
+
+// Delete every READ notification that is not pinned: DELETE /api/notifications?scope=read
+const clearRead = asyncHandler(async (req, res) => {
+  if (req.query.scope !== "read") throw new ApiError(400, "Specify scope=read to clear read notifications.");
+  const result = await Notification.deleteMany({
+    user: req.user._id,
+    isRead: true,
+    isPinned: { $ne: true },
+  });
+  res.json({ success: true, data: { deleted: result.deletedCount || 0 } });
+});
+
+module.exports = { getNotifications, markAsRead, markAllAsRead, setPinned, deleteNotification, clearRead };
