@@ -31,7 +31,10 @@ async function verifyTransaction(reference) {
   if (!isConfigured()) {
     throw new ApiError(503, 'Payments are not configured yet.');
   }
-  const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
+  if (!/^[A-Za-z0-9_.-]{6,100}$/.test(String(reference))) {
+    throw new ApiError(400, 'Invalid payment reference.');
+  }
+  const response = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
     headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
   });
   if (!response.ok) {

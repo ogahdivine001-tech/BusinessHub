@@ -55,7 +55,16 @@ app.use(
 );
 
 // Body and Cookie Parsing
-app.use(express.json({ limit: "10mb" }));
+// The Paystack webhook signature is computed over the exact raw bytes, so keep
+// them for that one route only.
+app.use(
+  express.json({
+    limit: "10mb",
+    verify: (req, res, buf) => {
+      if (req.originalUrl && req.originalUrl.startsWith("/api/subscriptions/webhook")) req.rawBody = buf;
+    },
+  }),
+);
 app.use(cookieParser());
 
 // Data Sanitization

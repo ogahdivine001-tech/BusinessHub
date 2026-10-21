@@ -1,15 +1,15 @@
 const asyncHandler = require('express-async-handler');
 const Customer = require('../models/Customer');
 const ApiError = require('../utils/apiError');
+const escapeRegex = require('../utils/escapeRegex');
 
 const getCustomers = asyncHandler(async (req, res) => {
   const { search, page = 1, limit = 20 } = req.query;
   const query = { business: req.businessId };
-  if (search) query.$or = [
-    { name: new RegExp(search, 'i') },
-    { phone: new RegExp(search, 'i') },
-    { email: new RegExp(search, 'i') },
-  ];
+  if (search) {
+    const pattern = new RegExp(escapeRegex(search), 'i');
+    query.$or = [{ name: pattern }, { phone: pattern }, { email: pattern }];
+  }
 
   const skip = (Number(page) - 1) * Number(limit);
   const [customers, total] = await Promise.all([

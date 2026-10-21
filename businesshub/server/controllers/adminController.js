@@ -5,6 +5,7 @@ const Subscription = require("../models/Subscription");
 const Order = require("../models/Order");
 const AdminLog = require("../models/AdminLog");
 const ApiError = require("../utils/apiError");
+const escapeRegex = require("../utils/escapeRegex");
 const AdminMessage = require("../models/AdminMessage");
 const { resolveRecipients, deliverMessage, AUDIENCES, MAX_RECIPIENTS } = require("../services/messageService");
 const { isConfigured: emailConfigured } = require("../services/emailService");
@@ -50,8 +51,8 @@ const getUsers = asyncHandler(async (req, res) => {
   const query = search
     ? {
         $or: [
-          { fullName: new RegExp(search, "i") },
-          { email: new RegExp(search, "i") },
+          { fullName: new RegExp(escapeRegex(search), "i") },
+          { email: new RegExp(escapeRegex(search), "i") },
         ],
       }
     : {};
@@ -87,7 +88,7 @@ const setUserActive = asyncHandler(async (req, res) => {
 // @route GET /api/admin/businesses
 const getBusinesses = asyncHandler(async (req, res) => {
   const { page = 1, limit = 20, search } = req.query;
-  const query = search ? { name: new RegExp(search, "i") } : {};
+  const query = search ? { name: new RegExp(escapeRegex(search), "i") } : {};
   const skip = (Number(page) - 1) * Number(limit);
   const [businesses, total] = await Promise.all([
     Business.find(query)
