@@ -18,6 +18,8 @@ import Card from "../../components/Card";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
 import Textarea from "../../components/Textarea";
+import { RatingLine } from "../../components/StarRating";
+import VerifiedBadge from "../../components/VerifiedBadge";
 import { CardSkeleton } from "../../components/Skeleton";
 import { businessService } from "../../services/businessService";
 import { subscriptionService } from "../../services/subscriptionService";
@@ -217,6 +219,7 @@ export default function MyBusiness() {
         hideBranding: business.hideBranding,
         bankDetails: business.bankDetails,
         businessHours: business.businessHours,
+        delivery: business.delivery || { status: "unspecified" },
       });
       setBusiness(updated);
       toast.success("Business updated.");
@@ -394,6 +397,15 @@ export default function MyBusiness() {
         </div>
       </Card>
 
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-5 text-sm">
+        <RatingLine average={business.ratingAverage} count={business.ratingCount} size={16} />
+        <span className="text-ink-500">{business.followerCount || 0} follower{business.followerCount === 1 ? '' : 's'}</span>
+        <span className="inline-flex items-center gap-1.5 text-ink-500">
+          Verification:
+          {business.verification?.status === 'verified' ? <><VerifiedBadge status="verified" /> <span className="text-brand-600 font-medium">Verified</span></> : business.verification?.status === 'pending' ? 'Pending review' : 'Not verified'}
+        </span>
+      </div>
+
       <form onSubmit={save}>
         <Card className="p-6 mb-5 space-y-4">
           <h3 className="font-semibold">Business details</h3>
@@ -466,6 +478,50 @@ export default function MyBusiness() {
               }
             />
           </div>
+        </Card>
+
+        <Card className="p-6 mb-5 space-y-4">
+          <div>
+            <h3 className="font-semibold">Delivery</h3>
+            <p className="text-sm text-ink-500 mt-1">
+              Tell customers whether you deliver. Only share details you can honour: we never add fees or delivery times for you.
+            </p>
+          </div>
+          <Select
+            label="Do you offer delivery?"
+            value={business.delivery?.status || "unspecified"}
+            onChange={(e) => update({ delivery: { ...(business.delivery || {}), status: e.target.value } })}
+          >
+            <option value="unspecified">Not specified</option>
+            <option value="available">Delivery available</option>
+            <option value="unavailable">Delivery not available</option>
+          </Select>
+          {business.delivery?.status === "available" && (
+            <>
+              <Input
+                label="Areas you deliver to (optional)"
+                maxLength={300}
+                placeholder="e.g. Lekki, Victoria Island, Ikeja"
+                value={business.delivery?.areas || ""}
+                onChange={(e) => update({ delivery: { ...business.delivery, areas: e.target.value } })}
+              />
+              <Textarea
+                label="Delivery terms (optional)"
+                rows={3}
+                maxLength={500}
+                placeholder="e.g. Delivery cost is agreed with you before dispatch."
+                value={business.delivery?.terms || ""}
+                onChange={(e) => update({ delivery: { ...business.delivery, terms: e.target.value } })}
+              />
+              <Input
+                label="How should customers arrange delivery? (optional)"
+                maxLength={300}
+                placeholder="e.g. Message us on WhatsApp with your address"
+                value={business.delivery?.contact || ""}
+                onChange={(e) => update({ delivery: { ...business.delivery, contact: e.target.value } })}
+              />
+            </>
+          )}
         </Card>
 
         <Card className="p-6 mb-5 space-y-4">

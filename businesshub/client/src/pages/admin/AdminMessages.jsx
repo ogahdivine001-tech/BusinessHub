@@ -11,10 +11,12 @@ import { TableSkeleton } from "../../components/Skeleton";
 import { adminService } from "../../services/adminService";
 
 const AUDIENCES = [
-  { value: "all", label: "Everyone (all active business owners)" },
-  { value: "trial", label: "People on the free Pro trial" },
-  { value: "free", label: "Free plan (trial finished)" },
-  { value: "paid", label: "Paying customers (Starter and Pro)" },
+  { value: "customers", label: "All customers (customer accounts)" },
+  { value: "all", label: "All sellers (every active business owner)" },
+  { value: "everyone", label: "Everyone (sellers and customers)" },
+  { value: "trial", label: "Sellers on the free Pro trial" },
+  { value: "free", label: "Sellers on the Free plan (trial finished)" },
+  { value: "paid", label: "Paying sellers (Starter and Pro)" },
   { value: "not_onboarded", label: "Signed up but not set up yet" },
   { value: "user", label: "One person (by email)" },
 ];
@@ -23,7 +25,7 @@ const audienceLabel = (m) =>
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
 
 export default function AdminMessages() {
-  const [audience, setAudience] = useState("all");
+  const [audience, setAudience] = useState("all"); // sellers stay the default, as before
   const [userEmail, setUserEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");

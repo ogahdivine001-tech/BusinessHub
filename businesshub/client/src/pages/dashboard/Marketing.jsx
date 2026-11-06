@@ -6,6 +6,7 @@ import Input from '../../components/Input';
 import Select from '../../components/Select';
 import UsageBar from '../../components/UsageBar';
 import { aiService } from '../../services/aiService';
+import LockedFeature from '../../components/LockedFeature';
 
 function ToolCard({ title, description, fields, type, buildParams, atLimit, onGenerated }) {
   const [values, setValues] = useState({});
@@ -70,14 +71,22 @@ export default function Marketing() {
   const loadUsage = () => aiService.usage().then(setUsage).catch(() => {});
   useEffect(() => { loadUsage(); }, []);
 
-  const atLimit = usage && Number.isFinite(usage.limit) && usage.used >= usage.limit;
+  const atLimit = usage && usage.scope === 'shared' && Number.isFinite(usage.limit) && usage.used >= usage.limit;
+
+  if (usage?.features && !usage.features.aiMarketing) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <LockedFeature title="Marketing tools are not part of your plan" description="Generate captions, ad copy, product descriptions and campaign ideas from your business details." plans="Pro" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold flex items-center gap-2"><Megaphone className="text-brand-600" size={24} /> Marketing Tools</h1>
         <p className="text-ink-500 text-sm mt-1">AI-powered content to help you promote your business.</p>
-        {usage && (
+        {usage && usage.scope === 'shared' && (
           <div className="max-w-xs mt-3">
             <UsageBar label="AI requests this month" used={usage.used} limit={usage.limit} />
           </div>

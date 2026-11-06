@@ -23,4 +23,10 @@ export const authService = {
     api.post("/auth/forgot-password", { email }).then((r) => r.data),
   resetPassword: (payload) =>
     api.post("/auth/reset-password", payload).then((r) => r.data),
+  becomeSeller: () =>
+    api.post("/auth/become-seller").then((r) => r.data.data.user),
+  verifyEmail: (token) =>
+    api.post("/auth/verify-email", { token }).then((r) => r.data),
+  requestEmailVerification: () =>
+    api.post("/auth/verify-email/request").then((r) => r.data),
 };

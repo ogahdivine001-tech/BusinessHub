@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { MapPin, Phone, Mail, Store as StoreIcon, ImageIcon, Instagram, Facebook, Twitter, Globe, Minus, Plus, Clock } from 'lucide-react';
+import { MapPin, Phone, Mail, Store as StoreIcon, ImageIcon, Instagram, Facebook, Twitter, Globe, Minus, Plus, Clock, Truck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Logo from '../../components/Logo';
 import Badge from '../../components/Badge';
@@ -11,6 +11,10 @@ import EmptyState from '../../components/EmptyState';
 import { CardSkeleton } from '../../components/Skeleton';
 import { businessService } from '../../services/businessService';
 import { applyStoreSeo } from '../../utils/seo';
+import VerifiedBadge from '../../components/VerifiedBadge';
+import FollowButton from '../../components/FollowButton';
+import StoreReviews from '../../components/StoreReviews';
+import { RatingLine } from '../../components/StarRating';
 
 // Users sometimes type a bare domain or handle ("instagram.com/x" or
 // "@x") instead of a full https:// URL — this keeps the link clickable
@@ -33,6 +37,8 @@ export default function Store() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Live numbers that change while the page is open (after following or reviewing).
+  const [stats, setStats] = useState({});
 
   // Order-capture modal state — collecting name/phone before the order
   // is registered and the customer is handed off to WhatsApp.
@@ -101,7 +107,8 @@ export default function Store() {
     );
   }
 
-  const { business, products } = data;
+  const { products } = data;
+  const business = { ...data.business, ...stats };
 
   return (
     <div className="min-h-screen bg-ink-50 dark:bg-ink-950">
@@ -118,17 +125,23 @@ export default function Store() {
 
         <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">{business.name}</h1>
+            <h1 className="text-2xl font-bold flex items-center gap-2">{business.name} <VerifiedBadge status={business.verification?.status} size={20} /></h1>
             <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-ink-500">
               <Badge color="brand">{business.category}</Badge>
               {business.location?.city && <span className="flex items-center gap-1"><MapPin size={13} /> {business.location.city}, {business.location.state}</span>}
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <FollowButton business={business} onCount={(followerCount) => setStats((x) => ({ ...x, followerCount }))} />
             {business.whatsapp && (
               <WhatsAppButton phone={business.whatsapp} message={`Hello ${business.name}, I'm interested in your products.`} />
             )}
           </div>
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1">
+          <RatingLine average={business.ratingAverage} count={business.ratingCount} size={16} />
+          {business.followerCount > 0 && <span className="text-sm text-ink-500">{business.followerCount} follower{business.followerCount === 1 ? '' : 's'}</span>}
         </div>
 
         {business.description && <p className="text-ink-600 dark:text-ink-400 mt-4 max-w-2xl">{business.description}</p>}
@@ -164,6 +177,23 @@ export default function Store() {
                 <Globe size={16} />
               </a>
             )}
+          </div>
+        )}
+
+        {business.delivery?.status === 'available' && (
+          <div className="mt-4 flex items-start gap-2 text-sm text-ink-500">
+            <Truck size={14} className="mt-0.5 shrink-0" />
+            <div>
+              <span className="font-medium text-ink-600 dark:text-ink-300">Delivery available</span>
+              {business.delivery.areas && <span> · {business.delivery.areas}</span>}
+              {business.delivery.terms && <p className="mt-0.5">{business.delivery.terms}</p>}
+              {business.delivery.contact && <p className="mt-0.5">{business.delivery.contact}</p>}
+            </div>
+          </div>
+        )}
+        {business.delivery?.status === 'unavailable' && (
+          <div className="mt-4 flex items-center gap-2 text-sm text-ink-500">
+            <Truck size={14} className="shrink-0" /> Delivery not available
           </div>
         )}
 
@@ -224,6 +254,8 @@ export default function Store() {
               ))}
             </div>
           )}
+
+          <StoreReviews business={business} onSummary={(x) => setStats((v) => ({ ...v, ratingAverage: x.ratingAverage, ratingCount: x.ratingCount }))} />
         </div>
       </div>
 

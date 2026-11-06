@@ -6,7 +6,7 @@ const isConfigured = () => Boolean(process.env.PAYSTACK_SECRET_KEY);
 // callback_url tells Paystack exactly where to redirect the customer back
 // to after they complete (or cancel) payment on Paystack's hosted page —
 // without it, Paystack falls back to a generic page and the user is stuck.
-async function initializeTransaction({ email, amountKobo, metadata, callbackUrl }) {
+async function initializeTransaction({ email, amountKobo, metadata, callbackUrl, currency }) {
   if (!isConfigured()) {
     throw new ApiError(
       503,
@@ -19,7 +19,7 @@ async function initializeTransaction({ email, amountKobo, metadata, callbackUrl 
       Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ email, amount: amountKobo, metadata, callback_url: callbackUrl }),
+    body: JSON.stringify({ email, amount: amountKobo, metadata, callback_url: callbackUrl, ...(currency ? { currency } : {}) }),
   });
   if (!response.ok) {
     throw new ApiError(502, 'Could not start payment. Please try again.');

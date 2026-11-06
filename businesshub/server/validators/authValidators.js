@@ -5,6 +5,7 @@ const registerRules = [
   body('email').isEmail().withMessage('A valid email is required').normalizeEmail(),
   body('phone').trim().notEmpty().withMessage('Phone number is required'),
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
+  body('accountType').optional().isIn(['seller', 'buyer']).withMessage('Account type must be seller or buyer'),
   body('confirmPassword').custom((value, { req }) => {
     if (value !== req.body.password) throw new Error('Passwords do not match');
     return true;
@@ -31,4 +32,8 @@ const resetPasswordRules = [
     .withMessage('Passwords do not match'),
 ];
 
-module.exports = { registerRules, loginRules, forgotPasswordRules, resetPasswordRules };
+const verifyEmailRules = [
+  body('token').isString().trim().matches(/^[a-f0-9]{64}$/).withMessage('Verification link is invalid or has expired.'),
+];
+
+module.exports = { registerRules, loginRules, forgotPasswordRules, resetPasswordRules, verifyEmailRules };

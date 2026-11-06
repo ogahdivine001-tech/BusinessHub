@@ -8,6 +8,10 @@
     "dev": "nodemon server.js",
     "start": "node server.js",
     "seed": "node seed/seed.js",
+    "audit:subscriptions": "node scripts/audit-subscriptions.js",
+    "migrate:step2": "node scripts/migrate-step2.js",
+    "migrate:step5": "node scripts/migrate-step5.js",
+    "kb:check": "node scripts/kb-check.js",
     "test": "node --test"
   },
   "dependencies": {
@@ -30,6 +34,7 @@
     "slugify": "^1.6.6"
   },
   "devDependencies": {
+    "mingo": "^6.7.2",
     "nodemon": "^3.1.0"
   }
 }

@@ -14,6 +14,8 @@ import Pagination from '../../components/Pagination';
 import { invoiceService } from '../../services/invoiceService';
 import { customerService } from '../../services/customerService';
 import { subscriptionService } from '../../services/subscriptionService';
+import { aiService } from '../../services/aiService';
+import LockedFeature from '../../components/LockedFeature';
 
 export default function Invoices() {
   const [invoices, setInvoices] = useState([]);
@@ -25,6 +27,8 @@ export default function Invoices() {
   const [form, setForm] = useState({ customer: '', dueDate: '', notes: '', discount: 0, tax: 0 });
   const [items, setItems] = useState([{ description: '', quantity: 1, price: 0 }]);
   const [usage, setUsage] = useState(null); // { used, limit }
+  const [features, setFeatures] = useState(null); // what this plan includes
+  const [drafting, setDrafting] = useState(false);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
 
@@ -38,6 +42,7 @@ export default function Invoices() {
       setInvoices(inv);
       setPages(totalPages);
       setUsage({ used: sub.usage.invoicesThisMonth, limit: sub.limits.invoicesPerMonth });
+      setFeatures(sub.features);
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -84,7 +89,7 @@ export default function Invoices() {
   };
 
   const shareInvoice = async (inv) => {
-    const pdfUrl = invoiceService.pdfUrl(inv._id);
+    const pdfUrl = invoiceService.pdfUrl(inv);
     const text = `Hi ${inv.customer?.name || ''}, here's your invoice ${inv.invoiceNumber} for ₦${inv.total.toLocaleString()}: ${pdfUrl}`;
 
     // Native share sheet (mobile browsers) is the best experience where
@@ -128,7 +133,20 @@ export default function Invoices() {
     }
   };
 
-  const atInvoiceLimit = usage && Number.isFinite(usage.limit) && usage.used >= usage.limit;
+  const noInvoices = features && !features.invoices; // plan does not include invoices
+  const atInvoiceLimit = noInvoices || (usage && Number.isFinite(usage.limit) && usage.used >= usage.limit);
+
+  const draftNotes = async () => {
+    setDrafting(true);
+    try {
+      const text = await aiService.generate('invoiceNotes', {
+        items: items.map((i) => i.description).filter(Boolean).join(', '),
+        terms: form.notes,
+      });
+      setForm((f) => ({ ...f, notes: String(text).trim().slice(0, 2000) })); // the owner reviews and edits before saving
+      toast.success('Draft added. Please review it before saving.');
+    } catch (err) { toast.error(err.message); } finally { setDrafting(false); }
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
@@ -137,12 +155,19 @@ export default function Invoices() {
           <h1 className="text-2xl font-bold">Invoices</h1>
           <p className="text-ink-500 text-sm mt-1">Bill your customers professionally.</p>
         </div>
-        <button onClick={openCreate} disabled={atInvoiceLimit} className="btn-primary" title={atInvoiceLimit ? 'Monthly invoice limit reached for your plan' : undefined}>
+        <button onClick={openCreate} disabled={atInvoiceLimit} className="btn-primary" title={noInvoices ? 'Invoices are not included in your plan' : atInvoiceLimit ? 'Monthly invoice limit reached for your plan' : undefined}>
           <Plus size={18} /> Create Invoice
         </button>
       </div>
 
-      {usage && (
+      {noInvoices && invoices.length === 0 && !loading && (
+        <div className="mb-6"><LockedFeature title="Invoices are not part of your plan" description="Create professional invoices and send customers a secure PDF link." /></div>
+      )}
+      {noInvoices && invoices.length > 0 && (
+        <p className="text-sm text-amber-700 dark:text-amber-400 mb-4">Your plan no longer includes creating invoices. Your existing invoices are safe and can still be viewed and downloaded. <a href="/dashboard/settings?tab=Subscription" className="underline font-medium">See plans</a></p>
+      )}
+
+      {usage && !noInvoices && (
         <div className="max-w-xs mb-6">
           <UsageBar label="Invoices this month" used={usage.used} limit={usage.limit} />
         </div>
@@ -152,8 +177,8 @@ export default function Invoices() {
         {loading ? (
           <TableSkeleton rows={6} />
         ) : invoices.length === 0 ? (
-          <EmptyState icon={FileText} title="No invoices yet." description="Create your first invoice to bill a customer."
-            action={<button onClick={openCreate} className="btn-primary"><Plus size={16} /> Create Invoice</button>} />
+          <EmptyState icon={FileText} title="No invoices yet." description={noInvoices ? 'Upgrade to start creating invoices.' : 'Create your first invoice to bill a customer.'}
+            action={noInvoices ? null : <button onClick={openCreate} className="btn-primary"><Plus size={16} /> Create Invoice</button>} />
         ) : (
           <div className="overflow-x-auto -mx-5">
             <table className="w-full text-sm">
@@ -178,7 +203,7 @@ export default function Invoices() {
                     <td className="px-5 py-3">
                       <div className="flex justify-end gap-1.5">
                         <button onClick={() => toggleStatus(inv)} title="Toggle paid/unpaid" className="p-1.5 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600"><CheckCircle size={14} /></button>
-                        <a href={invoiceService.pdfUrl(inv._id)} target="_blank" rel="noreferrer" title="Download PDF" className="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500"><Download size={14} /></a>
+                        <a href={invoiceService.pdfUrl(inv)} target="_blank" rel="noreferrer" title="Download PDF" className="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500"><Download size={14} /></a>
                         <button onClick={() => shareInvoice(inv)} title="Share" className="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500"><Share2 size={14} /></button>
                         <button onClick={() => setDeleteTarget(inv)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"><Trash2 size={14} /></button>
                       </div>
@@ -215,6 +240,11 @@ export default function Invoices() {
             <Input label="Due date" type="date" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} />
           </div>
           <Input label="Notes (optional)" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+          {features?.aiDocuments && (
+            <button type="button" onClick={draftNotes} disabled={drafting} className="text-sm text-brand-600 dark:text-brand-400 hover:underline disabled:opacity-60 -mt-2">
+              {drafting ? 'Drafting…' : '✨ Draft notes with AI'}
+            </button>
+          )}
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={() => setModalOpen(false)} className="btn-secondary flex-1">Cancel</button>
             <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? 'Saving…' : 'Create invoice'}</button>

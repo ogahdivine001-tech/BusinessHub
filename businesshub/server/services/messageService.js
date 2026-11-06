@@ -5,14 +5,18 @@ const AdminMessage = require('../models/AdminMessage');
 const { sendAdminMessageEmail } = require('./emailService');
 
 const MAX_RECIPIENTS = 1000;
-const AUDIENCES = ['all', 'trial', 'free', 'paid', 'not_onboarded', 'user'];
+// 'all' has always meant every active SELLER and keeps meaning that. 'customers' and
+// 'everyone' were added with customer accounts.
+const AUDIENCES = ['all', 'customers', 'everyone', 'trial', 'free', 'paid', 'not_onboarded', 'user'];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const firstNameOf = (fullName) => String(fullName || '').trim().split(/\s+/)[0] || 'there';
 const personalise = (text, firstName) => String(text).replace(/\{\{\s*firstName\s*\}\}/gi, firstName);
 
-// Only active business owners are ever messaged in bulk.
-const BASE = { role: 'owner', isActive: true };
+// Bulk messages go only to ACTIVE accounts of the chosen kind. Admins are never included.
+const BASE = { role: 'owner', isActive: true };           // sellers
+const CUSTOMERS = { role: 'buyer', isActive: true };       // customer accounts
+const EVERYONE = { role: { $in: ['owner', 'buyer'] }, isActive: true };
 
 async function usersForBusinesses(businessIds) {
   if (!businessIds.length) return [];
@@ -25,6 +29,10 @@ async function resolveRecipients(audience, { userEmail } = {}) {
   switch (audience) {
     case 'all':
       return User.find(BASE).select('fullName email').lean();
+    case 'customers':
+      return User.find(CUSTOMERS).select('fullName email').lean();
+    case 'everyone':
+      return User.find(EVERYONE).select('fullName email').lean();
     case 'not_onboarded':
       return User.find({ ...BASE, onboardingComplete: false }).select('fullName email').lean();
     case 'trial': {

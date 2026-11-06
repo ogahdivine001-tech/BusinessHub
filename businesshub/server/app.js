@@ -5,6 +5,14 @@ const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const mongoSanitize = require("express-mongo-sanitize");
 const { apiLimiter } = require("./middleware/rateLimiter");
+const discoverRoutes = require("./routes/discoverRoutes");
+const followRoutes = require("./routes/followRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
+const verificationRoutes = require("./routes/verificationRoutes");
+const assistantRoutes = require("./routes/assistantRoutes");
+const helpRoutes = require("./routes/helpRoutes");
+const planRoutes = require("./routes/planRoutes");
+const { buildAllowedOrigins } = require("./config/cors");
 const { errorHandler, notFound } = require("./middleware/errorHandler");
 
 const authRoutes = require("./routes/authRoutes");
@@ -30,13 +38,8 @@ app.set("trust proxy", 1);
 // Security Headers
 app.use(helmet());
 
-// Dynamic CORS Configuration
-const allowedOrigins = [
-  "https://businesshubng.vercel.app",
-  "http://localhost:5173",
-  "http://localhost:3000",
-  process.env.CLIENT_URL,
-].filter(Boolean);
+// CORS: which origins may call the API (see config/cors.js)
+const allowedOrigins = buildAllowedOrigins();
 
 app.use(
   cors({
@@ -86,6 +89,13 @@ app.get("/api/health", (req, res) =>
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/businesses", businessRoutes);
+app.use("/api/discover", discoverRoutes);
+app.use("/api/follows", followRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/verification", verificationRoutes);
+app.use("/api/assistant", assistantRoutes);
+app.use("/api/help", helpRoutes);
+app.use("/api/plans", planRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/customers", customerRoutes);

@@ -2,8 +2,25 @@ const asyncHandler = require('express-async-handler');
 const Product = require('../models/Product');
 const Subscription = require('../models/Subscription');
 const ApiError = require('../utils/apiError');
-const { getLimits, getEffectivePlan } = require('../services/subscriptionService');
+const { getLimits, getEffectivePlan, getLimitsFor } = require('../services/subscriptionService');
 const { uploadImage, deleteImage } = require('../services/uploadService');
+const Category = require('../models/Category');
+const mongoose = require('mongoose');
+const { verifyWithinLimit } = require('../services/usageGuard');
+
+// Only these fields can be set from a request. Anything else in the body
+// (business, _id, timestamps...) is ignored rather than written to the record.
+const EDITABLE_FIELDS = ['name', 'description', 'price', 'discount', 'category', 'stockQuantity', 'sku', 'isAvailable'];
+const pickEditable = (body) =>
+  Object.fromEntries(EDITABLE_FIELDS.filter((k) => body[k] !== undefined).map((k) => [k, body[k]]));
+
+// A product may only point at a category that belongs to the same business.
+async function assertOwnCategory(categoryId, businessId) {
+  if (!categoryId) return;
+  if (!mongoose.isValidObjectId(categoryId) || !(await Category.exists({ _id: categoryId, business: businessId }))) {
+    throw new ApiError(400, 'That category was not found in your business.');
+  }
+}
 
 // @desc  List products for the logged-in business (search/filter/sort/paginate)
 // @route GET /api/products
@@ -33,24 +50,44 @@ const getProducts = asyncHandler(async (req, res) => {
 // @route POST /api/products
 const createProduct = asyncHandler(async (req, res) => {
   const subscription = await Subscription.findOne({ business: req.businessId });
-  const limits = getLimits(getEffectivePlan(subscription));
-  const count = await Product.countDocuments({ business: req.businessId });
-  if (count >= limits.products) {
-    throw new ApiError(403, `Your plan allows up to ${limits.products} products. Please upgrade to add more.`);
+  const limits = getLimitsFor(subscription);
+  const countProducts = () => Product.countDocuments({ business: req.businessId });
+  const limitMessage = `Your plan allows up to ${limits.products} products. Please upgrade to add more.`;
+  // Early exit before any image is uploaded. Existing businesses that are
+  // already over a limit keep every product; they just cannot add more.
+  if ((await countProducts()) >= limits.products) {
+    throw new ApiError(403, limitMessage);
   }
 
-  const { images = [], ...rest } = req.body; // images: array of base64 data URIs (optional)
+  const fields = pickEditable(req.body);
+  await assertOwnCategory(fields.category, req.businessId);
+
+  const { images = [] } = req.body; // images: array of base64 data URIs (optional)
   const uploadedImages = [];
-  for (const img of images) {
+  for (const img of Array.isArray(images) ? images : []) {
     if (typeof img === 'string' && img.startsWith('data:')) {
       // eslint-disable-next-line no-await-in-loop
       uploadedImages.push(await uploadImage(img, `products/${req.businessId}`));
     } else if (img?.url) {
-      uploadedImages.push(img);
+      uploadedImages.push({ url: img.url, publicId: img.publicId });
     }
   }
 
-  const product = await Product.create({ ...rest, business: req.businessId, images: uploadedImages });
+  const product = await Product.create({ ...fields, business: req.businessId, images: uploadedImages });
+
+  await verifyWithinLimit({
+    count: countProducts,
+    limit: limits.products,
+    undo: async () => {
+      await Product.deleteOne({ _id: product._id });
+      for (const img of uploadedImages) {
+        // eslint-disable-next-line no-await-in-loop
+        if (img.publicId) await deleteImage(img.publicId).catch(() => {});
+      }
+    },
+    message: limitMessage,
+  });
+
   res.status(201).json({ success: true, data: { product } });
 });
 
@@ -65,8 +102,9 @@ const getProduct = asyncHandler(async (req, res) => {
 // @desc  Update a product
 // @route PUT /api/products/:id
 const updateProduct = asyncHandler(async (req, res) => {
-  const { images, ...rest } = req.body;
-  const update = { ...rest };
+  const { images } = req.body;
+  const update = pickEditable(req.body);
+  await assertOwnCategory(update.category, req.businessId);
 
   if (Array.isArray(images)) {
     const uploadedImages = [];

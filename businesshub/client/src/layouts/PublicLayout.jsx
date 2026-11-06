@@ -2,8 +2,12 @@ import { useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import Logo from '../components/Logo';
+import { useAuth } from '../context/AuthContext';
+import { homeFor } from '../utils/homePath';
 
 const LINKS = [
+  { to: '/discover', label: 'Discover' },
+  { to: '/help', label: 'Help' },
   { to: '/#features', label: 'Features' },
   { to: '/#pricing', label: 'Pricing' },
   { to: '/#how-it-works', label: 'How It Works' },
@@ -13,6 +17,8 @@ const LINKS = [
 export default function PublicLayout() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const homeLabel = user?.role === 'buyer' ? 'My account' : 'Dashboard';
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-ink-950">
@@ -27,8 +33,14 @@ export default function PublicLayout() {
             ))}
           </nav>
           <div className="hidden md:flex items-center gap-3">
-            <button onClick={() => navigate('/login')} className="btn-ghost">Login</button>
-            <button onClick={() => navigate('/register')} className="btn-primary">Get Started</button>
+            {user ? (
+              <button onClick={() => navigate(homeFor(user))} className="btn-primary">{homeLabel}</button>
+            ) : (
+              <>
+                <button onClick={() => navigate('/login')} className="btn-ghost">Login</button>
+                <button onClick={() => navigate('/register')} className="btn-primary">Get Started</button>
+              </>
+            )}
           </div>
           <button className="md:hidden" aria-label={open ? "Close menu" : "Open menu"} onClick={() => setOpen(!open)}>
             {open ? <X size={22} /> : <Menu size={22} />}
@@ -42,8 +54,14 @@ export default function PublicLayout() {
               </a>
             ))}
             <div className="flex gap-3 pt-2">
-              <button onClick={() => navigate('/login')} className="btn-secondary flex-1">Login</button>
-              <button onClick={() => navigate('/register')} className="btn-primary flex-1">Get Started</button>
+              {user ? (
+                <button onClick={() => navigate(homeFor(user))} className="btn-primary flex-1">{homeLabel}</button>
+              ) : (
+                <>
+                  <button onClick={() => navigate('/login')} className="btn-secondary flex-1">Login</button>
+                  <button onClick={() => navigate('/register')} className="btn-primary flex-1">Get Started</button>
+                </>
+              )}
             </div>
           </div>
         )}

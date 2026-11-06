@@ -4,12 +4,30 @@ import toast from "react-hot-toast";
 import Card from "../../components/Card";
 import Badge from "../../components/Badge";
 import { TableSkeleton } from "../../components/Skeleton";
+import Modal from "../../components/Modal";
+import Textarea from "../../components/Textarea";
+import VerifiedBadge from "../../components/VerifiedBadge";
 import { adminService } from "../../services/adminService";
 
 export default function AdminBusinesses() {
   const [businesses, setBusinesses] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [badgeTarget, setBadgeTarget] = useState(null); // business being verified / un-verified
+  const [badgeReason, setBadgeReason] = useState("");
+  const [badgeBusy, setBadgeBusy] = useState(false);
+
+  const applyBadge = async () => {
+    const verified = badgeTarget.verification?.status === "verified";
+    setBadgeBusy(true);
+    try {
+      if (verified) await adminService.revokeVerification(badgeTarget._id, badgeReason.trim());
+      else await adminService.grantVerification(badgeTarget._id, badgeReason.trim());
+      toast.success(verified ? "Badge removed." : "Business verified.");
+      setBadgeTarget(null); setBadgeReason("");
+      load();
+    } catch (err) { toast.error(err.message); } finally { setBadgeBusy(false); }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -81,6 +99,7 @@ export default function AdminBusinesses() {
                   <th className="px-5 py-2 font-medium">Category</th>
                   <th className="px-5 py-2 font-medium">Plan</th>
                   <th className="px-5 py-2 font-medium">Status</th>
+                  <th className="px-5 py-2 font-medium">Badge</th>
                   <th className="px-5 py-2 font-medium"></th>
                 </tr>
               </thead>
@@ -115,6 +134,10 @@ export default function AdminBusinesses() {
                         {b.isPublished ? "Published" : "Hidden"}
                       </Badge>
                     </td>
+                    <td className="px-5 py-3 whitespace-nowrap">
+                      {b.verification?.status === "verified" ? <span className="inline-flex items-center gap-1 text-brand-600"><VerifiedBadge status="verified" /> Verified</span> : <span className="text-ink-400">{b.verification?.status === "pending" ? "Pending" : "None"}</span>}
+                      {" "}<button onClick={() => { setBadgeTarget(b); setBadgeReason(""); }} className="text-xs text-brand-600 hover:underline ml-1">{b.verification?.status === "verified" ? "Remove" : "Verify"}</button>
+                    </td>
                     <td className="px-5 py-3 text-right">
                       <button
                         onClick={() => togglePublished(b)}
@@ -130,6 +153,19 @@ export default function AdminBusinesses() {
           </div>
         )}
       </Card>
+
+      <Modal open={!!badgeTarget} onClose={() => setBadgeTarget(null)} title={badgeTarget?.verification?.status === "verified" ? "Remove verification badge" : "Verify this business"} size="sm">
+        <p className="text-sm text-ink-500 mb-3">
+          {badgeTarget?.verification?.status === "verified"
+            ? `${badgeTarget?.name} will lose its badge and the owner will be told why.`
+            : `${badgeTarget?.name} will show the verified badge. For a business that has applied, approve its request from the Verification page instead.`}
+        </p>
+        <Textarea label="Reason (required, recorded in the audit log)" rows={3} maxLength={500} value={badgeReason} onChange={(e) => setBadgeReason(e.target.value)} />
+        <div className="flex justify-end gap-2 mt-4">
+          <button className="btn-ghost" onClick={() => setBadgeTarget(null)}>Cancel</button>
+          <button className="btn-primary" disabled={badgeBusy || badgeReason.trim().length < 3} onClick={applyBadge}>{badgeBusy ? "Saving…" : badgeTarget?.verification?.status === "verified" ? "Remove badge" : "Verify business"}</button>
+        </div>
+      </Modal>
     </div>
   );
 }

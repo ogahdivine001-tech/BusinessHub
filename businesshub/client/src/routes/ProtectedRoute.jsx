@@ -9,6 +9,7 @@ export default function ProtectedRoute({ requireOnboarding = true }) {
     return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size={28} /></div>;
   }
   if (!user) return <Navigate to="/login" replace />;
+  if (user.role === 'buyer') return <Navigate to="/account" replace />; // customers have their own area
   if (requireOnboarding && !user.onboardingComplete) return <Navigate to="/onboarding" replace />;
 
   return <Outlet />;

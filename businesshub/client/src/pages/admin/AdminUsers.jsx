@@ -9,12 +9,13 @@ import { adminService } from '../../services/adminService';
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
+  const [role, setRole] = useState(''); // '' = everyone, owner = sellers, buyer = customers
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
     setLoading(true);
     try {
-      const { users: u } = await adminService.users({ search });
+      const { users: u } = await adminService.users({ search, role: role || undefined });
       setUsers(u);
     } catch (err) {
       toast.error(err.message);
@@ -26,7 +27,7 @@ export default function AdminUsers() {
   useEffect(() => {
     const t = setTimeout(load, 300);
     return () => clearTimeout(t);
-  }, [search]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [search, role]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleActive = async (u) => {
     try {
@@ -44,6 +45,9 @@ export default function AdminUsers() {
       <div className="mb-4 relative max-w-sm">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
         <input className="input pl-9" placeholder="Search users..." value={search} onChange={(e) => setSearch(e.target.value)} />
+        <select aria-label="Filter by role" className="input mt-3 w-48" value={role} onChange={(e) => setRole(e.target.value)}>
+          <option value="">All roles</option><option value="owner">Sellers</option><option value="buyer">Customers</option><option value="admin">Admins</option>
+        </select>
       </div>
       <Card className="p-5">
         {loading ? <TableSkeleton rows={6} /> : (
@@ -63,7 +67,7 @@ export default function AdminUsers() {
                   <tr key={u._id} className="border-b border-ink-50 dark:border-ink-800/50 last:border-0">
                     <td className="px-5 py-3 font-medium">{u.fullName}</td>
                     <td className="px-5 py-3 text-ink-500">{u.email}</td>
-                    <td className="px-5 py-3 capitalize">{u.role}</td>
+                    <td className="px-5 py-3">{{ owner: 'Seller', buyer: 'Customer', admin: 'Admin' }[u.role] || u.role}</td>
                     <td className="px-5 py-3"><Badge color={u.isActive ? 'green' : 'red'}>{u.isActive ? 'Active' : 'Deactivated'}</Badge></td>
                     <td className="px-5 py-3 text-right">
                       <button onClick={() => toggleActive(u)} className="text-xs text-brand-600 hover:underline">

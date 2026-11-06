@@ -1,3 +1,5 @@
+import { homeFor } from "../utils/homePath";
+import HomeDiscovery from '../components/HomeDiscovery';
 import { motion } from "framer-motion";
 import { Link, Navigate } from "react-router-dom";
 import {
@@ -15,6 +17,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import useLivePlans from "../hooks/useLivePlans";
 
 const FEATURES = [
   {
@@ -89,11 +92,11 @@ const PLANS = [
     price: "₦0",
     period: "/month",
     features: [
-      "10 products",
-      "Basic business page",
-      "5 invoices/month",
-      "Limited AI usage",
+      "Up to 10 products",
+      "Your own business page",
       "Basic analytics",
+      "Search and discovery listing",
+      "Customer reviews and followers",
     ],
     cta: "Start Free",
   },
@@ -102,11 +105,11 @@ const PLANS = [
     price: "₦2,000",
     period: "/month",
     features: [
-      "Unlimited products",
-      "More invoices",
-      "Advanced analytics",
-      "More AI usage",
-      "Custom branding",
+      "Up to 100 products",
+      "Invoices and receipts",
+      "AI business chat",
+      "AI help writing invoices and receipts (50 per month)",
+      "Advanced analytics and custom branding",
     ],
     cta: "Choose Starter",
   },
@@ -116,7 +119,9 @@ const PLANS = [
     period: "/month",
     features: [
       "Everything in Starter",
-      "Unlimited AI (fair use)",
+      "Unlimited products",
+      "AI marketing tools",
+      "Unlimited AI chat and writing (fair use)",
       "Premium themes",
       "Priority support",
       "Custom domain (soon)",
@@ -308,13 +313,16 @@ function HeroVisual() {
 
 export default function Landing() {
   const { user, loading } = useAuth();
+  // Prices and features come from what the server enforces; the built-in PLANS text is the fallback.
+  const live = useLivePlans();
+  const plans = PLANS.map((p) => {
+    const l = live && live.plans.find((x) => x.name === p.name);
+    return l ? { ...p, price: l.priceLabel, period: l.periodDays ? ` for ${l.periodDays} days` : p.period, features: l.features } : p;
+  });
 
   if (!loading && user) {
     return (
-      <Navigate
-        to={user.onboardingComplete ? "/dashboard" : "/onboarding"}
-        replace
-      />
+      <Navigate to={homeFor(user)} replace />
     );
   }
 
@@ -377,6 +385,8 @@ export default function Landing() {
           <HeroVisual />
         </div>
       </section>
+
+      <HomeDiscovery />
 
       {/* Features */}
       <section id="features" className="py-20 sm:py-28">
@@ -460,7 +470,7 @@ export default function Landing() {
             </p>
           </div>
           <div className="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {PLANS.map((p) => (
+            {plans.map((p) => (
               <div
                 key={p.name}
                 className={`card p-6 relative ${p.recommended ? "ring-2 ring-brand-600 dark:ring-brand-400 shadow-card-hover" : ""}`}

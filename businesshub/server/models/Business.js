@@ -71,6 +71,25 @@ const businessSchema = new mongoose.Schema(
     },
     hideBranding: { type: Boolean, default: false }, // "custom branding" — Starter/Pro only
     isPublished: { type: Boolean, default: true },
+    // Delivery. 'unspecified' is what every existing business starts as, so we
+    // never claim delivery is (or is not) offered until the owner says so.
+    delivery: {
+      status: { type: String, enum: ["unspecified", "available", "unavailable"], default: "unspecified" },
+      areas: { type: String, trim: true, maxlength: 300 }, // e.g. "Lagos Island, Lekki"
+      terms: { type: String, trim: true, maxlength: 500 }, // supplied by the business; we never invent fees or times
+      contact: { type: String, trim: true, maxlength: 300 }, // how to arrange delivery
+    },
+    // Verification badge state. Written ONLY by the admin/verification service,
+    // never from an owner's request (it is not in the update allow-list).
+    verification: {
+      status: { type: String, enum: ["none", "pending", "verified", "rejected", "revoked"], default: "none" },
+      verifiedAt: Date,
+    },
+    // Cached numbers for fast ranking/search, maintained by the review and
+    // follow services from the real records. Never settable from a request.
+    ratingAverage: { type: Number, default: 0, min: 0, max: 5 },
+    ratingCount: { type: Number, default: 0, min: 0 },
+    followerCount: { type: Number, default: 0, min: 0 },
     bankDetails: {
       bankName: { type: String, trim: true },
       accountName: { type: String, trim: true },
@@ -81,5 +100,10 @@ const businessSchema = new mongoose.Schema(
 );
 
 businessSchema.index({ name: "text", description: "text" });
+// Browse/sort paths used by public discovery.
+businessSchema.index({ isPublished: 1, createdAt: -1 });
+businessSchema.index({ isPublished: 1, category: 1, createdAt: -1 });
+businessSchema.index({ isPublished: 1, followerCount: -1 });
+businessSchema.index({ isPublished: 1, ratingCount: -1, ratingAverage: -1 });
 
 module.exports = mongoose.model("Business", businessSchema);

@@ -1,6 +1,7 @@
 const Payment = require('../models/Payment');
 const Subscription = require('../models/Subscription');
 const ApiError = require('../utils/apiError');
+const { CURRENT_POLICY, isPaidPeriodCurrent } = require('./subscriptionService');
 
 // Prices in kobo (NGN x 100). Defaults match what the site advertises today
 // (Starter N2,000, Pro N5,000); override with env vars, never by editing code.
@@ -10,6 +11,17 @@ const PLAN_PRICES_KOBO = {
 };
 const PERIOD_DAYS = 30;
 const REFERENCE_RE = /^[A-Za-z0-9_.-]{6,100}$/;
+
+// Renewing the SAME plan while it is still running adds 30 days to its end
+// date instead of restarting from today, so paying early never throws away
+// days that were already paid for. Switching plans starts a fresh 30 days
+// (there is no proration).
+function nextPeriodEnd(existing, plan, now = new Date()) {
+  const base = existing && existing.plan === plan && existing.currentPeriodEnd && isPaidPeriodCurrent(existing, now)
+    ? Math.max(new Date(existing.currentPeriodEnd).getTime(), now.getTime())
+    : now.getTime();
+  return new Date(base + PERIOD_DAYS * 24 * 60 * 60 * 1000);
+}
 
 // Decides whether a Paystack transaction is a genuine, correctly-priced
 // BusinessHub plan payment, and (for the browser callback) that it belongs to
@@ -58,9 +70,13 @@ async function activateFromTransaction(txn, { source, expectedBusinessId, userId
   }
 
   try {
+    const existing = await Subscription.findOne({ business: businessId });
     const subscription = await Subscription.findOneAndUpdate(
       { business: businessId },
-      { plan, status: 'active', currentPeriodEnd: new Date(Date.now() + PERIOD_DAYS * 24 * 60 * 60 * 1000) },
+      {
+        $set: { plan, status: 'active', currentPeriodEnd: nextPeriodEnd(existing, plan) },
+        $setOnInsert: { policyVersion: CURRENT_POLICY }, // a brand-new subscription gets today's terms; existing ones keep theirs
+      },
       { new: true, upsert: true }
     );
     return { subscription, duplicate: false, payment: claimed };
@@ -70,4 +86,4 @@ async function activateFromTransaction(txn, { source, expectedBusinessId, userId
   }
 }
 
-module.exports = { PLAN_PRICES_KOBO, REFERENCE_RE, validateTransaction, activateFromTransaction };
+module.exports = { PERIOD_DAYS, nextPeriodEnd, PLAN_PRICES_KOBO, REFERENCE_RE, validateTransaction, activateFromTransaction };

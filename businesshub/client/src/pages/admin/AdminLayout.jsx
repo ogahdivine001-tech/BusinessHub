@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Users, Store, CreditCard, Shield, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Users, Store, CreditCard, Shield, MessageSquare, Star, BadgeCheck } from 'lucide-react';
 import Logo from '../../components/Logo';
 
 const NAV = [
@@ -7,6 +7,8 @@ const NAV = [
   { to: '/admin/users', label: 'Users', icon: Users },
   { to: '/admin/businesses', label: 'Businesses', icon: Store },
   { to: '/admin/subscriptions', label: 'Subscriptions', icon: CreditCard },
+  { to: '/admin/verifications', label: 'Verification', icon: BadgeCheck },
+  { to: '/admin/reviews', label: 'Reviews', icon: Star },
   { to: '/admin/messages', label: 'Messages', icon: MessageSquare },
 ];
 

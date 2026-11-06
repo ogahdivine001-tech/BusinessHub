@@ -3,25 +3,66 @@ const crypto = require("crypto");
 const User = require("../models/User");
 const ApiError = require("../utils/apiError");
 const { generateToken, sendTokenCookie } = require("../utils/generateToken");
-const { sendPasswordResetEmail } = require("../services/emailService");
+const { sendPasswordResetEmail, sendVerificationEmail } = require("../services/emailService");
+const { getClientOrigin } = require("../utils/clientOrigin");
 const { welcomeNewUser } = require("../services/welcomeService");
+
+const VERIFY_TTL_MS = 24 * 60 * 60 * 1000;
+
+// Creates a single-use verification token, stores only its hash, and emails the
+// link. Never throws: email problems must not break signup or the dashboard.
+async function issueEmailVerification(user, req) {
+  try {
+    const raw = crypto.randomBytes(32).toString("hex");
+    await User.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          emailVerifyToken: crypto.createHash("sha256").update(raw).digest("hex"),
+          emailVerifyExpires: new Date(Date.now() + VERIFY_TTL_MS),
+        },
+      },
+    );
+    const url = `${getClientOrigin(req)}/verify-email?token=${raw}`;
+    const result = await sendVerificationEmail(user.email, url, user.fullName);
+    if (result && result.sent === false && process.env.NODE_ENV !== "production") {
+      console.log(`Email verification link for ${user.email}: ${url}`);
+    }
+  } catch (err) {
+    console.error("[verify-email] could not send:", err.message);
+  }
+}
 
 // @desc  Register a new user
 // @route POST /api/auth/register
+// accountType: "seller" (default; the original behaviour) or "buyer" (a customer
+// account: follow businesses, write reviews). Customer sign-up is open unless
+// ENABLE_BUYER_SIGNUP is set to "false".
 const register = asyncHandler(async (req, res) => {
-  const { fullName, email, phone, password } = req.body;
+  const { fullName, email, phone, password, accountType = "seller" } = req.body;
+
+  const isBuyer = accountType === "buyer";
+  if (isBuyer && String(process.env.ENABLE_BUYER_SIGNUP ?? "true").toLowerCase() === "false") {
+    throw new ApiError(400, "Customer accounts are not available right now.");
+  }
 
   const existing = await User.findOne({ email });
   if (existing)
     throw new ApiError(409, "An account with this email already exists.");
 
-  const user = await User.create({ fullName, email, phone, password });
+  // The role is decided here from a fixed list. Nothing in the request can
+  // ever create an admin.
+  const user = await User.create({ fullName, email, phone, password, role: isBuyer ? "buyer" : "owner" });
   const token = generateToken(user._id);
   sendTokenCookie(res, token);
 
-  // Welcome email + in-app notification. Deliberately NOT awaited: signup
-  // must never be slowed down or broken by the email provider.
-  welcomeNewUser(user).catch((err) => console.error("[welcome] unexpected error:", err.message));
+  // Emails run in the background so signup is never slowed or broken by the
+  // email provider. The welcome email walks sellers through setting up a
+  // business page, so buyers do not get it.
+  if (!isBuyer) {
+    welcomeNewUser(user).catch((err) => console.error("[welcome] unexpected error:", err.message));
+  }
+  issueEmailVerification(user, req);
 
   res
     .status(201)
@@ -155,7 +196,48 @@ const resetPassword = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc  Turn a customer account into a seller account so the person can set up a business
+// @route POST /api/auth/become-seller
+// One-way and limited to customers: sellers are left as they are, and an admin
+// account can never be changed through this route. Follows and reviews are kept.
+const becomeSeller = asyncHandler(async (req, res) => {
+  if (req.user.role === "admin") throw new ApiError(403, "Admin accounts cannot be changed here.");
+  if (req.user.role === "buyer") {
+    await User.updateOne({ _id: req.user._id, role: "buyer" }, { $set: { role: "owner" } });
+  }
+  const user = await User.findById(req.user._id);
+  res.json({ success: true, data: { user: user.toSafeObject() } });
+});
+
+// @desc  (Re)send the verification email to the logged-in user
+// @route POST /api/auth/verify-email/request
+const requestEmailVerification = asyncHandler(async (req, res) => {
+  if (req.user.emailVerifiedAt) {
+    return res.json({ success: true, data: { alreadyVerified: true } });
+  }
+  await issueEmailVerification(req.user, req);
+  res.json({ success: true, message: "Verification email sent. Please check your inbox." });
+});
+
+// @desc  Confirm an email address using the emailed token
+// @route POST /api/auth/verify-email
+const verifyEmail = asyncHandler(async (req, res) => {
+  const hashed = crypto.createHash("sha256").update(req.body.token).digest("hex");
+  // One atomic step: only a matching, unexpired token can be claimed, and
+  // claiming it removes it, so a link works exactly once.
+  const user = await User.findOneAndUpdate(
+    { emailVerifyToken: hashed, emailVerifyExpires: { $gt: new Date() } },
+    { $set: { emailVerifiedAt: new Date() }, $unset: { emailVerifyToken: 1, emailVerifyExpires: 1 } },
+    { new: true },
+  );
+  if (!user) throw new ApiError(400, "Verification link is invalid or has expired.");
+  res.json({ success: true, message: "Your email has been confirmed." });
+});
+
 module.exports = {
+  becomeSeller,
+  requestEmailVerification,
+  verifyEmail,
   register,
   login,
   logout,

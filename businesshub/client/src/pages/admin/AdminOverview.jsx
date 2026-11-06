@@ -23,9 +23,13 @@ export default function AdminOverview() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <StatCard label="Total Users" value={data.totalUsers} icon={Users} />
+          <StatCard label="Sellers" value={data.totalSellers ?? 0} icon={Store} />
+          <StatCard label="Customers" value={data.totalBuyers ?? 0} icon={Users} />
           <StatCard label="Total Businesses" value={data.totalBusinesses} icon={Store} />
           <StatCard label="Active Subscriptions" value={data.activeSubscriptions} icon={CreditCard} />
-          <StatCard label="Revenue (paid orders)" value={data.revenue} icon={DollarSign} prefix="₦" />
+          <StatCard label="Verified Businesses" value={data.verifiedBusinesses ?? 0} icon={Store} />
+          <StatCard label="Pending Verification" value={data.pendingVerifications ?? 0} icon={Building} />
+          <StatCard label="Sales recorded by sellers" value={data.revenue} icon={DollarSign} prefix="₦" />
           <StatCard label="New Users (30d)" value={data.newUsers} icon={UserPlus} />
           <StatCard label="New Businesses (30d)" value={data.newBusinesses} icon={Building} />
         </div>

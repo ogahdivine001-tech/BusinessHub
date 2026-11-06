@@ -57,4 +57,40 @@ const adminMessageLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { authLimiter, apiLimiter, aiLimiter, publicOrderLimiter, publicPdfLimiter, adminMessageLimiter };
+// Sending a verification email costs real email quota, so cap it tightly.
+const verifyEmailLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  message: { success: false, message: 'Too many verification emails requested. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Follow/unfollow clicks: generous for people, tight for scripts.
+const engageLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  message: { success: false, message: 'Too many actions. Please slow down and try again shortly.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Writing reviews is limited per hour to blunt review-bombing.
+const reviewLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 15,
+  message: { success: false, message: 'Too many review actions. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// The public Help Center search is open to everyone, so it is rate limited per IP.
+const helpLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  message: { success: false, message: 'Too many searches. Please wait a moment.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+module.exports = { helpLimiter, engageLimiter, reviewLimiter, verifyEmailLimiter, authLimiter, apiLimiter, aiLimiter, publicOrderLimiter, publicPdfLimiter, adminMessageLimiter };

@@ -9,11 +9,9 @@ const ApiError = require("../utils/apiError");
 const { buildUniqueSlug } = require("../utils/slugify");
 const { generateOrderNumber } = require("../utils/generateNumbers");
 const { uploadImage } = require("../services/uploadService");
-const {
-  getLimits,
-  getEffectivePlan,
-  TRIAL_DAYS,
-} = require("../services/subscriptionService");
+const { sanitizeDelivery } = require("../utils/deliverySettings");
+const { STOREFRONT_FIELDS } = require("../services/discovery");
+const { getLimits, getEffectivePlan, TRIAL_DAYS, getLimitsFor, CURRENT_POLICY } = require("../services/subscriptionService");
 const {
   notify,
   maybeNotifyLowStock,
@@ -24,9 +22,13 @@ const {
 const createBusiness = asyncHandler(async (req, res) => {
   if (req.user.business)
     throw new ApiError(400, "You already have a business.");
+  if (req.user.role === "buyer")
+    throw new ApiError(403, "Buyer accounts cannot create a business.");
 
   const { name, category, description, phone, whatsapp, location, theme } =
     req.body;
+  // Optional at signup; every business can also set it later in the dashboard.
+  const delivery = req.body.delivery !== undefined ? sanitizeDelivery(req.body.delivery) : undefined;
   const slug = await buildUniqueSlug(Business, name);
 
   const business = await Business.create({
@@ -39,6 +41,7 @@ const createBusiness = asyncHandler(async (req, res) => {
     whatsapp,
     location,
     theme,
+    ...(delivery ? { delivery } : {}),
   });
 
   // Every new business gets a TRIAL_DAYS trial of full Pro features. The
@@ -49,6 +52,7 @@ const createBusiness = asyncHandler(async (req, res) => {
     business: business._id,
     plan: "free",
     trialEndsAt,
+    policyVersion: CURRENT_POLICY,
   });
 
   req.user.business = business._id;
@@ -84,11 +88,14 @@ const updateMyBusiness = asyncHandler(async (req, res) => {
     "isPublished",
     "hideBranding",
     "bankDetails",
+    "delivery",
   ];
   const updates = {};
   allowed.forEach((key) => {
     if (req.body[key] !== undefined) updates[key] = req.body[key];
   });
+
+  if ("delivery" in updates) updates.delivery = sanitizeDelivery(updates.delivery);
 
   // Enforce plan-gated fields server-side — the dashboard UI already
   // disables these controls for the wrong plan, but that's just UX; a
@@ -97,7 +104,7 @@ const updateMyBusiness = asyncHandler(async (req, res) => {
     const subscription = await Subscription.findOne({
       business: req.businessId,
     });
-    const limits = getLimits(getEffectivePlan(subscription));
+    const limits = getLimitsFor(subscription);
 
     if (updates.theme === "bold" && !limits.premiumThemes) {
       throw new ApiError(
@@ -140,11 +147,12 @@ const uploadBusinessImage = asyncHandler(async (req, res) => {
 // @desc  Public storefront by slug
 // @route GET /api/businesses/store/:slug
 const getPublicBusiness = asyncHandler(async (req, res) => {
-  // bankDetails are for invoices only; never send them to storefront visitors.
+  // Visitors get an explicit allow-list of fields (see services/discovery.js):
+  // no owner id, no bank details, nothing internal.
   const business = await Business.findOne({
     slug: req.params.slug,
     isPublished: true,
-  }).select("-bankDetails");
+  }).select(STOREFRONT_FIELDS);
   if (!business)
     throw new ApiError(404, "This business page could not be found.");
 

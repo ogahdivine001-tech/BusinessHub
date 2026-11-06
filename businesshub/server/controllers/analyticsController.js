@@ -4,7 +4,7 @@ const Product = require('../models/Product');
 const Customer = require('../models/Customer');
 const Subscription = require('../models/Subscription');
 const ApiError = require('../utils/apiError');
-const { getLimits, getEffectivePlan } = require('../services/subscriptionService');
+const { getLimits, getEffectivePlan, getLimitsFor } = require('../services/subscriptionService');
 
 const RANGE_DAYS = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 };
 
@@ -14,7 +14,7 @@ const RANGE_DAYS = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 };
 async function assertRangeAllowed(businessId, range) {
   const requested = range || '30d';
   const subscription = await Subscription.findOne({ business: businessId });
-  const limits = getLimits(getEffectivePlan(subscription));
+  const limits = getLimitsFor(subscription);
   if (!limits.analyticsRanges.includes(requested)) {
     throw new ApiError(
       403,

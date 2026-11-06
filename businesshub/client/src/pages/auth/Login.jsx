@@ -1,3 +1,4 @@
+import { homeFor } from "../../utils/homePath";
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -13,10 +14,7 @@ export default function Login() {
 
   if (!authLoading && user) {
     return (
-      <Navigate
-        to={user.onboardingComplete ? "/dashboard" : "/onboarding"}
-        replace
-      />
+      <Navigate to={homeFor(user)} replace />
     );
   }
 
@@ -26,7 +24,7 @@ export default function Login() {
     try {
       const user = await login(form);
       toast.success(`Welcome back, ${user.fullName.split(" ")[0]}!`);
-      navigate(user.onboardingComplete ? "/dashboard" : "/onboarding");
+      navigate(homeFor(user));
     } catch (err) {
       toast.error(err.message);
     } finally {

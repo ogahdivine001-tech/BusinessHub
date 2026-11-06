@@ -5,12 +5,20 @@ const Customer = require("../models/Customer");
 const Subscription = require("../models/Subscription");
 const ApiError = require("../utils/apiError");
 const { generateInvoiceNumber } = require("../utils/generateNumbers");
-const {
-  getLimits,
-  getEffectivePlan,
-} = require("../services/subscriptionService");
+const { getLimits, getEffectivePlan, getLimitsFor } = require("../services/subscriptionService");
 const { renderDocumentPdf } = require("../services/pdfService");
 const { notify } = require("../services/notificationService");
+const { verifyWithinLimit } = require("../services/usageGuard");
+const { cleanItems, sumItems, money } = require("../utils/documentInput");
+const { signDocLink, canAccessSharedDoc } = require("../utils/signedLink");
+const mongoose = require("mongoose");
+
+// Every invoice sent to the owner carries a fresh signed share token, which
+// the dashboard uses to build the customer-facing PDF link.
+const withToken = (doc) => ({
+  ...doc.toObject(),
+  shareToken: signDocLink("invoice", doc._id),
+});
 
 const getInvoices = asyncHandler(async (req, res) => {
   const { status, page = 1, limit = 20 } = req.query;
@@ -29,7 +37,7 @@ const getInvoices = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     data: {
-      invoices,
+      invoices: invoices.map(withToken),
       total,
       page: Number(page),
       pages: Math.ceil(total / limit),
@@ -39,46 +47,59 @@ const getInvoices = asyncHandler(async (req, res) => {
 
 const createInvoice = asyncHandler(async (req, res) => {
   const subscription = await Subscription.findOne({ business: req.businessId });
-  const limits = getLimits(getEffectivePlan(subscription));
+  const limits = getLimitsFor(subscription);
+  if (!limits.features.invoices) {
+    throw new ApiError(403, "Invoices are available on the Starter and Pro plans. Upgrade to create invoices.");
+  }
 
   const monthStart = new Date();
   monthStart.setDate(1);
   monthStart.setHours(0, 0, 0, 0);
-  const countThisMonth = await Invoice.countDocuments({
-    business: req.businessId,
-    createdAt: { $gte: monthStart },
-  });
-  if (countThisMonth >= limits.invoicesPerMonth) {
-    throw new ApiError(
-      403,
-      `Your plan allows ${limits.invoicesPerMonth} invoices/month. Please upgrade.`,
-    );
+  const countThisMonth = () =>
+    Invoice.countDocuments({
+      business: req.businessId,
+      createdAt: { $gte: monthStart },
+    });
+  const limitMessage = `Your plan allows ${limits.invoicesPerMonth} invoices/month. Please upgrade.`;
+  if ((await countThisMonth()) >= limits.invoicesPerMonth) {
+    throw new ApiError(403, limitMessage);
   }
 
-  const { customer, items, discount = 0, tax = 0, dueDate, notes } = req.body;
-  if (!items?.length)
-    throw new ApiError(400, "An invoice must have at least one item.");
+  const { customer, discount = 0, tax = 0, dueDate, notes } = req.body;
+  const items = cleanItems(req.body.items);
 
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
-  const total = Math.max(0, subtotal - discount + tax);
+  // The customer must belong to THIS business, never just any valid id.
+  if (!mongoose.isValidObjectId(customer) || !(await Customer.exists({ _id: customer, business: req.businessId }))) {
+    throw new ApiError(400, "Choose a customer from your customer list.");
+  }
+  if (dueDate && Number.isNaN(new Date(dueDate).getTime())) {
+    throw new ApiError(400, "The due date is not a valid date.");
+  }
+
+  const subtotal = sumItems(items);
+  const total = Math.max(0, subtotal - money(discount, "Discount") + money(tax, "Tax"));
 
   const invoice = await Invoice.create({
     business: req.businessId,
     customer,
     items,
-    discount,
-    tax,
+    discount: money(discount, "Discount"),
+    tax: money(tax, "Tax"),
     subtotal,
     total,
-    dueDate,
-    notes,
+    dueDate: dueDate || undefined,
+    notes: notes ? String(notes).slice(0, 2000) : undefined,
     invoiceNumber: generateInvoiceNumber(),
   });
 
-  res.status(201).json({ success: true, data: { invoice } });
+  await verifyWithinLimit({
+    count: countThisMonth,
+    limit: limits.invoicesPerMonth,
+    undo: () => Invoice.deleteOne({ _id: invoice._id }),
+    message: limitMessage,
+  });
+
+  res.status(201).json({ success: true, data: { invoice: withToken(invoice) } });
 });
 
 const getInvoice = asyncHandler(async (req, res) => {
@@ -87,22 +108,27 @@ const getInvoice = asyncHandler(async (req, res) => {
     business: req.businessId,
   }).populate("customer");
   if (!invoice) throw new ApiError(404, "Invoice not found.");
-  res.json({ success: true, data: { invoice } });
+  res.json({ success: true, data: { invoice: withToken(invoice) } });
 });
 
 const updateInvoice = asyncHandler(async (req, res) => {
-  const { items, discount, tax, dueDate, notes } = req.body;
-  const update = { dueDate, notes };
-  if (items?.length) {
-    const subtotal = items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    );
+  const { discount, tax, dueDate, notes } = req.body;
+  const update = {};
+  if (dueDate !== undefined) {
+    if (dueDate && Number.isNaN(new Date(dueDate).getTime())) {
+      throw new ApiError(400, "The due date is not a valid date.");
+    }
+    update.dueDate = dueDate || null;
+  }
+  if (notes !== undefined) update.notes = String(notes || "").slice(0, 2000);
+  if (req.body.items?.length) {
+    const items = cleanItems(req.body.items);
+    const subtotal = sumItems(items);
     update.items = items;
     update.subtotal = subtotal;
-    update.discount = discount || 0;
-    update.tax = tax || 0;
-    update.total = Math.max(0, subtotal - (discount || 0) + (tax || 0));
+    update.discount = money(discount || 0, "Discount");
+    update.tax = money(tax || 0, "Tax");
+    update.total = Math.max(0, subtotal - update.discount + update.tax);
   }
 
   const invoice = await Invoice.findOneAndUpdate(
@@ -111,15 +137,18 @@ const updateInvoice = asyncHandler(async (req, res) => {
     { new: true, runValidators: true },
   );
   if (!invoice) throw new ApiError(404, "Invoice not found.");
-  res.json({ success: true, data: { invoice } });
+  res.json({ success: true, data: { invoice: withToken(invoice) } });
 });
 
 const setInvoiceStatus = asyncHandler(async (req, res) => {
   const { status } = req.body; // 'paid' | 'unpaid'
+  if (!["paid", "unpaid"].includes(status)) {
+    throw new ApiError(400, "Status must be paid or unpaid.");
+  }
   const invoice = await Invoice.findOneAndUpdate(
     { _id: req.params.id, business: req.businessId },
     { status },
-    { new: true },
+    { new: true, runValidators: true },
   );
   if (!invoice) throw new ApiError(404, "Invoice not found.");
 
@@ -132,7 +161,7 @@ const setInvoiceStatus = asyncHandler(async (req, res) => {
     });
   }
 
-  res.json({ success: true, data: { invoice } });
+  res.json({ success: true, data: { invoice: withToken(invoice) } });
 });
 
 const deleteInvoice = asyncHandler(async (req, res) => {
@@ -144,10 +173,13 @@ const deleteInvoice = asyncHandler(async (req, res) => {
   res.json({ success: true, message: "Invoice deleted." });
 });
 
-// Public — no auth. Shareable via a plain link, the same way Stripe's
-// hosted invoice pages work. Looked up by ID alone since there's no
-// logged-in business context on a public request.
+// Public — no login, so the customer can open it, but only with a valid
+// signed token (see utils/signedLink.js). Old unsigned links keep working
+// only while LEGACY_PUBLIC_PDF_LINKS is not "false".
 const downloadInvoicePdf = asyncHandler(async (req, res) => {
+  if (!canAccessSharedDoc("invoice", req.params.id, req.query.token)) {
+    throw new ApiError(403, "This link is invalid or has expired. Ask the business to send you a new one.");
+  }
   const invoice = await Invoice.findById(req.params.id).populate("customer");
   if (!invoice) throw new ApiError(404, "Invoice not found.");
   const business = await Business.findById(invoice.business);

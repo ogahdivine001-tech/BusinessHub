@@ -13,6 +13,19 @@ async function notify(userId, { title, message, type = 'system', link }) {
   }
 }
 
+// Creates a notification only the first time a given key is seen for a user
+// (the unique index makes this safe even if two requests race).
+async function notifyOnce(userId, key, payload) {
+  try {
+    if (await Notification.exists({ user: userId, key })) return false;
+    await Notification.create({ user: userId, key, type: 'system', ...payload });
+    return true;
+  } catch (err) {
+    if (err.code !== 11000) console.error('Failed to create notification:', err.message);
+    return false;
+  }
+}
+
 // Checks whether a product just crossed into low-stock territory and, if
 // so, notifies the business owner. Only fires once per crossing (i.e. not
 // on every order once it's already low) by checking the stock level
@@ -28,4 +41,4 @@ async function maybeNotifyLowStock({ ownerId, product, previousStock, businessSl
   }
 }
 
-module.exports = { notify, maybeNotifyLowStock, LOW_STOCK_THRESHOLD };
+module.exports = { notifyOnce, notify, maybeNotifyLowStock, LOW_STOCK_THRESHOLD };

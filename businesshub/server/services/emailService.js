@@ -166,4 +166,20 @@ async function sendAdminMessageEmail(to, { subject, body, link }) {
   return sendEmail({ to, subject, html });
 }
 
-module.exports = { sendEmail, sendPasswordResetEmail, sendWelcomeEmail, sendAdminMessageEmail, isConfigured };
+// Asks a new customer to confirm their email address. The link carries a
+// single-use token that expires in 24 hours.
+async function sendVerificationEmail(to, verifyUrl, fullName) {
+  const first = String(fullName || "").trim().split(/\s+/)[0] || "there";
+  const html = brandedEmail({
+    heading: "Confirm your email address",
+    bodyHtml:
+      `<p style="line-height:1.65; color:#413d34; margin: 0 0 14px;">Hi ${escapeHtml(first)}, please confirm this email address so we can reach you about your BusinessHub account. This link expires in 24 hours.</p>` +
+      `<p style="color:#5b5548; font-size:12px; word-break: break-all; margin: 0 0 8px;">Button not working? Copy this link into your browser:<br />${escapeHtml(verifyUrl)}</p>`,
+    buttonLabel: "Confirm email",
+    buttonUrl: verifyUrl,
+    footer: "If you didn't create a BusinessHub account, you can ignore this email.",
+  });
+  return sendEmail({ to, subject: "Confirm your BusinessHub email", html });
+}
+
+module.exports = { sendEmail, sendPasswordResetEmail, sendWelcomeEmail, sendAdminMessageEmail, sendVerificationEmail, isConfigured };

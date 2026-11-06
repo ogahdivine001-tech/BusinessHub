@@ -6,6 +6,8 @@ import Card from '../../components/Card';
 import Input from '../../components/Input';
 import UsageBar from '../../components/UsageBar';
 import { useAuth } from '../../context/AuthContext';
+import { authService } from '../../services/authService';
+import useLivePlans from '../../hooks/useLivePlans';
 import { useTheme } from '../../context/ThemeContext';
 import { settingsService } from '../../services/settingsService';
 import { subscriptionService } from '../../services/subscriptionService';
@@ -58,6 +60,20 @@ export default function Settings() {
     }
   };
 
+  const livePlans = useLivePlans(); // limits and prices exactly as the server enforces them
+  const [sendingVerify, setSendingVerify] = useState(false);
+  const sendVerification = async () => {
+    setSendingVerify(true);
+    try {
+      const res = await authService.requestEmailVerification();
+      toast.success(res.message || 'Verification email sent. Please check your inbox.');
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setSendingVerify(false);
+    }
+  };
+
   const upgrade = async (plan) => {
     try {
       const { authorization_url } = await subscriptionService.checkout(plan);
@@ -88,6 +104,19 @@ export default function Settings() {
             <Input label="Full name" value={profile.fullName} onChange={(e) => setProfile({ ...profile, fullName: e.target.value })} />
             <Input label="Phone" value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} />
             <Input label="Email" value={user?.email} disabled className="opacity-60" />
+            <div className="flex flex-wrap items-center gap-3 -mt-2 text-sm">
+              {user?.emailVerified ? (
+                <span className="text-brand-600 font-medium">✓ Email verified</span>
+              ) : (
+                <>
+                  <span className="text-ink-500">Email not verified yet.</span>
+                  <button type="button" disabled={sendingVerify} onClick={sendVerification}
+                    className="text-brand-600 dark:text-brand-400 font-medium hover:underline disabled:opacity-60">
+                    {sendingVerify ? 'Sending…' : 'Send verification email'}
+                  </button>
+                </>
+              )}
+            </div>
             <button type="submit" disabled={saving} className="btn-primary">{saving ? 'Saving…' : 'Save changes'}</button>
           </form>
         </Card>
@@ -120,7 +149,12 @@ export default function Settings() {
             ) : (
               <>
                 <p className="text-sm text-ink-500">Current plan</p>
-                <p className="text-2xl font-bold capitalize mt-1">{subscription?.subscription?.plan || 'Free'}</p>
+                <p className="text-2xl font-bold capitalize mt-1">{subscription?.effectivePlan || subscription?.subscription?.plan || 'Free'}</p>
+                {subscription?.planExpired && (
+                  <p className="text-sm text-gold-600 mt-2">
+                    Your {subscription?.subscription?.plan} plan ended{subscription?.subscription?.currentPeriodEnd ? ` on ${new Date(subscription.subscription.currentPeriodEnd).toLocaleDateString()}` : ''}, so your account is on the Free plan. Your data is safe — choose a plan below to get your tools back.
+                  </p>
+                )}
               </>
             )}
           </Card>
@@ -131,26 +165,52 @@ export default function Settings() {
               <UsageBar label="Products" used={subscription.usage.products} limit={subscription.limits.products} />
               <UsageBar label="Invoices" used={subscription.usage.invoicesThisMonth} limit={subscription.limits.invoicesPerMonth} />
               <UsageBar label="Receipts" used={subscription.usage.receiptsThisMonth} limit={subscription.limits.receiptsPerMonth} />
-              <UsageBar label="AI requests" used={subscription.usage.aiThisMonth} limit={subscription.limits.aiPerMonth} />
+              {subscription.usage.ai && Object.entries({ chat: 'AI business chat', marketing: 'AI marketing tools', documents: 'AI invoice & receipt writing' }).map(([key, label]) => {
+                const row = subscription.usage.ai[key];
+                if (!row?.enabled) return <p key={key} className="text-sm text-ink-500">{label}: not included in your plan</p>;
+                if (subscription.limits.aiSharedCap != null && Number.isFinite(subscription.limits.aiSharedCap)) return null; // older plans share one pool, shown below
+                return Number.isFinite(row.limit)
+                  ? <UsageBar key={key} label={label} used={row.used} limit={row.limit} />
+                  : <p key={key} className="text-sm text-ink-500">{label}: included, {row.used} used this month</p>;
+              })}
+              {subscription.limits.aiSharedCap != null && Number.isFinite(subscription.limits.aiSharedCap) && (
+                <UsageBar label="AI requests" used={subscription.usage.aiThisMonth} limit={subscription.limits.aiSharedCap} />
+              )}
+              {subscription.policyVersion === 'legacy' && (
+                <p className="text-xs text-ink-400">Your account keeps the plan terms you signed up under, so the limits above may differ from what new customers get.</p>
+              )}
             </Card>
           )}
 
           {!subscription?.paystackConfigured && (
             <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/40 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
-              Payments aren't set up yet on this server. Add <code className="font-mono text-xs">PAYSTACK_SECRET_KEY</code> and <code className="font-mono text-xs">PAYSTACK_PUBLIC_KEY</code> to <code className="font-mono text-xs">server/.env</code> and restart to enable upgrades.
+              Online payments are temporarily unavailable. Please try again later or contact us from the Contact page.
             </div>
           )}
 
           <div className="grid sm:grid-cols-2 gap-4">
             {['starter', 'pro'].map((plan) => {
-              const isCurrent = subscription?.subscription?.plan === plan;
-              const disabled = isCurrent || !subscription?.paystackConfigured;
+              const isCurrent = subscription?.effectivePlan === plan && subscription?.subscription?.plan === plan;
+              const endDate = subscription?.subscription?.currentPeriodEnd ? new Date(subscription.subscription.currentPeriodEnd).toLocaleDateString('en-GB') : null;
+              // Pro time left: choosing Starter would replace days already paid for.
+              const proLocksStarter = plan === 'starter' && subscription?.effectivePlan === 'pro' && subscription?.subscription?.plan === 'pro';
+              const disabled = !subscription?.paystackConfigured || proLocksStarter;
+              const live = livePlans?.plans.find((p) => p.id === plan);
+              // Built-in text is only a fallback if the live plan list could not be loaded.
+              const included = live ? live.features : plan === 'starter'
+                ? ['Invoices and receipts', 'AI business chat', 'Advanced analytics and custom branding']
+                : ['Everything in Starter', 'AI marketing tools', 'Premium themes'];
               return (
                 <Card key={plan} className="p-6">
                   <h3 className="font-semibold capitalize">{plan}</h3>
-                  <p className="text-2xl font-bold mt-1">{plan === 'starter' ? '₦2,000' : '₦5,000'}<span className="text-sm text-ink-500">/month</span></p>
+                  <p className="text-2xl font-bold mt-1">{live ? live.priceLabel : plan === 'starter' ? '₦2,000' : '₦5,000'}<span className="text-sm text-ink-500"> for {live?.periodDays || 30} days</span></p>
+                  <ul className="text-sm text-ink-600 dark:text-ink-400 mt-3 space-y-1">
+                    {included.map((f) => <li key={f} className="flex gap-2"><Check size={14} className="text-brand-600 mt-0.5 shrink-0" />{f}</li>)}
+                  </ul>
+                  {isCurrent && endDate && <p className="text-xs text-ink-500 mt-3">Your current plan runs until {endDate}. Renewing adds 30 days to the end date.</p>}
+                  {plan === 'pro' && subscription?.effectivePlan === 'starter' && <p className="text-xs text-ink-500 mt-3">Upgrading starts a new 30-day Pro period today.</p>}
                   <button onClick={() => upgrade(plan)} disabled={disabled} className="btn-primary w-full mt-4">
-                    {isCurrent ? <><Check size={16} /> Current plan</> : !subscription?.paystackConfigured ? 'Payments not set up' : 'Upgrade'}
+                    {!subscription?.paystackConfigured ? 'Payments not set up' : proLocksStarter ? 'Available after Pro ends' : isCurrent ? 'Renew (adds 30 days)' : subscription?.planExpired && subscription?.subscription?.plan === plan ? 'Renew plan' : 'Upgrade'}
                   </button>
                 </Card>
               );

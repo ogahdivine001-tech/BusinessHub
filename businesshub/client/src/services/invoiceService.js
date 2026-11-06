@@ -7,5 +7,10 @@ export const invoiceService = {
   update: (id, payload) => api.put(`/invoices/${id}`, payload).then((r) => r.data.data.invoice),
   setStatus: (id, status) => api.patch(`/invoices/${id}/status`, { status }).then((r) => r.data.data.invoice),
   remove: (id) => api.delete(`/invoices/${id}`).then((r) => r.data),
-  pdfUrl: (id) => `${api.defaults.baseURL}/invoices/${id}/pdf`,
+  // The API signs a share token for every invoice it returns (shareToken).
+  // Pass the whole invoice; the link only works with that token.
+  pdfUrl: (invoice) => {
+    const base = `${api.defaults.baseURL}/invoices/${invoice._id}/pdf`;
+    return invoice.shareToken ? `${base}?token=${encodeURIComponent(invoice.shareToken)}` : base;
+  },
 };

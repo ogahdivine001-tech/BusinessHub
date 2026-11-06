@@ -10,6 +10,8 @@ import { TableSkeleton } from '../../components/Skeleton';
 import Pagination from '../../components/Pagination';
 import { receiptService } from '../../services/receiptService';
 import { customerService } from '../../services/customerService';
+import { subscriptionService } from '../../services/subscriptionService';
+import LockedFeature from '../../components/LockedFeature';
 
 const PAYMENT_METHODS = ['cash', 'transfer', 'card', 'paystack', 'other'];
 
@@ -24,13 +26,15 @@ export default function Receipts() {
   const [items, setItems] = useState([{ description: '', quantity: 1, price: 0 }]);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
+  const [features, setFeatures] = useState(null); // what this plan includes
 
   const load = async () => {
     setLoading(true);
     try {
-      const { receipts: r, pages: totalPages } = await receiptService.list({ page });
+      const [{ receipts: r, pages: totalPages }, sub] = await Promise.all([receiptService.list({ page }), subscriptionService.getMine()]);
       setReceipts(r);
       setPages(totalPages);
+      setFeatures(sub.features);
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -75,7 +79,7 @@ export default function Receipts() {
   };
 
   const shareReceipt = async (r) => {
-    const pdfUrl = receiptService.pdfUrl(r._id);
+    const pdfUrl = receiptService.pdfUrl(r);
     const text = `Hi ${r.customer?.name || ''}, here's your receipt ${r.receiptNumber} for ₦${r.total.toLocaleString()}: ${pdfUrl}`;
 
     if (navigator.share) {
@@ -106,6 +110,8 @@ export default function Receipts() {
     }
   };
 
+  const noReceipts = features && !features.receipts; // plan does not include receipts
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -113,15 +119,22 @@ export default function Receipts() {
           <h1 className="text-2xl font-bold">Receipts</h1>
           <p className="text-ink-500 text-sm mt-1">Generate proof of payment for your customers.</p>
         </div>
-        <button onClick={openCreate} className="btn-primary"><Plus size={18} /> Generate Receipt</button>
+        <button onClick={openCreate} disabled={noReceipts} className="btn-primary" title={noReceipts ? 'Receipts are not included in your plan' : undefined}><Plus size={18} /> Generate Receipt</button>
       </div>
+
+      {noReceipts && receipts.length === 0 && !loading && (
+        <div className="mb-6"><LockedFeature title="Receipts are not part of your plan" description="Generate branded receipts as proof of payment and share a secure PDF link." /></div>
+      )}
+      {noReceipts && receipts.length > 0 && (
+        <p className="text-sm text-amber-700 dark:text-amber-400 mb-4">Your plan no longer includes creating receipts. Your existing receipts are safe and can still be viewed and downloaded. <a href="/dashboard/settings?tab=Subscription" className="underline font-medium">See plans</a></p>
+      )}
 
       <Card className="p-5">
         {loading ? (
           <TableSkeleton rows={5} />
         ) : receipts.length === 0 ? (
-          <EmptyState icon={ReceiptIcon} title="No receipts yet." description="Generate a receipt once a customer pays."
-            action={<button onClick={openCreate} className="btn-primary"><Plus size={16} /> Generate Receipt</button>} />
+          <EmptyState icon={ReceiptIcon} title="No receipts yet." description={noReceipts ? 'Upgrade to start generating receipts.' : 'Generate a receipt once a customer pays.'}
+            action={noReceipts ? null : <button onClick={openCreate} className="btn-primary"><Plus size={16} /> Generate Receipt</button>} />
         ) : (
           <div className="overflow-x-auto -mx-5">
             <table className="w-full text-sm">
@@ -145,7 +158,7 @@ export default function Receipts() {
                     <td className="px-5 py-3 text-ink-500">{new Date(r.createdAt).toLocaleDateString()}</td>
                     <td className="px-5 py-3">
                       <div className="flex justify-end gap-1.5">
-                        <a href={receiptService.pdfUrl(r._id)} target="_blank" rel="noreferrer" title="Download PDF" className="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500"><Download size={14} /></a>
+                        <a href={receiptService.pdfUrl(r)} target="_blank" rel="noreferrer" title="Download PDF" className="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500"><Download size={14} /></a>
                         <button onClick={() => shareReceipt(r)} title="Share" className="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500"><Share2 size={14} /></button>
                         <button onClick={() => setDeleteTarget(r)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"><Trash2 size={14} /></button>
                       </div>

@@ -53,55 +53,83 @@ const PROMPTS = {
     `Give 5 concise, actionable marketing ideas for a ${category} business called "${business}" targeting Nigerian customers. Return as a numbered list.`,
   productName: ({ details }) =>
     `Suggest 5 catchy product names for: ${details}. Return as a numbered list.`,
+  // Wording help for invoices and receipts. The model is told not to invent
+  // amounts, dates, bank details or legal claims; the owner reviews the text
+  // before it is used.
+  invoiceNotes: ({ business, items, terms }) =>
+    `Write short, polite, professional invoice notes / payment terms (under 60 words) for ${business || 'a small business'}. Items billed: ${items || 'not provided'}. Owner's rough notes: ${terms || 'none'}. Do not invent amounts, dates, bank details or legal claims. Return plain text only.`,
+  receiptNotes: ({ business, items, terms }) =>
+    `Write a short, friendly thank-you note (under 40 words) to appear on a payment receipt for ${business || 'a small business'}. Items: ${items || 'not provided'}. Owner's rough notes: ${terms || 'none'}. Do not invent amounts, dates or promises. Return plain text only.`,
   chat: ({ message }) => message,
 };
 
-async function generateAIContent(type, params) {
+// How long to wait for the AI provider before giving up (a hung provider must
+// not hang the request). Override with AI_TIMEOUT_MS.
+const REQUEST_TIMEOUT_MS = Math.max(5000, Number(process.env.AI_TIMEOUT_MS) || 30000);
+
+// The one place that talks to the provider. Every AI feature goes through it,
+// so the key stays on the server and failures look the same everywhere.
+async function callProvider({ messages, maxTokens = 500, temperature = 0.8 }) {
   const provider = getProvider();
   const apiKey = process.env[provider.apiKeyEnv];
-
   if (!apiKey) {
     throw new ApiError(
       503,
       `AI features are not configured yet. Add ${provider.apiKeyEnv} to the server .env to enable ${provider.label}.`
     );
   }
-  const buildPrompt = PROMPTS[type];
-  if (!buildPrompt) {
-    throw new ApiError(400, 'Unknown AI request type.');
-  }
-  const prompt = buildPrompt(params || {});
   const model = process.env.AI_MODEL || provider.defaultModel;
-
-  const response = await fetch(provider.baseUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are the AI assistant inside BusinessHub, a SaaS platform for small businesses in Nigeria. Be concise, practical, and business-focused.',
-        },
-        { role: 'user', content: prompt },
-      ],
-      max_tokens: 500,
-      temperature: 0.8,
-    }),
-  });
-
-  if (!response.ok) {
-    const errText = await response.text();
-    console.error(`AI provider error (${provider.label}):`, errText);
-    throw new ApiError(502, 'The AI service is temporarily unavailable. Please try again.');
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    let response;
+    try {
+      response = await fetch(provider.baseUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature }),
+        signal: controller.signal,
+      });
+    } catch (err) {
+      console.error(`AI provider unreachable (${provider.label}):`, err.name);
+      throw new ApiError(502, err.name === 'AbortError'
+        ? 'The AI service took too long to respond. Please try again.'
+        : 'The AI service is temporarily unavailable. Please try again.');
+    }
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`AI provider error (${provider.label}):`, errText);
+      throw new ApiError(502, 'The AI service is temporarily unavailable. Please try again.');
+    }
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content?.trim() || '';
+  } finally {
+    clearTimeout(timer);
   }
-
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content?.trim() || '';
 }
 
-module.exports = { generateAIContent, isConfigured, getProvider, PROVIDERS };
+async function generateAIContent(type, params) {
+  const buildPrompt = PROMPTS[type];
+  if (!buildPrompt) throw new ApiError(400, 'Unknown AI request type.');
+  if (!isConfigured()) return callProvider({ messages: [] }); // raises the standard "not configured" error
+  return callProvider({
+    messages: [
+      {
+        role: 'system',
+        content:
+          'You are the AI assistant inside BusinessHub, a SaaS platform for small businesses in Nigeria. Be concise, practical, and business-focused.',
+      },
+      { role: 'user', content: buildPrompt(params || {}) },
+    ],
+    maxTokens: 500,
+    temperature: 0.8,
+  });
+}
+
+// Multi-turn chat with a caller-supplied system prompt (used by the
+// BusinessHub support assistant).
+async function completeChat({ system, messages, maxTokens = 450, temperature = 0.3 }) {
+  return callProvider({ messages: [{ role: 'system', content: system }, ...messages], maxTokens, temperature });
+}
+
+module.exports = { generateAIContent, completeChat, callProvider, isConfigured, getProvider, PROVIDERS };

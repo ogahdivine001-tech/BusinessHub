@@ -7,7 +7,9 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     phone: { type: String, required: true, trim: true },
     password: { type: String, required: true, minlength: 8, select: false },
-    role: { type: String, enum: ['owner', 'admin'], default: 'owner' },
+    // 'owner' = seller (the original role; existing accounts keep it untouched).
+    // 'buyer' is new and sits behind ENABLE_BUYER_SIGNUP until its dashboard ships.
+    role: { type: String, enum: ['owner', 'admin', 'buyer'], default: 'owner' },
     avatar: { url: String, publicId: String },
     business: { type: mongoose.Schema.Types.ObjectId, ref: 'Business' },
     onboardingComplete: { type: Boolean, default: false },
@@ -15,6 +17,11 @@ const userSchema = new mongoose.Schema(
     resetPasswordToken: { type: String, select: false },
     resetPasswordExpires: { type: Date, select: false },
     lastLoginAt: { type: Date },
+    // Email verification is offered, never forced: existing accounts have none of
+    // these fields and keep working exactly as before.
+    emailVerifiedAt: { type: Date },
+    emailVerifyToken: { type: String, select: false }, // sha256 of the emailed token
+    emailVerifyExpires: { type: Date, select: false },
   },
   { timestamps: true }
 );
@@ -35,6 +42,9 @@ userSchema.methods.toSafeObject = function toSafeObject() {
   delete obj.password;
   delete obj.resetPasswordToken;
   delete obj.resetPasswordExpires;
+  delete obj.emailVerifyToken;
+  delete obj.emailVerifyExpires;
+  obj.emailVerified = Boolean(obj.emailVerifiedAt);
   return obj;
 };
 

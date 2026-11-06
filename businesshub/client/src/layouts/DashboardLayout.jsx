@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Store, Package, ShoppingCart, Users, FileText, Receipt,
   BarChart3, Sparkles, Megaphone, Settings, Menu, X, HelpCircle, ArrowUpCircle,
-  Sun, Moon, LogOut, ExternalLink, Shield, Bell,
+  Sun, Moon, LogOut, ExternalLink, Shield, Bell, BadgeCheck, HeartHandshake,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -25,6 +25,8 @@ const NAV = [
   { to: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
   { to: '/dashboard/ai-assistant', label: 'AI Assistant', icon: Sparkles },
   { to: '/dashboard/marketing', label: 'Marketing', icon: Megaphone },
+  { to: '/dashboard/verification', label: 'Verification', icon: BadgeCheck },
+  { to: '/account', label: 'Following & reviews', icon: HeartHandshake },
   { to: '/dashboard/notifications', label: 'Notifications', icon: Bell, badge: true },
   { to: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];
@@ -114,14 +116,30 @@ function SidebarContent({ onNavigate }) {
 
 function TrialBanner() {
   const [trial, setTrial] = useState(null);
+  const [renewal, setRenewal] = useState(null);
 
   useEffect(() => {
-    subscriptionService.getMine().then((data) => setTrial(data.trial)).catch(() => {});
+    subscriptionService.getMine().then((data) => { setTrial(data.trial); setRenewal({ ...data.renewal, plan: data.subscription?.plan }); }).catch(() => {});
   }, []);
 
   // Only nag once the trial is genuinely running low — showing this from
   // day one would just be noise. The trial is only 7 days long, so the
   // banner waits until the last 3 days.
+  // A paid plan about to end, or one that just ended, gets the same kind of nudge.
+  if (renewal?.state) {
+    const ended = renewal.state === 'expired';
+    return (
+      <div className={`${ended ? 'bg-amber-600' : 'bg-brand-600'} text-white px-4 py-2 text-sm flex items-center justify-center gap-2 text-center`}>
+        <Sparkles size={14} className="shrink-0" />
+        <span>
+          {ended ? `Your ${renewal.plan} plan has ended. Your data is safe.` : renewal.daysLeft <= 1 ? `Your ${renewal.plan} plan ends ${renewal.daysLeft === 0 ? 'today' : 'tomorrow'}.` : `Your ${renewal.plan} plan ends in ${renewal.daysLeft} days.`}
+          {' '}
+          <NavLink to="/dashboard/settings?tab=Subscription" className="underline font-medium">{ended ? 'Renew to get your tools back' : 'Renew now'}</NavLink>
+        </span>
+      </div>
+    );
+  }
+
   if (!trial?.active || trial.daysLeft > 3) return null;
 
   return (
