@@ -21,7 +21,7 @@ export default function FollowButton({ business, onCount }) {
   }, [user, isOwn, business._id]);
 
   if (isOwn) return null; // you cannot follow your own business
-  if (!user) return <Link to="/register?type=buyer" className="btn-secondary" title="Log in or create a free customer account"><Heart size={16} /> Follow</Link>;
+  if (!user) return <Link to="/register?type=buyer" className="btn-secondary" title="Log in or create a free customer account"><Heart size={16} aria-hidden="true" /> Follow</Link>;
 
   const toggle = async () => {
     setBusy(true);
@@ -37,8 +37,10 @@ export default function FollowButton({ business, onCount }) {
   };
 
   return (
-    <button onClick={toggle} disabled={busy} aria-pressed={following} className={following ? 'btn-secondary' : 'btn-primary'}>
-      <Heart size={16} className={following ? 'fill-current text-red-500' : ''} /> {following ? 'Following' : 'Follow'}
+    // The visible word changes between Follow / Following, so the state is
+    // carried by the label itself; aria-pressed on top would announce it twice.
+    <button type="button" onClick={toggle} disabled={busy} aria-busy={busy} className={following ? 'btn-secondary' : 'btn-primary'}>
+      <Heart size={16} aria-hidden="true" className={following ? 'fill-current text-red-500' : ''} /> {following ? 'Following' : 'Follow'}
     </button>
   );
 }

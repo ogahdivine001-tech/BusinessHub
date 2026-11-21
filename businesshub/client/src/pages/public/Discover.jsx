@@ -77,6 +77,16 @@ export default function Discover() {
         <p className="text-xs text-ink-500 mt-2">Businesses with at least 3 reviews are listed first, ordered by a fair score that accounts for how many reviews they have.</p>
       )}
 
+      <p className="sr-only" role="status" aria-live="polite">
+        {loading
+          ? 'Loading businesses…'
+          : failed
+            ? "We couldn't load businesses."
+            : data.businesses.length === 0
+              ? 'No businesses found.'
+              : `${data.total} business${data.total === 1 ? '' : 'es'} found, page ${data.page} of ${data.pages || 1}.`}
+      </p>
+
       <div className="mt-6">
         {loading ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">{Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-56" />)}</div>

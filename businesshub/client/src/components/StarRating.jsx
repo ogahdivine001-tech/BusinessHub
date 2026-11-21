@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Star } from 'lucide-react';
 
 // Read-only stars. Never shown without real data: callers use <RatingLine />,
@@ -17,20 +18,49 @@ export function RatingLine({ average, count, size = 14 }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-sm" title={`${average} out of 5 from ${count} review${count === 1 ? '' : 's'}`}>
       <Stars value={average} size={size} />
+      <span className="sr-only">Rated </span>
       <span className="font-semibold text-ink-800 dark:text-ink-100">{Number(average).toFixed(1)}</span>
+      <span className="sr-only">{' out of 5 stars '}</span>
       <span className="text-ink-500">({count} review{count === 1 ? '' : 's'})</span>
     </span>
   );
 }
 
-// Clickable 1-5 star picker (keyboard accessible: it is a radio group).
+// Clickable 1-5 star picker. It is a real radio group: one tab stop, and the
+// arrow keys (plus Home/End) move between stars and select as they go.
 export function StarInput({ value, onChange }) {
+  const refs = useRef([]);
+  const pick = (n) => {
+    onChange(n);
+    refs.current[n - 1]?.focus();
+  };
+  const onKeyDown = (e, n) => {
+    let next = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next = (n % 5) + 1;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next = ((n + 3) % 5) + 1;
+    else if (e.key === 'Home') next = 1;
+    else if (e.key === 'End') next = 5;
+    if (next) {
+      e.preventDefault();
+      pick(next);
+    }
+  };
   return (
-    <div role="radiogroup" aria-label="Your rating" className="inline-flex items-center gap-1 text-gold-500">
+    <div role="radiogroup" aria-label="Your rating" className="inline-flex items-center gap-0.5 text-gold-500">
       {[1, 2, 3, 4, 5].map((n) => (
-        <button key={n} type="button" role="radio" aria-checked={value === n} aria-label={`${n} star${n === 1 ? '' : 's'}`}
-          onClick={() => onChange(n)} className="p-0.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
-          <Star size={26} className={value >= n ? 'fill-current' : 'text-ink-300 dark:text-ink-600'} />
+        <button
+          key={n}
+          ref={(el) => { refs.current[n - 1] = el; }}
+          type="button"
+          role="radio"
+          aria-checked={value === n}
+          aria-label={`${n} star${n === 1 ? '' : 's'}`}
+          tabIndex={value === n || (!value && n === 1) ? 0 : -1}
+          onClick={() => onChange(n)}
+          onKeyDown={(e) => onKeyDown(e, n)}
+          className="p-1.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        >
+          <Star size={26} aria-hidden="true" className={value >= n ? 'fill-current' : 'text-ink-300 dark:text-ink-600'} />
         </button>
       ))}
     </div>

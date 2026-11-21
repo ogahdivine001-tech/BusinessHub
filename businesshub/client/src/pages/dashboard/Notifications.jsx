@@ -153,10 +153,18 @@ export default function Notifications() {
                     <Icon size={18} className="text-brand-600 dark:text-brand-400" />
                   </div>
 
-                  <div className="min-w-0 flex-1 cursor-pointer" onClick={() => markRead(n)}>
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-start gap-2">
-                      <h2 className={`text-sm sm:text-base break-words ${n.isRead ? 'font-medium' : 'font-semibold'}`}>{n.title}</h2>
-                      {!n.isRead && <span className="w-2 h-2 rounded-full bg-brand-600 shrink-0 mt-2" aria-label="Unread" />}
+                      <h2 className={`text-sm sm:text-base break-words ${n.isRead ? 'font-medium' : 'font-semibold'}`}>
+                        {n.isRead ? (
+                          n.title
+                        ) : (
+                          <button type="button" onClick={() => markRead(n)} className="text-left hover:underline" title="Mark as read">
+                            {n.title}
+                          </button>
+                        )}
+                      </h2>
+                      {!n.isRead && <span className="w-2 h-2 rounded-full bg-brand-600 shrink-0 mt-2" role="img" aria-label="Unread" />}
                     </div>
                     <p className="text-xs text-ink-600 dark:text-ink-400 mt-0.5 flex flex-wrap items-center gap-x-2">
                       <span>{TYPE_LABELS[n.type] || 'Message'}</span>
@@ -170,7 +178,7 @@ export default function Notifications() {
                       <p className="text-sm text-ink-700 dark:text-ink-300 mt-2 whitespace-pre-wrap break-words">{n.message}</p>
                     )}
                     {n.link && (
-                      <button onClick={(e) => { e.stopPropagation(); openLink(n); }} className="mt-3 text-sm font-medium text-brand-700 dark:text-brand-400 hover:underline inline-flex items-center gap-1">
+                      <button type="button" onClick={() => openLink(n)} className="mt-3 text-sm font-medium text-brand-700 dark:text-brand-400 hover:underline inline-flex items-center gap-1">
                         Open <ExternalLink size={13} />
                       </button>
                     )}

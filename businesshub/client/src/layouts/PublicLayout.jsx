@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import SkipLink from '../components/SkipLink';
 import Logo from '../components/Logo';
 import { useAuth } from '../context/AuthContext';
 import { homeFor } from '../utils/homePath';
@@ -22,10 +23,11 @@ export default function PublicLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-ink-950">
+      <SkipLink />
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-ink-950/80 backdrop-blur-md border-b border-ink-100 dark:border-ink-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Logo />
-          <nav className="hidden md:flex items-center gap-8">
+          <nav aria-label="Main" className="hidden md:flex items-center gap-8">
             {LINKS.map((l) => (
               <a key={l.to} href={l.to} className="text-sm font-medium text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-white">
                 {l.label}
@@ -42,14 +44,21 @@ export default function PublicLayout() {
               </>
             )}
           </div>
-          <button className="md:hidden" aria-label={open ? "Close menu" : "Open menu"} onClick={() => setOpen(!open)}>
-            {open ? <X size={22} /> : <Menu size={22} />}
+          <button
+            type="button"
+            className="md:hidden -m-2 p-2"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
           </button>
         </div>
         {open && (
-          <div className="md:hidden border-t border-ink-100 dark:border-ink-800 px-4 py-4 space-y-3">
+          <div id="mobile-menu" className="md:hidden border-t border-ink-100 dark:border-ink-800 px-4 py-4 space-y-1">
             {LINKS.map((l) => (
-              <a key={l.to} href={l.to} onClick={() => setOpen(false)} className="block text-sm font-medium text-ink-700 dark:text-ink-300">
+              <a key={l.to} href={l.to} onClick={() => setOpen(false)} className="block py-2.5 text-sm font-medium text-ink-700 dark:text-ink-300">
                 {l.label}
               </a>
             ))}
@@ -67,7 +76,7 @@ export default function PublicLayout() {
         )}
       </header>
 
-      <main className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
         <Outlet />
       </main>
 

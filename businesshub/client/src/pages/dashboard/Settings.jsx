@@ -225,8 +225,8 @@ export default function Settings() {
             <p className="font-medium">Dark mode</p>
             <p className="text-sm text-ink-500">Switch between light and dark themes.</p>
           </div>
-          <button onClick={toggleTheme} className={`w-12 h-7 rounded-full p-1 transition-colors ${theme === 'dark' ? 'bg-brand-600' : 'bg-ink-300'}`}>
-            <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${theme === 'dark' ? 'translate-x-5' : ''}`} />
+          <button type="button" role="switch" aria-checked={theme === 'dark'} aria-label="Dark mode" onClick={toggleTheme} className={`w-12 h-7 rounded-full p-1 transition-colors shrink-0 ${theme === 'dark' ? 'bg-brand-600' : 'bg-ink-300'}`}>
+            <span className={`block w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${theme === 'dark' ? 'translate-x-5' : ''}`} />
           </button>
         </Card>
       )}

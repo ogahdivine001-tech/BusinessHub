@@ -42,11 +42,11 @@ export default function ResetPassword() {
           <h1 className="text-xl font-bold text-center">Reset your password</h1>
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             {!searchParams.get('token') && (
-              <Input label="Reset token" required value={token} onChange={(e) => setToken(e.target.value)} placeholder="Paste the token from your email" />
+              <Input label="Reset token" autoComplete="one-time-code" required value={token} onChange={(e) => setToken(e.target.value)} placeholder="Paste the token from your email" />
             )}
-            <Input label="New password" type="password" required minLength={8} value={password}
+            <Input label="New password" type="password" autoComplete="new-password" required minLength={8} value={password}
               onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" />
-            <Input label="Confirm new password" type="password" required minLength={8} value={confirmPassword}
+            <Input label="Confirm new password" type="password" autoComplete="new-password" required minLength={8} value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Re-enter your new password" />
             <button type="submit" disabled={loading} className="btn-primary w-full">
               {loading ? 'Resetting…' : 'Reset password'}

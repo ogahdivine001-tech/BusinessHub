@@ -155,26 +155,30 @@ export default function Store() {
           <div className="flex flex-wrap gap-3 mt-4">
             {business.socials.instagram && (
               <a href={normalizeUrl(business.socials.instagram)} target="_blank" rel="noreferrer noopener"
-                className="w-9 h-9 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center text-ink-600 dark:text-ink-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
-                <Instagram size={16} />
+                aria-label="Instagram (opens in a new tab)"
+                className="w-11 h-11 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center text-ink-600 dark:text-ink-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
+                <Instagram size={16} aria-hidden="true" />
               </a>
             )}
             {business.socials.facebook && (
               <a href={normalizeUrl(business.socials.facebook)} target="_blank" rel="noreferrer noopener"
-                className="w-9 h-9 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center text-ink-600 dark:text-ink-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
-                <Facebook size={16} />
+                aria-label="Facebook (opens in a new tab)"
+                className="w-11 h-11 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center text-ink-600 dark:text-ink-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
+                <Facebook size={16} aria-hidden="true" />
               </a>
             )}
             {business.socials.twitter && (
               <a href={normalizeUrl(business.socials.twitter)} target="_blank" rel="noreferrer noopener"
-                className="w-9 h-9 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center text-ink-600 dark:text-ink-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
-                <Twitter size={16} />
+                aria-label="Twitter / X (opens in a new tab)"
+                className="w-11 h-11 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center text-ink-600 dark:text-ink-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
+                <Twitter size={16} aria-hidden="true" />
               </a>
             )}
             {business.socials.website && (
               <a href={normalizeUrl(business.socials.website)} target="_blank" rel="noreferrer noopener"
-                className="w-9 h-9 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center text-ink-600 dark:text-ink-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
-                <Globe size={16} />
+                aria-label="Website (opens in a new tab)"
+                className="w-11 h-11 rounded-full bg-ink-100 dark:bg-ink-800 flex items-center justify-center text-ink-600 dark:text-ink-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/20 transition-colors">
+                <Globe size={16} aria-hidden="true" />
               </a>
             )}
           </div>
@@ -268,6 +272,7 @@ export default function Store() {
           </p>
           <Input
             label="Your name"
+            autoComplete="name"
             required
             value={orderForm.name}
             onChange={(e) => setOrderForm({ ...orderForm, name: e.target.value })}
@@ -275,25 +280,29 @@ export default function Store() {
           />
           <Input
             label="Phone number"
+            autoComplete="tel"
+            inputMode="tel"
             required
             type="tel"
             value={orderForm.phone}
             onChange={(e) => setOrderForm({ ...orderForm, phone: e.target.value })}
             placeholder="08012345678"
           />
-          <div>
-            <label className="label">Quantity</label>
+          <div role="group" aria-labelledby="order-qty-label">
+            <p id="order-qty-label" className="label">Quantity</p>
             <div className="flex items-center gap-3">
               <button type="button"
+                aria-label="Decrease quantity"
                 onClick={() => setOrderForm((f) => ({ ...f, quantity: Math.max(1, f.quantity - 1) }))}
-                className="w-9 h-9 rounded-lg border border-ink-200 dark:border-ink-800 flex items-center justify-center hover:bg-ink-50 dark:hover:bg-ink-800">
-                <Minus size={14} />
+                className="w-11 h-11 rounded-lg border border-ink-200 dark:border-ink-800 flex items-center justify-center hover:bg-ink-50 dark:hover:bg-ink-800">
+                <Minus size={14} aria-hidden="true" />
               </button>
-              <span className="w-8 text-center font-medium">{orderForm.quantity}</span>
+              <span className="w-8 text-center font-medium" role="status" aria-live="polite" aria-label={`Quantity ${orderForm.quantity}`}>{orderForm.quantity}</span>
               <button type="button"
+                aria-label="Increase quantity"
                 onClick={() => setOrderForm((f) => ({ ...f, quantity: Math.min(20, f.quantity + 1) }))}
-                className="w-9 h-9 rounded-lg border border-ink-200 dark:border-ink-800 flex items-center justify-center hover:bg-ink-50 dark:hover:bg-ink-800">
-                <Plus size={14} />
+                className="w-11 h-11 rounded-lg border border-ink-200 dark:border-ink-800 flex items-center justify-center hover:bg-ink-50 dark:hover:bg-ink-800">
+                <Plus size={14} aria-hidden="true" />
               </button>
               {orderProduct && (
                 <span className="text-sm text-ink-500 ml-auto">
