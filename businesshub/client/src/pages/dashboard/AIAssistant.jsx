@@ -139,7 +139,7 @@ export default function AIAssistant() {
             disabled={atLimit}
             onChange={(e) => setInput(e.target.value)}
           />
-          <button type="submit" disabled={loading || atLimit} className="btn-primary px-4"><Send size={16} /></button>
+          <button type="submit" disabled={loading || atLimit} aria-label="Send message" className="btn-primary px-4"><Send size={16} aria-hidden="true" /></button>
         </form>
       </Card>
     </div>

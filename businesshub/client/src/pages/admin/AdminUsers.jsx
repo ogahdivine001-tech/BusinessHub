@@ -59,7 +59,7 @@ export default function AdminUsers() {
                   <th className="px-5 py-2 font-medium">Email</th>
                   <th className="px-5 py-2 font-medium">Role</th>
                   <th className="px-5 py-2 font-medium">Status</th>
-                  <th className="px-5 py-2 font-medium"></th>
+                  <th className="px-5 py-2 font-medium"><span className="sr-only">Actions</span></th>
                 </tr>
               </thead>
               <tbody>

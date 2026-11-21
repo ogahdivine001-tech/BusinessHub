@@ -194,7 +194,7 @@ export default function Orders() {
                   <th className="px-5 py-2 font-medium">Payment</th>
                   <th className="px-5 py-2 font-medium">Status</th>
                   <th className="px-5 py-2 font-medium">Date</th>
-                  <th className="px-5 py-2 font-medium"></th>
+                  <th className="px-5 py-2 font-medium"><span className="sr-only">Actions</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -248,16 +248,20 @@ export default function Orders() {
                     <td className="px-5 py-3">
                       <div className="flex justify-end gap-1.5">
                         <button
+                          type="button"
                           onClick={() => setViewing(o)}
-                          className="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500"
+                          aria-label={`View order ${o.orderNumber}`}
+                          className="p-2.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500"
                         >
-                          <Eye size={14} />
+                          <Eye size={16} aria-hidden="true" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => setDeleteTarget(o)}
-                          className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"
+                          aria-label={`Delete order ${o.orderNumber}`}
+                          className="p-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={16} aria-hidden="true" />
                         </button>
                       </div>
                     </td>
@@ -289,11 +293,12 @@ export default function Orders() {
               </option>
             ))}
           </Select>
-          <div className="space-y-3">
-            <label className="label">Items</label>
+          <div className="space-y-3" role="group" aria-labelledby="order-items-label">
+            <p id="order-items-label" className="label">Items</p>
             {items.map((it, i) => (
               <div key={i} className="flex gap-2 items-center">
                 <select
+                  aria-label={`Item ${i + 1} product`}
                   className="input flex-1"
                   value={it.product}
                   onChange={(e) =>
@@ -308,6 +313,8 @@ export default function Orders() {
                 </select>
                 <input
                   type="number"
+                  inputMode="numeric"
+                  aria-label={`Item ${i + 1} quantity`}
                   min="1"
                   className="input w-20"
                   value={it.quantity}
@@ -319,9 +326,10 @@ export default function Orders() {
                   <button
                     type="button"
                     onClick={() => removeItemRow(i)}
-                    className="text-red-500 p-1"
+                    aria-label={`Remove item ${i + 1}`}
+                    className="text-red-500 p-2 -m-1"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={16} aria-hidden="true" />
                   </button>
                 )}
               </div>

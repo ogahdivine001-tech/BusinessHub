@@ -349,15 +349,13 @@ export default function MyBusiness() {
               alt="Cover"
             />
           )}
-          <label className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-colors cursor-pointer opacity-0 group-hover:opacity-100">
-            <span className="btn-secondary">
-              <Upload size={16} />{" "}
-              {uploading === "coverImage" ? "Uploading…" : "Change cover photo"}
-            </span>
+          <label className="btn-secondary absolute right-3 bottom-3 cursor-pointer focus-within:ring-2 focus-within:ring-brand-500">
+            <Upload size={16} aria-hidden="true" />{" "}
+            {uploading === "coverImage" ? "Uploading…" : "Change cover photo"}
             <input
               type="file"
               accept="image/*"
-              className="hidden"
+              className="sr-only"
               onChange={(e) => handleImageUpload(e, "coverImage")}
             />
           </label>
@@ -377,12 +375,16 @@ export default function MyBusiness() {
                   <Store size={24} className="text-ink-400" />
                 )}
               </div>
-              <label className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/50 transition-colors cursor-pointer opacity-0 group-hover:opacity-100">
-                <Upload size={16} className="text-white" />
+              <label
+                title="Change logo"
+                className="absolute bottom-0 right-0 w-8 h-8 rounded-tl-xl bg-black/65 text-white flex items-center justify-center cursor-pointer focus-within:ring-2 focus-within:ring-brand-400"
+              >
+                <Upload size={14} aria-hidden="true" />
+                <span className="sr-only">{uploading === "logo" ? "Uploading logo" : "Change logo"}</span>
                 <input
                   type="file"
                   accept="image/*"
-                  className="hidden"
+                  className="sr-only"
                   onChange={(e) => handleImageUpload(e, "logo")}
                 />
               </label>
@@ -390,7 +392,7 @@ export default function MyBusiness() {
             <div className="pb-1">
               <p className="text-sm font-medium">{business?.name}</p>
               <p className="text-xs text-ink-500 dark:text-ink-400">
-                Hover the cover or logo to change it
+                Use the buttons on the cover and logo to change them
               </p>
             </div>
           </div>
@@ -664,8 +666,8 @@ export default function MyBusiness() {
         <Card className="p-6 mb-5 space-y-4">
           <h3 className="font-semibold">Appearance</h3>
 
-          <div>
-            <label className="label">Business page style</label>
+          <div role="group" aria-labelledby="theme-group-label">
+            <p id="theme-group-label" className="label">Business page style</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {THEMES.map((t) => {
                 const locked = t.pro && !limits.premiumThemes;
@@ -674,6 +676,7 @@ export default function MyBusiness() {
                     key={t.value}
                     type="button"
                     disabled={locked}
+                    aria-pressed={business.theme === t.value}
                     onClick={() => update({ theme: t.value })}
                     className={`relative p-3 rounded-xl border text-left transition-colors ${
                       business.theme === t.value
@@ -738,12 +741,15 @@ export default function MyBusiness() {
             </div>
             <button
               type="button"
+              role="switch"
+              aria-checked={Boolean(business.hideBranding)}
+              aria-label="Hide BusinessHub branding"
               disabled={!limits.customBranding}
               onClick={() => update({ hideBranding: !business.hideBranding })}
               className={`w-12 h-7 rounded-full p-1 shrink-0 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${business.hideBranding ? "bg-brand-600" : "bg-ink-300 dark:bg-ink-700"}`}
             >
-              <div
-                className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${business.hideBranding ? "translate-x-5" : ""}`}
+              <span
+                className={`block w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${business.hideBranding ? "translate-x-5" : ""}`}
               />
             </button>
           </div>

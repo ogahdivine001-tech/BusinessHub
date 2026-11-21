@@ -15,7 +15,7 @@ import {
   Check,
   ChevronDown,
 } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import useLivePlans from "../hooks/useLivePlans";
 
@@ -156,17 +156,27 @@ const FAQS = [
 
 function Faq({ q, a }) {
   const [open, setOpen] = useState(false);
+  const panelId = useId();
   return (
-    <div className="card p-5 cursor-pointer" onClick={() => setOpen(!open)}>
-      <div className="flex items-center justify-between">
-        <h4 className="font-medium text-sm sm:text-base pr-4">{q}</h4>
-        <ChevronDown
-          size={18}
-          className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
-        />
-      </div>
+    <div className="card p-5">
+      <h4 className="font-medium text-sm sm:text-base">
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          aria-expanded={open}
+          aria-controls={panelId}
+          className="w-full flex items-center justify-between gap-4 text-left"
+        >
+          <span>{q}</span>
+          <ChevronDown
+            size={18}
+            aria-hidden="true"
+            className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+          />
+        </button>
+      </h4>
       {open && (
-        <p className="text-sm text-ink-600 dark:text-ink-400 mt-3">{a}</p>
+        <p id={panelId} className="text-sm text-ink-600 dark:text-ink-400 mt-3">{a}</p>
       )}
     </div>
   );

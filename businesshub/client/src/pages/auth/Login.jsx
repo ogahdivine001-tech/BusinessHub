@@ -48,6 +48,8 @@ export default function Login() {
             <Input
               label="Email"
               type="email"
+              autoComplete="email"
+              inputMode="email"
               required
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -56,6 +58,7 @@ export default function Login() {
             <Input
               label="Password"
               type="password"
+              autoComplete="current-password"
               required
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}

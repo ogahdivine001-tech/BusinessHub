@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import useDialog from '../hooks/useDialog';
+import SkipLink from '../components/SkipLink';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Store, Package, ShoppingCart, Users, FileText, Receipt,
@@ -49,7 +51,7 @@ function SidebarContent({ onNavigate }) {
       <div className="px-5 py-5 border-b border-ink-100 dark:border-ink-800">
         <Logo to="/dashboard" />
       </div>
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+      <nav aria-label="Dashboard" className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
         {NAV.map(({ to, label, icon: Icon, end, badge }) => (
           <NavLink
             key={to}
@@ -104,8 +106,8 @@ function SidebarContent({ onNavigate }) {
             <p className="text-sm font-medium truncate">{user?.fullName}</p>
             <p className="text-xs text-ink-500 truncate">{user?.email}</p>
           </div>
-          <button onClick={handleLogout} title="Log out" className="text-ink-400 hover:text-red-600">
-            <LogOut size={16} />
+          <button type="button" onClick={handleLogout} aria-label="Log out" title="Log out" className="-m-2 p-2 text-ink-500 hover:text-red-600">
+            <LogOut size={16} aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -154,31 +156,58 @@ function TrialBanner() {
   );
 }
 
+// Mobile navigation drawer. Mounted only while open, so the dialog behaviour
+// (Escape, focus trap, focus return, scroll lock) is active exactly then.
+function MobileDrawer({ onClose }) {
+  const ref = useDialog(true, onClose);
+  return (
+    <div className="fixed inset-0 z-40 lg:hidden">
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-label="Close menu"
+        className="absolute inset-0 w-full h-full bg-black/40 cursor-default"
+        onClick={onClose}
+      />
+      <aside
+        ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
+        tabIndex={-1}
+        className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] overflow-y-auto bg-white dark:bg-ink-900 shadow-xl outline-none"
+      >
+        <SidebarContent onNavigate={onClose} />
+      </aside>
+    </div>
+  );
+}
+
 export default function DashboardLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-ink-50 dark:bg-ink-950">
+    <div className="flex h-screen h-dvh bg-ink-50 dark:bg-ink-950">
+      <SkipLink />
       {/* Desktop sidebar */}
       <aside className="hidden lg:block w-64 border-r border-ink-100 dark:border-ink-800 bg-white dark:bg-ink-900 shrink-0">
         <SidebarContent />
       </aside>
 
       {/* Mobile sidebar */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-white dark:bg-ink-900 shadow-xl">
-            <SidebarContent onNavigate={() => setMobileOpen(false)} />
-          </aside>
-        </div>
-      )}
+      {mobileOpen && <MobileDrawer onClose={() => setMobileOpen(false)} />}
 
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile top bar */}
         <header className="lg:hidden flex items-center justify-between px-4 h-14 border-b border-ink-100 dark:border-ink-800 bg-white dark:bg-ink-900 shrink-0">
-          <button onClick={() => setMobileOpen(true)} className="text-ink-600 dark:text-ink-300">
-            <Menu size={22} />
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+            aria-expanded={mobileOpen}
+            className="-m-2 p-2 text-ink-600 dark:text-ink-300"
+          >
+            <Menu size={22} aria-hidden="true" />
           </button>
           <Logo to="/dashboard" size="sm" />
           <NotificationBell />
@@ -190,7 +219,7 @@ export default function DashboardLayout() {
           <NotificationBell />
         </header>
 
-        <main className="flex-1 overflow-y-auto">
+        <main id="main-content" tabIndex={-1} className="flex-1 overflow-y-auto outline-none">
           <TrialBanner />
           <Outlet />
         </main>

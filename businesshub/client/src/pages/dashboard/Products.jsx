@@ -214,11 +214,11 @@ export default function Products() {
                       )}
                     </span>
                     <div className="flex gap-1.5">
-                      <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500">
-                        <Pencil size={14} />
+                      <button type="button" onClick={() => openEdit(p)} aria-label={`Edit ${p.name}`} className="p-2.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500">
+                        <Pencil size={16} aria-hidden="true" />
                       </button>
-                      <button onClick={() => setDeleteTarget(p)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500">
-                        <Trash2 size={14} />
+                      <button type="button" onClick={() => setDeleteTarget(p)} aria-label={`Delete ${p.name}`} className="p-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500">
+                        <Trash2 size={16} aria-hidden="true" />
                       </button>
                     </div>
                   </div>
@@ -232,22 +232,23 @@ export default function Products() {
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit product' : 'Add product'}>
         <form onSubmit={save} className="space-y-4">
-          <div>
-            <label className="label">Photos</label>
+          <div role="group" aria-labelledby="product-photos-label">
+            <p id="product-photos-label" className="label">Photos</p>
             <div className="flex flex-wrap gap-3">
               {images.map((img, i) => (
                 <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-ink-200 dark:border-ink-800 group">
                   <img src={typeof img === 'string' ? img : img.url} className="w-full h-full object-cover" alt="" />
                   <button type="button" onClick={() => removeImage(i)}
-                    className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition-opacity">
-                    Remove
+                    aria-label={`Remove photo ${i + 1}`}
+                    className="absolute top-1 right-1 w-7 h-7 rounded-full bg-black/65 text-white flex items-center justify-center text-sm leading-none">
+                    <span aria-hidden="true">×</span>
                   </button>
                 </div>
               ))}
               {images.length < 5 && (
-                <label className="w-20 h-20 rounded-xl border-2 border-dashed border-ink-200 dark:border-ink-800 flex items-center justify-center cursor-pointer text-ink-400 hover:border-brand-400 hover:text-brand-500 text-xs text-center px-1">
+                <label className="w-20 h-20 rounded-xl border-2 border-dashed border-ink-200 dark:border-ink-800 flex items-center justify-center cursor-pointer text-ink-500 hover:border-brand-400 hover:text-brand-500 focus-within:ring-2 focus-within:ring-brand-500 text-xs text-center px-1">
                   {uploading ? 'Uploading…' : '+ Add photo'}
-                  <input type="file" accept="image/*" multiple className="hidden"
+                  <input type="file" accept="image/*" multiple className="sr-only"
                     onChange={(e) => e.target.files?.length && addImageFiles(e.target.files)} />
                 </label>
               )}
