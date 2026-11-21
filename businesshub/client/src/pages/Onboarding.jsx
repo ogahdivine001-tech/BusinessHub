@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -44,6 +44,14 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
   const [step, setStep] = useState(0);
+  // Move focus to the new step's heading when the step changes (not on first
+  // load, where grabbing focus would skip the page intro for screen readers).
+  const stepRef = useRef(null);
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return; }
+    stepRef.current?.focus();
+  }, [step]);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [form, setForm] = useState({
@@ -138,17 +146,19 @@ export default function Onboarding() {
           </div>
 
           <div className="card p-7 min-h-[380px] flex flex-col">
-            <p className="text-xs font-medium text-brand-600 uppercase tracking-wide mb-1">
+            <p className="text-xs font-medium text-brand-600 uppercase tracking-wide mb-1" aria-live="polite">
               Step {step + 1} of {STEPS.length}
             </p>
             <AnimatePresence mode="wait">
               <motion.div
                 key={step}
+                ref={stepRef}
+                tabIndex={-1}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
-                className="flex-1"
+                className="flex-1 outline-none"
               >
                 {step === 0 && (
                   <>
@@ -156,7 +166,6 @@ export default function Onboarding() {
                       What's your business called?
                     </h2>
                     <Input
-                      autoFocus
                       value={form.name}
                       onChange={(e) => update({ name: e.target.value })}
                       placeholder="e.g. Divine Fashion"

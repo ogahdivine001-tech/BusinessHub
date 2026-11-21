@@ -145,7 +145,7 @@ export default function Receipts() {
                   <th className="px-5 py-2 font-medium">Total</th>
                   <th className="px-5 py-2 font-medium">Method</th>
                   <th className="px-5 py-2 font-medium">Date</th>
-                  <th className="px-5 py-2 font-medium"></th>
+                  <th className="px-5 py-2 font-medium"><span className="sr-only">Actions</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -160,7 +160,7 @@ export default function Receipts() {
                       <div className="flex justify-end gap-1.5">
                         <a href={receiptService.pdfUrl(r)} target="_blank" rel="noreferrer" title="Download PDF" className="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500"><Download size={14} /></a>
                         <button onClick={() => shareReceipt(r)} title="Share" className="p-1.5 rounded-lg hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-500"><Share2 size={14} /></button>
-                        <button onClick={() => setDeleteTarget(r)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"><Trash2 size={14} /></button>
+                        <button type="button" onClick={() => setDeleteTarget(r)} aria-label={`Delete receipt ${r.receiptNumber}`} className="p-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"><Trash2 size={16} aria-hidden="true" /></button>
                       </div>
                     </td>
                   </tr>
@@ -180,14 +180,14 @@ export default function Receipts() {
           <Select label="Payment method" value={form.paymentMethod} onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}>
             {PAYMENT_METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
           </Select>
-          <div className="space-y-3">
-            <label className="label">Items</label>
+          <div className="space-y-3" role="group" aria-labelledby="line-items-label">
+            <p id="line-items-label" className="label">Items</p>
             {items.map((it, i) => (
               <div key={i} className="flex gap-2 items-center">
-                <input className="input flex-1" placeholder="Description" value={it.description} onChange={(e) => updateItem(i, { description: e.target.value })} />
-                <input type="number" min="1" className="input w-16" placeholder="Qty" value={it.quantity} onChange={(e) => updateItem(i, { quantity: e.target.value })} />
-                <input type="number" min="0" className="input w-24" placeholder="Price" value={it.price} onChange={(e) => updateItem(i, { price: e.target.value })} />
-                {items.length > 1 && <button type="button" onClick={() => removeItem(i)} className="text-red-500 p-1"><Trash2 size={16} /></button>}
+                <input aria-label={`Item ${i + 1} description`} className="input flex-1" placeholder="Description" value={it.description} onChange={(e) => updateItem(i, { description: e.target.value })} />
+                <input type="number" inputMode="numeric" aria-label={`Item ${i + 1} quantity`} min="1" className="input w-16" placeholder="Qty" value={it.quantity} onChange={(e) => updateItem(i, { quantity: e.target.value })} />
+                <input type="number" inputMode="decimal" aria-label={`Item ${i + 1} price`} min="0" className="input w-24" placeholder="Price" value={it.price} onChange={(e) => updateItem(i, { price: e.target.value })} />
+                {items.length > 1 && <button type="button" onClick={() => removeItem(i)} aria-label={`Remove item ${i + 1}`} className="text-red-500 p-2 -m-1"><Trash2 size={16} aria-hidden="true" /></button>}
               </div>
             ))}
             <button type="button" onClick={addItem} className="text-sm text-brand-600 hover:underline">+ Add item</button>

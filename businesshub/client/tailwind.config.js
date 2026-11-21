@@ -38,8 +38,10 @@ export default {
           100: '#f3f0e9',
           200: '#e6e1d6',
           300: '#d1cabb',
-          400: '#a89f8c',
-          500: '#7d7565',
+          // 400/500 are CSS variables (see index.css) so muted text can meet
+          // WCAG AA contrast on light surfaces and still look right in dark mode.
+          400: 'rgb(var(--ink-400) / <alpha-value>)',
+          500: 'rgb(var(--ink-500) / <alpha-value>)',
           600: '#5b5548',
           700: '#413d34',
           800: '#2c2924',

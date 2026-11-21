@@ -56,8 +56,8 @@ function ToolCard({ title, description, fields, type, buildParams, atLimit, onGe
       {result && (
         <div className="mt-4 relative">
           <div className="bg-ink-50 dark:bg-ink-800 rounded-xl p-4 text-sm whitespace-pre-wrap">{result}</div>
-          <button onClick={copy} className="absolute top-2 right-2 p-1.5 rounded-lg bg-white dark:bg-ink-900 shadow-sm hover:bg-ink-100 dark:hover:bg-ink-700">
-            <Copy size={14} />
+          <button type="button" onClick={copy} aria-label="Copy text" className="absolute top-2 right-2 p-2.5 rounded-lg bg-white dark:bg-ink-900 shadow-sm hover:bg-ink-100 dark:hover:bg-ink-700">
+            <Copy size={16} aria-hidden="true" />
           </button>
         </div>
       )}

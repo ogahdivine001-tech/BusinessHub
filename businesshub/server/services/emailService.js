@@ -1,17 +1,25 @@
 const nodemailer = require("nodemailer");
 
-// Configured via env vars — defaults are set for Zoho Mail since that's
-// what BusinessHub uses, but any SMTP provider works by overriding
-// SMTP_HOST/SMTP_PORT. Gracefully degrades (logs instead of throwing) when
-// not configured, same pattern as every other optional integration in
-// this app (Cloudinary, AI, Paystack) — a missing email config should
-// never break the actual password-reset flow, just skip the email step.
-const isConfigured = () =>
-  Boolean(
-    process.env.RESEND_API_KEY ||
-      (process.env.SMTP_USER && process.env.SMTP_PASS),
-  );
+// Email providers, in priority order:
+//   1. Brevo (HTTPS API)  - BREVO_API_KEY + BREVO_FROM   <- preferred
+//   2. Resend (HTTPS API) - RESEND_API_KEY               (kept as a fallback)
+//   3. SMTP               - SMTP_USER + SMTP_PASS        (kept as a fallback;
+//                           Brevo's SMTP relay also works here)
+// A missing email config never breaks the flow that triggered it (password
+// reset, sign-up...): the email step is skipped and logged instead.
+const EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
+const brevoReady = () =>
+  Boolean(process.env.BREVO_API_KEY && EMAIL_RE.test(String(process.env.BREVO_FROM || "").trim()));
 
+function activeProvider() {
+  if (brevoReady()) return "brevo";
+  if (process.env.RESEND_API_KEY) return "resend";
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) return "smtp";
+  return null;
+}
+const isConfigured = () => activeProvider() !== null;
+
+let warnedBrevoSender = false;
 let transporter = null;
 function getTransporter() {
   if (!transporter) {
@@ -24,11 +32,8 @@ function getTransporter() {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-      // Without explicit timeouts, a blocked or slow SMTP connection can
-      // hang the underlying socket indefinitely — which in turn hangs
-      // whatever HTTP request triggered it. These force a fast, clear
-      // failure instead, so problems show up in logs within 10s rather
-      // than leaving the request pending forever.
+      // Explicit timeouts so a blocked SMTP connection fails fast instead of
+      // hanging the HTTP request that triggered it.
       connectionTimeout: 10000,
       greetingTimeout: 10000,
       socketTimeout: 10000,
@@ -37,53 +42,82 @@ function getTransporter() {
   return transporter;
 }
 
+// Brevo transactional email: POST /v3/smtp/email. The sender address must be a
+// verified sender or domain in your Brevo account, otherwise Brevo rejects it.
+async function sendViaBrevo({ to, subject, html }) {
+  const sender = { email: String(process.env.BREVO_FROM).trim(), name: process.env.BREVO_FROM_NAME || "BusinessHub" };
+  const body = { sender, to: [{ email: to }], subject, htmlContent: html };
+  const replyTo = String(process.env.BREVO_REPLY_TO || "").trim();
+  if (EMAIL_RE.test(replyTo)) body.replyTo = { email: replyTo };
+
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "api-key": process.env.BREVO_API_KEY,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(Number(process.env.EMAIL_TIMEOUT_MS) || 15000),
+  });
+  if (!response.ok) {
+    let details = "";
+    try {
+      const j = await response.json();
+      details = j.message || j.code || "";
+    } catch {
+      /* body was not JSON */
+    }
+    throw new Error(`Brevo returned ${response.status}${details ? `: ${details}` : ""}`);
+  }
+  const result = await response.json().catch(() => ({}));
+  console.log(`[email] Sent "${subject}" to ${to} via Brevo - id: ${result.messageId || "n/a"}`);
+  return { sent: true };
+}
+
 async function sendEmail({ to, subject, html }) {
-  if (!isConfigured()) {
-    console.log(
-      `[email] SMTP not configured — would have sent "${subject}" to ${to}`,
-    );
+  if (process.env.BREVO_API_KEY && !brevoReady() && !warnedBrevoSender) {
+    warnedBrevoSender = true;
+    console.warn("[email] BREVO_API_KEY is set but BREVO_FROM is missing or not a valid email - Brevo will not be used.");
+  }
+  const provider = activeProvider();
+  if (!provider) {
+    console.log(`[email] No email provider configured - would have sent "${subject}" to ${to}`);
     return { sent: false };
   }
-  if (process.env.RESEND_API_KEY) {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: process.env.RESEND_FROM || "BusinessHub <onboarding@resend.dev>",
-        to: [to],
-        subject,
-        html,
-      }),
-    });
-    if (!response.ok) {
-      const details = await response.text();
-      throw new Error(`Resend returned ${response.status}: ${details}`);
-    }
-    const result = await response.json();
-    console.log(`[email] Sent "${subject}" to ${to} via Resend — id: ${result.id}`);
-    return { sent: true };
-  }
-  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
   try {
-    const info = await getTransporter().sendMail({
-      from: `"BusinessHub" <${from}>`,
-      to,
-      subject,
-      html,
-    });
-    // Zoho accepting the message doesn't guarantee inbox delivery (could
-    // still land in spam, or be silently dropped by the receiving
-    // server) — but this at least confirms OUR side succeeded, which is
-    // the piece we couldn't previously distinguish from a silent failure.
-    console.log(
-      `[email] Sent "${subject}" to ${to} — messageId: ${info.messageId}`,
-    );
+    if (provider === "brevo") return await sendViaBrevo({ to, subject, html });
+
+    if (provider === "resend") {
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: process.env.RESEND_FROM || "BusinessHub <onboarding@resend.dev>",
+          to: [to],
+          subject,
+          html,
+        }),
+        signal: AbortSignal.timeout(Number(process.env.EMAIL_TIMEOUT_MS) || 15000),
+      });
+      if (!response.ok) {
+        const details = await response.text();
+        throw new Error(`Resend returned ${response.status}: ${details}`);
+      }
+      const result = await response.json();
+      console.log(`[email] Sent "${subject}" to ${to} via Resend - id: ${result.id}`);
+      return { sent: true };
+    }
+
+    const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+    const info = await getTransporter().sendMail({ from: `"BusinessHub" <${from}>`, to, subject, html });
+    console.log(`[email] Sent "${subject}" to ${to} via SMTP - messageId: ${info.messageId}`);
     return { sent: true };
   } catch (err) {
-    console.error(`[email] FAILED to send "${subject}" to ${to}:`, err.message);
+    console.error(`[email] FAILED to send "${subject}" to ${to} via ${provider}:`, err.message);
     throw err;
   }
 }
@@ -182,4 +216,4 @@ async function sendVerificationEmail(to, verifyUrl, fullName) {
   return sendEmail({ to, subject: "Confirm your BusinessHub email", html });
 }
 
-module.exports = { sendEmail, sendPasswordResetEmail, sendWelcomeEmail, sendAdminMessageEmail, sendVerificationEmail, isConfigured };
+module.exports = { activeProvider, sendEmail, sendPasswordResetEmail, sendWelcomeEmail, sendAdminMessageEmail, sendVerificationEmail, isConfigured };

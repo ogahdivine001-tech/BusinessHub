@@ -46,7 +46,7 @@ export default function ForgotPassword() {
               <h1 className="text-xl font-bold text-center">Forgot your password?</h1>
               <p className="text-sm text-ink-600 dark:text-ink-400 text-center mt-1">We'll send you a reset link</p>
               <form onSubmit={onSubmit} className="mt-6 space-y-4">
-                <Input label="Email" type="email" required value={email}
+                <Input label="Email" type="email" autoComplete="email" inputMode="email" required value={email}
                   onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
                 <button type="submit" disabled={loading} className="btn-primary w-full">
                   {loading ? 'Sending…' : 'Send reset link'}

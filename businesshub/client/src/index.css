@@ -3,11 +3,46 @@
 @tailwind utilities;
 
 @layer base {
+  /* Muted text colours. Light values are darkened from the original palette
+     (#a89f8c / #7d7565) so hints and secondary text reach 4.5:1 contrast on the
+     cream surfaces; dark mode keeps the lighter tones. Channels are "r g b". */
+  :root {
+    --ink-400: 114 106 91;   /* #726a5b */
+    --ink-500: 107 99 84;    /* #6b6354 */
+  }
+  .dark {
+    --ink-400: 168 159 140;  /* #a89f8c */
+    --ink-500: 154 145 127;  /* #9a917f */
+  }
+
   html {
     @apply scroll-smooth;
+    -webkit-text-size-adjust: 100%;
   }
   body {
     @apply bg-ink-50 text-ink-900 dark:bg-ink-950 dark:text-ink-100 font-sans antialiased;
+  }
+
+  /* One visible focus ring for keyboard users on everything interactive.
+     Inputs already draw their own ring, so they are left alone. */
+  :where(a, button, summary, [role="button"], [role="switch"], [tabindex]):focus-visible {
+    outline: 2px solid theme('colors.brand.500');
+    outline-offset: 2px;
+  }
+  .dark :where(a, button, summary, [role="button"], [role="switch"], [tabindex]):focus-visible {
+    outline-color: theme('colors.brand.400');
+  }
+  [tabindex="-1"]:focus { outline: none; }
+
+  /* Respect the "reduce motion" setting. */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -37,7 +72,7 @@
     @apply card transition-shadow duration-200 hover:shadow-card-hover;
   }
   .input {
-    @apply w-full rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 px-3.5 py-2.5 text-sm placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition;
+    @apply w-full rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 px-3.5 py-2.5 text-base sm:text-sm placeholder:text-ink-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition;
   }
   .label {
     @apply block text-sm font-medium text-ink-700 dark:text-ink-300 mb-1.5;
