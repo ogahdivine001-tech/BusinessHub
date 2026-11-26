@@ -24,4 +24,4 @@ No. A business cannot remove or edit reviews about itself. If you think a review
 A logged-in customer can follow a business and unfollow it later. The follower count is the real number of people currently following. You cannot follow your own business.
 
 ## Where can I see the businesses I follow and the reviews I wrote?
-Open **My account**. **Following** lists the businesses you follow, with a way to unfollow, and **My reviews** lists every review you have written, including any that a moderator hid. Sellers find the same pages under **Following & reviews** in their dashboard menu.
+Open **My account**. **Following** lists the businesses you follow, with a way to unfollow, and **My reviews** lists every review you have written, including any that a moderator hid. **My orders** lists orders you placed while logged in. Sellers find the same pages under **Orders, following & reviews** in their dashboard menu.

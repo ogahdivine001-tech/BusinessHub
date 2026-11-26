@@ -116,7 +116,7 @@ test('admins can filter people by role, and bad role values are ignored', async 
 // ============================================================ nobody reaches seller tools by accident
 test('every seller-only route file is guarded against customers', () => {
   // Route files that are intentionally open to any logged-in or anonymous person.
-  const OPEN = new Set(['authRoutes.js', 'followRoutes.js', 'reviewRoutes.js', 'discoverRoutes.js', 'helpRoutes.js', 'planRoutes.js', 'notificationRoutes.js', 'settingsRoutes.js', 'businessRoutes.js', 'adminRoutes.js', 'subscriptionRoutes.js']);
+  const OPEN = new Set(['authRoutes.js', 'followRoutes.js', 'reviewRoutes.js', 'discoverRoutes.js', 'helpRoutes.js', 'planRoutes.js', 'notificationRoutes.js', 'settingsRoutes.js', 'businessRoutes.js', 'adminRoutes.js', 'subscriptionRoutes.js', 'myOrderRoutes.js']);
   const unguarded = [];
   for (const f of fs.readdirSync(path.join(root, 'routes'))) {
     if (OPEN.has(f)) continue;

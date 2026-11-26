@@ -7,6 +7,7 @@ import AdminRoute from './routes/AdminRoute';
 import AccountRoute from './routes/AccountRoute';
 import AccountLayout from './layouts/AccountLayout';
 import AccountHome from './pages/account/AccountHome';
+import MyOrders from './pages/account/MyOrders';
 import Following from './pages/account/Following';
 import MyReviews from './pages/account/MyReviews';
 import AccountSettings from './pages/account/AccountSettings';
@@ -89,6 +90,7 @@ export default function App() {
       <Route element={<AccountRoute />}>
         <Route element={<AccountLayout />}>
           <Route path="/account" element={<AccountHome />} />
+          <Route path="/account/orders" element={<MyOrders />} />
           <Route path="/account/following" element={<Following />} />
           <Route path="/account/reviews" element={<MyReviews />} />
           <Route path="/account/notifications" element={<Notifications />} />

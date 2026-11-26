@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Bell, Compass, HeartHandshake, HelpCircle, LayoutDashboard, LogOut, MessageSquareText, Moon, Settings, Sun } from 'lucide-react';
+import { Bell, Compass, HeartHandshake, HelpCircle, LayoutDashboard, LogOut, MessageSquareText, Moon, Settings, ShoppingBag, Sun } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Logo from '../components/Logo';
 import SkipLink from '../components/SkipLink';
@@ -9,6 +9,7 @@ import { useTheme } from '../context/ThemeContext';
 
 const TABS = [
   { to: '/account', label: 'Overview', icon: LayoutDashboard, end: true },
+  { to: '/account/orders', label: 'My orders', icon: ShoppingBag },
   { to: '/account/following', label: 'Following', icon: HeartHandshake },
   { to: '/account/reviews', label: 'My reviews', icon: MessageSquareText },
   { to: '/account/notifications', label: 'Notifications', icon: Bell },

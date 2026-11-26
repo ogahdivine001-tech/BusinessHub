@@ -28,7 +28,7 @@ const NAV = [
   { to: '/dashboard/ai-assistant', label: 'AI Assistant', icon: Sparkles },
   { to: '/dashboard/marketing', label: 'Marketing', icon: Megaphone },
   { to: '/dashboard/verification', label: 'Verification', icon: BadgeCheck },
-  { to: '/account', label: 'Following & reviews', icon: HeartHandshake },
+  { to: '/account', label: 'Orders, following & reviews', icon: HeartHandshake },
   { to: '/dashboard/notifications', label: 'Notifications', icon: Bell, badge: true },
   { to: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];

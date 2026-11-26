@@ -14,6 +14,10 @@ const orderSchema = new mongoose.Schema(
   {
     business: { type: mongoose.Schema.Types.ObjectId, ref: 'Business', required: true, index: true },
     customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
+    // The BusinessHub account that placed this order, when they were logged in at
+    // checkout. Absent on anonymous orders and on every order placed before this
+    // field existed (those only have a name and phone, so they are never guessed at).
+    buyer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
     orderNumber: { type: String, required: true, unique: true },
     items: [orderItemSchema],
     total: { type: Number, required: true, min: 0 },

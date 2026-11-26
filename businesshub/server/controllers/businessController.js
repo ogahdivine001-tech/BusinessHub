@@ -212,9 +212,18 @@ const createPublicOrder = asyncHandler(async (req, res) => {
     });
   }
 
+  // If the person was logged in, remember the order on their account so it shows
+  // up in "My orders". A business owner ordering from their own storefront is not
+  // a customer order, and anonymous orders stay anonymous.
+  const buyerId =
+    req.user && String(req.user._id) !== String(business.owner)
+      ? req.user._id
+      : undefined;
+
   const order = await Order.create({
     business: business._id,
     customer: customer._id,
+    ...(buyerId ? { buyer: buyerId } : {}),
     orderNumber: generateOrderNumber(),
     items: [{ product: product._id, name: product.name, price, quantity: qty }],
     total,
@@ -252,6 +261,7 @@ const createPublicOrder = asyncHandler(async (req, res) => {
       productName: product.name,
       quantity: qty,
       total,
+      savedToAccount: Boolean(buyerId),
     },
   });
 });

@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Compass, HeartHandshake, MailCheck, MessageSquareText, Store } from 'lucide-react';
+import { Compass, HeartHandshake, MailCheck, MessageSquareText, ShoppingBag, Store } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Card from '../../components/Card';
 import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/authService';
 import { engageService } from '../../services/engageService';
+import { myOrderService } from '../../services/myOrderService';
 
 export default function AccountHome() {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
-  const [counts, setCounts] = useState({ following: null, reviews: null });
+  const [counts, setCounts] = useState({ orders: null, following: null, reviews: null });
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [sending, setSending] = useState(false);
@@ -18,8 +19,12 @@ export default function AccountHome() {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.allSettled([engageService.following(1), engageService.myReviews(1)]).then(([f, r]) => {
-      if (!cancelled) setCounts({ following: f.status === 'fulfilled' ? f.value.total : null, reviews: r.status === 'fulfilled' ? r.value.total : null });
+    Promise.allSettled([engageService.following(1), engageService.myReviews(1), myOrderService.list(1)]).then(([f, r, o]) => {
+      if (!cancelled) setCounts({
+        following: f.status === 'fulfilled' ? f.value.total : null,
+        reviews: r.status === 'fulfilled' ? r.value.total : null,
+        orders: o.status === 'fulfilled' ? o.value.total : null,
+      });
     });
     return () => { cancelled = true; };
   }, []);
@@ -61,15 +66,16 @@ export default function AccountHome() {
         </Card>
       )}
 
-      <div className="grid sm:grid-cols-3 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {tile('/discover', Compass, 'Discover businesses', 'Browse')}
+        {tile('/account/orders', ShoppingBag, 'Your orders', counts.orders)}
         {tile('/account/following', HeartHandshake, 'Businesses you follow', counts.following)}
         {tile('/account/reviews', MessageSquareText, 'Reviews you wrote', counts.reviews)}
       </div>
 
       <Card className="p-5">
         <h2 className="font-semibold">About ordering</h2>
-        <p className="text-sm text-ink-500 mt-1">When you order from a business page, the business gets your name and phone number and confirms the order with you directly, usually on WhatsApp. BusinessHub does not take payment for orders, so you agree how to pay and receive your order with the business. You do not need an account to place an order.</p>
+        <p className="text-sm text-ink-500 mt-1">When you order from a business page, the business gets your name and phone number and confirms the order with you directly, usually on WhatsApp. BusinessHub does not take payment for orders, so you agree how to pay and receive your order with the business. You do not need an account to place an order. If you are logged in when you order, it is also saved under <Link to="/account/orders" className="underline">My orders</Link>. Orders placed earlier, or without logging in, cannot be added.</p>
       </Card>
 
       {isBuyer && (

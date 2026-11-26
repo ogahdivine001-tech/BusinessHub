@@ -29,6 +29,28 @@ const protect = asyncHandler(async (req, res, next) => {
   next();
 });
 
+// Like protect, but never blocks: a missing, expired or invalid token simply means
+// "anonymous". Used where a visitor may or may not be logged in (placing an order
+// from a public storefront) so a stale login can never stop someone buying.
+const optionalAuth = async (req, res, next) => {
+  try {
+    let token;
+    if (req.headers.authorization?.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies?.token) {
+      token = req.cookies.token;
+    }
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id);
+      if (user && user.isActive) req.user = user;
+    }
+  } catch (err) {
+    /* bad or expired token: carry on as an anonymous visitor */
+  }
+  next();
+};
+
 const requireRole = (...roles) => (req, res, next) => {
   if (!req.user || !roles.includes(req.user.role)) {
     throw new ApiError(403, 'You do not have permission to perform this action.');
@@ -36,4 +58,4 @@ const requireRole = (...roles) => (req, res, next) => {
   next();
 };
 
-module.exports = { protect, requireRole };
+module.exports = { protect, optionalAuth, requireRole };

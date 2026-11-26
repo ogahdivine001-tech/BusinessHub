@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { MapPin, Phone, Mail, Store as StoreIcon, ImageIcon, Instagram, Facebook, Twitter, Globe, Minus, Plus, Clock, Truck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Logo from '../../components/Logo';
@@ -9,6 +9,7 @@ import Input from '../../components/Input';
 import WhatsAppButton from '../../components/WhatsAppButton';
 import EmptyState from '../../components/EmptyState';
 import { CardSkeleton } from '../../components/Skeleton';
+import { useAuth } from '../../context/AuthContext';
 import { businessService } from '../../services/businessService';
 import { applyStoreSeo } from '../../utils/seo';
 import VerifiedBadge from '../../components/VerifiedBadge';
@@ -34,6 +35,7 @@ function buildWhatsAppUrl(whatsapp, message) {
 
 export default function Store() {
   const { slug } = useParams();
+  const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -58,7 +60,8 @@ export default function Store() {
 
   const openOrderModal = (product) => {
     setOrderProduct(product);
-    setOrderForm({ name: '', phone: '', quantity: 1 });
+    // Logged-in customers get their details filled in (they can still change them).
+    setOrderForm({ name: user?.fullName || '', phone: user?.phone || '', quantity: 1 });
   };
 
   const submitOrder = async (e) => {
@@ -82,7 +85,11 @@ export default function Store() {
       const waMessage = `Hello ${data.business.name}, I just placed order ${result.orderNumber} for ${result.quantity} x ${result.productName} (₦${result.total.toLocaleString()}). My name is ${orderForm.name}.`;
       window.open(buildWhatsAppUrl(data.business.whatsapp, waMessage), '_blank', 'noopener,noreferrer');
 
-      toast.success(`Order ${result.orderNumber} placed! Opening WhatsApp to confirm...`);
+      toast.success(
+        result.savedToAccount
+          ? `Order ${result.orderNumber} placed and saved to My orders. Opening WhatsApp to confirm...`
+          : `Order ${result.orderNumber} placed! Opening WhatsApp to confirm...`
+      );
       setOrderProduct(null);
     } catch (err) {
       toast.error(err.message);
@@ -270,6 +277,12 @@ export default function Store() {
           <p className="text-sm text-ink-500">
             We'll note your order and open WhatsApp so you can confirm details with {business.name}.
           </p>
+          {!user && (
+            <p className="text-xs text-ink-500">
+              Want to keep track of this order? <Link to="/login" className="underline">Log in</Link> or{' '}
+              <Link to="/register?type=buyer" className="underline">create a free customer account</Link> first. You can also order without one.
+            </p>
+          )}
           <Input
             label="Your name"
             autoComplete="name"
